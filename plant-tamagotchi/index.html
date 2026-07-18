@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>새싹이의 정원 🌱</title>
+  <link rel="stylesheet" href="style.css?v=dev2" />
+</head>
+<body>
+  <div class="game-frame">
+    <div class="scene-window" id="sceneWindow">
+      <div class="layers" id="layers"></div>
+
+      <!-- 도전과제 버튼 (나무 재질 + 픽셀 전구) -->
+      <button id="achBtn" class="ach-btn" title="도전과제" aria-label="도전과제">
+        <img id="achImg" alt="도전과제" />
+      </button>
+
+      <!-- 도움말 버튼 -->
+      <button id="helpBtn" class="ach-btn help-btn" title="도움말" aria-label="도움말">
+        <img id="helpImg" alt="도움말" />
+      </button>
+
+      <!-- 전체화면 버튼 (우측 상단) -->
+      <button id="fsBtn" class="fs-btn" title="전체화면" aria-label="전체화면">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+        </svg>
+      </button>
+
+      <!-- 경험치 바 -->
+      <img id="expBar" alt="" />
+
+      <div class="placeholder" id="placeholder">
+        <div class="ph-card">
+          <div class="ph-emoji">🖼️ 🌱</div>
+          <p>이미지를 불러오는 중…</p>
+          <small>안 보이면 파일 경로 확인 후 F5</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 개발용 컨트롤 (나중에 제거) -->
+  <div class="dev-bar">
+    <div class="dev-group">
+      <span class="dev-title">⏱ 시간대</span>
+      <button id="todPrev">◀</button>
+      <span class="val" id="todLabel">1/10</span>
+      <button id="todNext">▶</button>
+      <button id="todAuto" title="자동 재생 토글">⏯</button>
+    </div>
+    <div class="dev-group">
+      <span class="dev-title">🌱 성장</span>
+      <button id="grPrev">◀</button>
+      <span class="val" id="grLabel">씨앗</span>
+      <button id="grNext">▶</button>
+    </div>
+  </div>
+
+  <!-- 도전과제 모달 -->
+  <div id="achModal" class="modal hidden">
+    <div class="modal-panel">
+      <img id="achPanel" class="modal-img" alt="도전과제" />
+      <div id="achContent" class="ach-content">
+        <div class="ach-box"></div>
+        <div class="ach-box"></div>
+        <div class="ach-box"></div>
+        <img class="lock-ico" alt="" />
+        <img class="lock-ico" alt="" />
+        <img class="lock-ico" alt="" />
+      </div>
+      <button id="achClose" class="modal-close" aria-label="닫기">
+        <img class="close-img" alt="닫기" />
+      </button>
+    </div>
+  </div>
+
+  <!-- 도움말 모달 -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-panel">
+      <img id="helpPanel" class="modal-img" alt="도움말" />
+      <img id="helpBox" class="help-box" alt="" />
+      <button id="helpClose" class="modal-close" aria-label="닫기">
+        <img class="close-img" alt="닫기" />
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js?v=dev2"></script>
+</body>
+</html>

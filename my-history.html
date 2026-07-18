@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>내 기록 · 스터디로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=61" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/student.html" class="btn btn--ghost btn--sm">← 돌아가기</a>
+    <div class="topbar__brand">내 기록</div>
+    <span></span>
+  </header>
+
+  <main class="container">
+    <!-- 요약 -->
+    <section class="stat-grid">
+      <div class="card stat">
+        <span class="stat__label">최근 7일 과제 완료율</span>
+        <span class="stat__value" id="stat-rate">—</span>
+      </div>
+      <div class="card stat">
+        <span class="stat__label">최근 7일 완료 과제</span>
+        <span class="stat__value" id="stat-done">—</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">최근 7일 일자별 완료율</h2>
+      <div id="daily-completion" class="bar-list"><p class="muted">불러오는 중...</p></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">미완료 사유 TOP 3</h2>
+      <ul id="failure-top" class="rank-list"><li class="muted">불러오는 중...</li></ul>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">이번 주 핵심 목표</h2>
+      <div id="weekly-goals"><p class="muted">불러오는 중...</p></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">최근 주간 회고</h2>
+      <div id="recent-review"><p class="muted">불러오는 중...</p></div>
+    </section>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/utils.js?v=8"></script>
+  <script src="/js/history.js?v=8"></script>
+</body>
+</html>

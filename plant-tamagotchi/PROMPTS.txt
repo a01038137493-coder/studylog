@@ -1,0 +1,122 @@
+==========================================================
+정원 다마고치 — 이미지 생성 프롬프트 키트 (일관성용)
+==========================================================
+
+[일관성 규칙]  ← 제일 중요
+1. 아래 "스타일 블록"은 매번 그대로 붙인다 (한 글자도 바꾸지 않기).
+2. "장면 블록"도 그대로 둔다.
+3. 단계마다 바꾸는 건 오직 "식물 한 줄" 뿐.
+4. 매번 같은 비율(정사각형 1:1 권장)로 생성.
+5. 캔바 Magic Media는 시드 고정이 없으니, 마음에 드는 1장을
+   먼저 뽑고 → 같은 프롬프트로 단계만 바꿔 여러 번 생성 →
+   가장 비슷한 것 고르기.
+
+----------------------------------------------------------
+① 스타일 블록 (모든 프롬프트 맨 앞에 고정)
+----------------------------------------------------------
+16-bit pixel art, Stardew Valley environment art style, hand-crafted SNES-era RPG sprite quality, dense detailed pixels, rich warm lighting with soft shadows, golden-hour evening glow, cozy countryside garden atmosphere, natural earthy color palette, painterly pixel-art rendering, detailed wooden textures, clean readable shapes
+
+----------------------------------------------------------
+② 장면 블록 (고정 — [식물] 부분만 교체)
+----------------------------------------------------------
+A cozy garden game screen seen from the front. In the CENTER, [식물], sitting inside a terracotta flowerpot on a small patch of soil. Behind it a wooden picket fence; a wooden birdhouse on a tall post on the right; a blue metal watering can and a small wooden crate on the right; clusters of pink and yellow flowers in the front corners; lush green trees and bushes; tall mountains and a blue sky with fluffy clouds in the background; warm evening sunlight. Square composition, centered.
+
+----------------------------------------------------------
+③ [식물] 한 줄 — 단계별로 이것만 교체
+----------------------------------------------------------
+1단계(새싹)   : a tiny green sprout seedling with two small leaves just emerged, with a cute happy smiling face and rosy cheeks
+2단계(어린잎) : a small round chubby green plant creature with a few leaves on its head, a cute happy smiling face and rosy cheeks
+3단계(꽃봉오리): a round green plant creature with a closed pink flower bud on top, a cute happy smiling face and rosy cheeks
+4단계(활짝핀꽃): a round green plant creature with a big blooming pink-and-yellow flower on top, a cheerful happy face and rosy cheeks
+
+----------------------------------------------------------
+④ 피해야 할 것 (네거티브 — 생성기에 negative 칸이 있으면 거기,
+   없으면 프롬프트 끝에 그대로 붙이기)
+----------------------------------------------------------
+flat vector art, smooth vector shapes, 3D render, photorealistic, blurry, soft focus, modern flat mobile UI, neon bright cartoon colors, minimalist, low detail, text, watermark, logo, ui buttons
+
+----------------------------------------------------------
+⑤ (선택) 표정 — [식물]의 face 부분만 교체
+----------------------------------------------------------
+기분좋음 : a big happy smile and rosy cheeks
+보통     : a calm gentle neutral face
+시무룩   : a sad droopy face with a small sweat drop
+
+----------------------------------------------------------
+⑥ (선택) 시간대 — 장면 블록의 "warm evening sunlight" 교체
+----------------------------------------------------------
+저녁(기본): warm golden-hour evening sunlight, long soft shadows
+낮       : bright midday sunlight, clear blue sky
+밤       : night time, deep blue starry sky with a moon, warm lantern glow
+
+==========================================================
+바로 붙여넣는 완성본 (단계별 4장)
+==========================================================
+
+■ 1단계 (scene1.png)
+16-bit pixel art, Stardew Valley environment art style, hand-crafted SNES-era RPG sprite quality, dense detailed pixels, rich warm lighting with soft shadows, golden-hour evening glow, cozy countryside garden atmosphere, natural earthy color palette, painterly pixel-art rendering, detailed wooden textures, clean readable shapes. A cozy garden game screen seen from the front. In the CENTER, a tiny green sprout seedling with two small leaves just emerged, with a cute happy smiling face and rosy cheeks, sitting inside a terracotta flowerpot on a small patch of soil. Behind it a wooden picket fence; a wooden birdhouse on a tall post on the right; a blue metal watering can and a small wooden crate on the right; clusters of pink and yellow flowers in the front corners; lush green trees and bushes; tall mountains and a blue sky with fluffy clouds in the background; warm evening sunlight. Square composition, centered. NOT flat vector, NOT 3D, NOT photorealistic, no text, no watermark.
+
+■ 2단계 (scene2.png)
+16-bit pixel art, Stardew Valley environment art style, hand-crafted SNES-era RPG sprite quality, dense detailed pixels, rich warm lighting with soft shadows, golden-hour evening glow, cozy countryside garden atmosphere, natural earthy color palette, painterly pixel-art rendering, detailed wooden textures, clean readable shapes. A cozy garden game screen seen from the front. In the CENTER, a small round chubby green plant creature with a few leaves on its head, a cute happy smiling face and rosy cheeks, sitting inside a terracotta flowerpot on a small patch of soil. Behind it a wooden picket fence; a wooden birdhouse on a tall post on the right; a blue metal watering can and a small wooden crate on the right; clusters of pink and yellow flowers in the front corners; lush green trees and bushes; tall mountains and a blue sky with fluffy clouds in the background; warm evening sunlight. Square composition, centered. NOT flat vector, NOT 3D, NOT photorealistic, no text, no watermark.
+
+■ 3단계 (scene3.png)
+16-bit pixel art, Stardew Valley environment art style, hand-crafted SNES-era RPG sprite quality, dense detailed pixels, rich warm lighting with soft shadows, golden-hour evening glow, cozy countryside garden atmosphere, natural earthy color palette, painterly pixel-art rendering, detailed wooden textures, clean readable shapes. A cozy garden game screen seen from the front. In the CENTER, a round green plant creature with a closed pink flower bud on top, a cute happy smiling face and rosy cheeks, sitting inside a terracotta flowerpot on a small patch of soil. Behind it a wooden picket fence; a wooden birdhouse on a tall post on the right; a blue metal watering can and a small wooden crate on the right; clusters of pink and yellow flowers in the front corners; lush green trees and bushes; tall mountains and a blue sky with fluffy clouds in the background; warm evening sunlight. Square composition, centered. NOT flat vector, NOT 3D, NOT photorealistic, no text, no watermark.
+
+■ 4단계 (scene4.png)
+16-bit pixel art, Stardew Valley environment art style, hand-crafted SNES-era RPG sprite quality, dense detailed pixels, rich warm lighting with soft shadows, golden-hour evening glow, cozy countryside garden atmosphere, natural earthy color palette, painterly pixel-art rendering, detailed wooden textures, clean readable shapes. A cozy garden game screen seen from the front. In the CENTER, a round green plant creature with a big blooming pink-and-yellow flower on top, a cheerful happy face and rosy cheeks, sitting inside a terracotta flowerpot on a small patch of soil. Behind it a wooden picket fence; a wooden birdhouse on a tall post on the right; a blue metal watering can and a small wooden crate on the right; clusters of pink and yellow flowers in the front corners; lush green trees and bushes; tall mountains and a blue sky with fluffy clouds in the background; warm evening sunlight. Square composition, centered. NOT flat vector, NOT 3D, NOT photorealistic, no text, no watermark.
+
+==========================================================
+파일 이름
+==========================================================
+- 1장만 쓸 거면:  scene.png  (4단계 중 마음에 드는 1장)
+- 성장 단계까지 쓸 거면:  scene1.png, scene2.png, scene3.png, scene4.png
+  → 이렇게 4장 주시면 단계별로 바뀌게 코드 연결해 드림
+
+==========================================================
+캔바(Canva) Magic Media 설정
+==========================================================
+- 비율: 정사각형(Square)
+- 프롬프트 칸에 위 "완성본" 한 개를 통째로 붙여넣기
+- 스타일 옵션이 있으면 그냥 두거나 "pixel art" 선택
+- 4장 생성 후 가장 마음에 드는 것 선택 → PNG 다운로드
+
+
+==========================================================
+[방식 B] 배경 레이어 + 흔들림 프레임 (잎사귀 애니메이션)
+==========================================================
+배경은 고정하고, 그 위에 식물 PNG를 겹쳐서 번갈아 바꾸면
+잎사귀가 흔들흔들 움직입니다. (진짜 게임 방식)
+
+필요한 파일 (assets/ 폴더):
+  bg.png        ← 식물이 "없는" 정원 배경 (빈 화분 + 흙만)
+  plant1.png    ← 식물 (투명 배경, 잎이 왼쪽으로 살짝)
+  plant2.png    ← 식물 (투명 배경, 잎이 오른쪽으로 살짝)
+  (원하면 plant3.png 등 더 추가 가능)
+
+★ 핵심: bg / plant 모두 같은 캔버스 크기로, 식물이 화분에
+  딱 앉는 위치가 되도록 맞추기. plant1/2 는 잎 각도만 다르게.
+
+------------------------------------------
+① 배경(bg.png) 프롬프트
+------------------------------------------
+(스타일 블록)
+. A cozy garden game screen seen from the front, an EMPTY terracotta flowerpot with soil in the center (no plant), wooden picket fence, a wooden birdhouse on a tall post on the right, a blue metal watering can and a small wooden crate, clusters of pink and yellow flowers in the corners, lush green trees and bushes, tall mountains and a blue sky with clouds, warm evening sunlight. Square composition, centered. NOT flat vector, NOT 3D, no text, no watermark.
+
+------------------------------------------
+② 식물 프레임(plant1.png / plant2.png) 프롬프트
+------------------------------------------
+(스타일 블록)
+. A single cute chubby round green plant creature with a happy face and rosy cheeks, [LEAN], full body, centered, on a PLAIN solid background, NO scenery, NO pot shadow, NOT flat vector, NOT 3D, no text.
+
+[LEAN] 자리에:
+  plant1 : its two leaves gently leaning to the LEFT
+  plant2 : its two leaves gently leaning to the RIGHT
+
+→ 생성 후 캔바의 "배경 제거(Background Remover)"로 투명 PNG 만들기
+→ plant1, plant2 모두 같은 크기/위치로 내보내기 (잎 각도만 차이)
+
+------------------------------------------
+③ 성장 단계까지 하려면
+------------------------------------------
+각 단계(새싹/어린잎/꽃봉오리/꽃)마다 plant 프레임 2장씩.
+파일 주시면 단계 전환 + 흔들림을 코드로 연결해 드립니다.

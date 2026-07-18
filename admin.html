@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>관리자 대시보드 · 스터디로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=19" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <div class="topbar__brand">스터디로그 · 관리자</div>
+    <div class="topbar__right">
+      <span id="admin-name" class="topbar__user"></span>
+      <button class="btn btn--ghost btn--sm" onclick="logout()">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="container container--wide">
+    <p class="section-hint" id="today-date">오늘</p>
+
+    <!-- 상단 요약 -->
+    <section class="kpi-grid">
+      <div class="card kpi"><span class="kpi__label">전체 학생</span><span class="kpi__value" id="kpi-total">—</span></div>
+      <div class="card kpi"><span class="kpi__label">체크인 완료</span><span class="kpi__value" id="kpi-checkin">—</span></div>
+      <div class="card kpi"><span class="kpi__label">체크아웃 완료</span><span class="kpi__value" id="kpi-checkout">—</span></div>
+      <div class="card kpi kpi--warn"><span class="kpi__label">체크인 미작성</span><span class="kpi__value" id="kpi-checkin-miss">—</span></div>
+      <div class="card kpi kpi--warn"><span class="kpi__label">체크아웃 미작성</span><span class="kpi__value" id="kpi-checkout-miss">—</span></div>
+      <div class="card kpi"><span class="kpi__label">평균 과제 완료율</span><span class="kpi__value" id="kpi-avg-rate">—</span></div>
+      <div class="card kpi kpi--alert"><span class="kpi__label">상담 필요 학생</span><span class="kpi__value" id="kpi-consult">—</span></div>
+    </section>
+
+    <h2 class="board-title">🚨 지금 챙겨야 할 학생</h2>
+    <p class="section-hint">누구를 먼저 불러야 하는지 바로 확인하세요.</p>
+
+    <div class="board-grid">
+      <section class="card list-card">
+        <h3 class="list-card__title">체크인 미작성 <span class="badge" id="cnt-checkin-miss">0</span></h3>
+        <ul class="student-list" id="list-checkin-miss"></ul>
+      </section>
+
+      <section class="card list-card">
+        <h3 class="list-card__title">체크아웃 미작성 <span class="badge" id="cnt-checkout-miss">0</span></h3>
+        <ul class="student-list" id="list-checkout-miss"></ul>
+      </section>
+
+      <section class="card list-card">
+        <h3 class="list-card__title">오늘 과제 완료율 50% 이하 <span class="badge badge--warn" id="cnt-low-rate">0</span></h3>
+        <ul class="student-list" id="list-low-rate"></ul>
+      </section>
+
+      <section class="card list-card">
+        <h3 class="list-card__title">최근 3일 컨디션 저조 <span class="badge badge--alert" id="cnt-low-cond">0</span></h3>
+        <ul class="student-list" id="list-low-cond"></ul>
+      </section>
+
+      <section class="card list-card">
+        <h3 class="list-card__title">이월 과제 누적 <span class="badge badge--warn" id="cnt-carryover">0</span></h3>
+        <ul class="student-list" id="list-carryover"></ul>
+      </section>
+
+      <section class="card list-card">
+        <h3 class="list-card__title">위험 요소 반복 <span class="badge badge--alert" id="cnt-risk">0</span></h3>
+        <ul class="student-list" id="list-risk"></ul>
+      </section>
+    </div>
+
+    <h2 class="board-title">📊 과제 분석 (최근 7일)</h2>
+    <div class="board-grid">
+      <section class="card">
+        <h3 class="card__title">일자별 평균 완료율</h3>
+        <div id="subject-completion" class="bar-list"><p class="muted">불러오는 중...</p></div>
+      </section>
+      <section class="card">
+        <h3 class="card__title">블록별 미완료율</h3>
+        <div id="block-incomplete" class="bar-list"><p class="muted">불러오는 중...</p></div>
+      </section>
+    </div>
+
+    <h2 class="board-title">전체 학생</h2>
+    <section class="card list-card">
+      <ul class="student-list" id="list-all"></ul>
+    </section>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

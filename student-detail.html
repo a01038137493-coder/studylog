@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>학생 상세 · 스터디로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=19" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/admin.html" class="btn btn--ghost btn--sm">← 대시보드</a>
+    <div class="topbar__brand">학생 상세</div>
+    <button class="btn btn--ghost btn--sm" onclick="logout()">로그아웃</button>
+  </header>
+
+  <main class="container container--wide">
+    <div id="load-error" class="card notice notice--warn" hidden>학생 정보를 불러올 수 없습니다.</div>
+
+    <!-- 기본 정보 -->
+    <section class="card profile-card" id="profile-card" hidden>
+      <div class="profile-card__head">
+        <h1 class="profile-card__name" id="p-name">—</h1>
+        <div class="profile-card__controls">
+          <label class="inline-field">
+            관리 등급
+            <select id="management_level" class="field__input field__select field__select--sm">
+              <option value="basic">basic</option>
+              <option value="focus">focus</option>
+              <option value="intensive">intensive</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="profile-card__grid">
+        <div class="kv"><span class="kv__key">좌석</span><span class="kv__val" id="p-seat">—</span></div>
+        <div class="kv"><span class="kv__key">연락처</span><span class="kv__val" id="p-phone">—</span></div>
+        <div class="kv"><span class="kv__key">목표 대학</span><span class="kv__val" id="p-univ">—</span></div>
+        <div class="kv"><span class="kv__key">목표 학과</span><span class="kv__val" id="p-major">—</span></div>
+        <div class="kv"><span class="kv__key">목표 점수</span><span class="kv__val" id="p-score">—</span></div>
+        <div class="kv"><span class="kv__key">상태</span><span class="kv__val" id="p-status">—</span></div>
+      </div>
+    </section>
+
+    <!-- 최근 7일 요약 -->
+    <section class="stat-grid">
+      <div class="card stat"><span class="stat__label">최근 7일 과제 완료율</span><span class="stat__value" id="s-rate">—</span></div>
+      <div class="card stat"><span class="stat__label">최근 7일 완료 과제</span><span class="stat__value" id="s-hours">—</span></div>
+    </section>
+
+    <!-- 계획 품질 (관리자용 분석값) -->
+    <section class="card">
+      <h2 class="card__title">계획 품질 점수 <span class="tag tag--blue">관리자용</span></h2>
+      <div id="plan-quality-box"><p class="muted">불러오는 중...</p></div>
+    </section>
+
+    <div class="board-grid">
+      <section class="card">
+        <h2 class="card__title">과목별 과제 완료율 (최근 7일)</h2>
+        <div id="subject-breakdown" class="bar-list"><p class="muted">불러오는 중...</p></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">미완료 사유 이력</h2>
+        <ul id="failure-history" class="rank-list"><li class="muted">불러오는 중...</li></ul>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">이번 주 목표</h2>
+        <div id="weekly-goal"><p class="muted">불러오는 중...</p></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">최근 주간 회고</h2>
+        <div id="weekly-review"><p class="muted">불러오는 중...</p></div>
+      </section>
+    </div>
+
+    <!-- 상담 / 개입 기록 -->
+    <section class="card">
+      <h2 class="card__title">상담 / 개입 기록</h2>
+
+      <form id="intervention-form" class="form intervention-form">
+        <div class="field-row">
+          <label class="field field--half"><span class="field__label">트리거 사유</span>
+            <input type="text" id="trigger_reason" class="field__input" placeholder="예: 달성률 50% 이하" /></label>
+          <label class="field field--half"><span class="field__label">조치 유형</span>
+            <input type="text" id="action_type" class="field__input" placeholder="예: 면담, 학부모 연락" /></label>
+        </div>
+        <label class="field"><span class="field__label">내용</span>
+          <textarea id="note" class="field__input field__textarea" rows="2" placeholder="상담/개입 내용"></textarea></label>
+        <label class="field field--half"><span class="field__label">후속 조치 예정일</span>
+          <input type="date" id="followup_date" class="field__input" /></label>
+        <button type="submit" class="btn btn--primary">개입 기록 추가</button>
+      </form>
+
+      <ul id="intervention-list" class="timeline"><li class="muted">불러오는 중...</li></ul>
+    </section>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/studentDetail.js"></script>
+</body>
+</html>

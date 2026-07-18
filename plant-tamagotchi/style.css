@@ -1,0 +1,273 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --wood-dark: #4a2f16;
+  --wood: #74491f;
+  --wood-light: #9a6630;
+  --wood-hi: #c08a4a;
+  --beige: #efd6a0;
+  --beige-deep: #7a4e22;
+}
+
+/* 폰트: 이사만루체 (esamanru) */
+@font-face {
+  font-family: "esamanru";
+  src: url("assets/esamanru Light.ttf") format("truetype");
+  font-weight: 300; font-display: swap;
+}
+@font-face {
+  font-family: "esamanru";
+  src: url("assets/esamanru Medium.ttf") format("truetype");
+  font-weight: 500; font-display: swap;
+}
+@font-face {
+  font-family: "esamanru";
+  src: url("assets/esamanru Bold.ttf") format("truetype");
+  font-weight: 700; font-display: swap;
+}
+
+html, body { height: 100%; }
+
+body {
+  font-family: "esamanru", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  font-weight: 700;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* 프레임 없음 (흰 배경) */
+.game-frame {
+  width: 440px;
+  max-width: 100%;
+  position: relative;
+}
+
+/* 장면 (액자 없음) */
+.scene-window {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  min-height: 220px;
+  line-height: 0;
+}
+
+/* 도전과제 모달 */
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+.modal.hidden { display: none; }
+.modal-panel { position: relative; line-height: 0; }
+.modal-img {
+  display: block;
+  width: min(92vw, 620px);
+  height: auto;
+  image-rendering: pixelated;
+}
+/* 패널 안쪽 영역 — 텍스트 박스 3개 세로 배치 */
+.ach-content {
+  position: absolute;
+  left: 10%; top: 34%;
+  width: 80%; height: 57%;
+  box-sizing: border-box;
+  display: flex; flex-direction: column;
+  gap: 4px;
+}
+.ach-box {
+  position: absolute;
+  left: 51.7%; width: 86%; height: 34%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  /* 9-슬라이스: 모서리 유지하며 늘어남 */
+  border-style: solid;
+  border-width: 14px 16px 16px 16px;
+  border-image-source: url("assets/텍스트 박스.png");
+  border-image-slice: 242 199 292 191 fill;
+  border-image-repeat: stretch;
+  image-rendering: pixelated;
+  /* 내용: 텍스트 가운데 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  font-family: "esamanru", sans-serif;
+  color: #5a3a1c;
+  overflow: hidden;
+}
+.ach-box:nth-child(1) { top: 16.4%; }
+.ach-box:nth-child(2) { top: 45.1%; }
+.ach-box:nth-child(3) { top: 73.2%; }
+.ach-name {
+  font-size: 17px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* 자물쇠 아이콘 (박스 위) / 경험치 바 (기본 화면) */
+.lock-ico { z-index: 5; image-rendering: pixelated; pointer-events: none; }
+#expBar { z-index: 5; image-rendering: pixelated; pointer-events: none; }
+
+/* 도움말 메뉴 안 박스2 (제목 아래 가운데) */
+.help-box {
+  position: absolute;
+  left: 50%; top: 60%;
+  transform: translate(-50%, -50%);
+  height: 60%; width: auto;
+  image-rendering: pixelated;
+}
+.modal-close {
+  position: absolute; top: 5%; right: 5%;
+  width: 44px; height: 44px;
+  padding: 0; border: none; background: none; cursor: pointer;
+  image-rendering: pixelated;
+  transition: transform 0.05s, filter 0.1s;
+}
+.modal-close:hover { filter: brightness(1.08); }
+.modal-close:active { transform: translateY(2px) scale(0.95); }
+.close-img { width: 100%; height: 100%; display: block; image-rendering: pixelated; pointer-events: none; }
+
+/* 도전과제 버튼 (스타듀밸리풍 나무 사각 버튼) */
+.ach-btn {
+  position: absolute;
+  top: 10px; left: 10px;
+  z-index: 20;
+  width: 54px; height: 54px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  image-rendering: pixelated;
+  transition: transform 0.05s, filter 0.1s;
+}
+.ach-btn:hover { filter: brightness(1.08); }
+.ach-btn:active { transform: translateY(2px) scale(0.96); }
+.ach-btn img { width: 100%; height: 100%; display: block; image-rendering: pixelated; pointer-events: none; }
+/* 도움말 버튼 — 도전과제 버튼 바로 아래 (살짝 붙임) */
+.help-btn { top: 50px; }
+
+/* 레이어 */
+.layers { position: relative; width: 100%; line-height: 0; }
+.layers .bg {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.layers .bg-fade {        /* 크로스페이드용 위 레이어 */
+  position: absolute;
+  left: 0; top: 0;
+  opacity: 0;
+}
+
+/* 개발용 컨트롤 바 */
+.dev-bar {
+  position: fixed;
+  left: 50%; bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: rgba(20, 20, 22, 0.85);
+  color: #eee;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  z-index: 50;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.dev-group { display: flex; align-items: center; gap: 6px; }
+.dev-title { color: #8fe; font-weight: bold; }
+.dev-bar button {
+  background: #3a3a3e; color: #fff;
+  border: 1px solid #565660; border-radius: 5px;
+  padding: 3px 9px; cursor: pointer; font-family: inherit;
+}
+.dev-bar button:hover { background: #4a4a52; }
+.dev-bar .val { min-width: 56px; text-align: center; color: #ffd98a; }
+.layers .sprite {       /* img + canvas 둘 다 */
+  position: absolute;
+  transform: translate(-50%, -50%);  /* (left,top)을 중심으로 배치 */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+}
+
+/* 이미지 없을 때 안내 */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, #7a542c 0 12px, #6f4c27 12px 24px);
+}
+.placeholder.hidden { display: none; }
+.ph-card {
+  text-align: center;
+  color: #4a2f16;
+  background: var(--beige);
+  border: 3px solid var(--beige-deep);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px #c79a5e, 0 4px 0 #5e3a18;
+  padding: 22px 26px;
+  line-height: 1.5;
+  max-width: 86%;
+}
+.ph-emoji { font-size: 30px; margin-bottom: 8px; }
+.ph-card p { font-size: 14px; }
+.ph-card code {
+  display: inline-block;
+  margin: 8px 0 6px;
+  font-size: 11.5px;
+  background: #fff3d4;
+  border: 1px solid #b58a55;
+  border-radius: 5px;
+  padding: 4px 8px;
+  color: #6e4420;
+}
+.ph-card small { display: block; font-size: 11px; opacity: 0.8; }
+
+/* HUD 팻말 */
+.hud-day, .hud-sun {
+  position: absolute;
+  top: 10px;
+  color: #4a2f16;
+  background: var(--beige);
+  border: 3px solid var(--beige-deep);
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 2px #c79a5e, 0 3px 0 #5e3a18;
+  line-height: 1;
+  white-space: nowrap;
+}
+.hud-day { left: 10px; font-size: 14px; letter-spacing: 1px; padding: 6px 12px; }
+.hud-day .leaf { font-size: 12px; }
+.hud-sun { right: 10px; font-size: 18px; padding: 4px 7px; }
+
+/* ===== 전체화면 버튼 + 풀스크린 레이아웃 ===== */
+.fs-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 20;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 9px; cursor: pointer;
+  background: rgba(74, 47, 22, 0.72);
+  color: #efd6a0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.05s, filter 0.1s;
+}
+.fs-btn:hover { filter: brightness(1.12); }
+.fs-btn:active { transform: translateY(2px) scale(0.96); }
+
+/* 풀스크린: 게임을 화면에 꽉 채움 (배경 16:9=1672/941 비율 유지, 가운데 정렬) */
+body.fs-active { padding: 0; background: #000; }
+body.fs-active .game-frame {
+  width: min(100vw, calc(100vh * 1672 / 941));
+  max-width: none;
+}

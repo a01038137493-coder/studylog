@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>오늘 성과 기록 · 스터디로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=75" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/student.html" class="btn btn--ghost btn--sm">← 돌아가기</a>
+    <div class="topbar__brand">오늘 성과 기록</div>
+    <span></span>
+  </header>
+
+  <main class="container container--tablet2">
+    <p class="section-hint" id="page-date">오늘</p>
+
+    <!-- 체크인이 없을 때 -->
+    <div id="no-checkin" class="card notice notice--warn" hidden>
+      <p>오늘 플랜(체크인)을 먼저 작성해야 성과를 기록할 수 있습니다.</p>
+      <a href="/checkin.html" class="btn btn--primary btn--block">오늘 플랜 만들러 가기</a>
+    </div>
+
+    <p id="edit-notice" class="notice notice--info" hidden>이미 작성한 기록을 수정합니다.</p>
+
+    <form id="checkout-form" class="form card" hidden>
+      <div class="form-cols">
+        <div class="form-col">
+          <h2 class="form__group-title">핵심 과제, 얼마나 끝냈나요?</h2>
+          <div id="task-status-list" class="task-status-list"></div>
+          <p class="field-help" id="carryover-note" hidden></p>
+        </div>
+
+        <div class="form-col">
+          <h2 class="form__group-title">못 끝낸 게 있다면</h2>
+          <label class="field">
+            <span class="field__label">미완료 사유</span>
+            <select id="failure_reason" class="field__input field__select">
+              <option value="">해당 없음</option>
+            </select>
+          </label>
+
+          <h2 class="form__group-title">하루 마무리</h2>
+          <div class="field">
+            <span class="field__label">오늘 자기평가 (1~10)</span>
+            <div class="cond-slider" id="self-slider" data-level="mid" style="--cond-pct:55.55%;">
+              <div class="cond-slider__readout">
+                <span class="cond-slider__face" id="self-face" aria-hidden="true">🙂</span>
+                <span class="cond-slider__readtext">
+                  <span class="cond-slider__valrow">
+                    <span class="cond-slider__val" id="self-val">6</span>
+                    <span class="cond-slider__unit">/ 10</span>
+                  </span>
+                  <span class="cond-slider__word" id="self-word">보통</span>
+                </span>
+              </div>
+              <div class="cond-slider__track">
+                <input type="range" min="1" max="10" step="1" value="6" id="self_range" class="cond-range"
+                       aria-label="오늘 자기평가 (1에서 10까지)" aria-valuetext="6점 보통" />
+                <div class="cond-slider__ticks" id="self-ticks" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="cond-slider__scale" aria-hidden="true"><span>아쉬움</span><span>최고</span></div>
+            </div>
+            <input type="hidden" id="self_score" value="6" />
+          </div>
+          <label class="field">
+            <span class="field__label">오늘 한 줄 회고</span>
+            <textarea id="reflection" class="field__input field__textarea" rows="3" placeholder="오늘 하루를 한 문장으로 정리해보세요"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block btn--lg">오늘 성과 저장</button>
+    </form>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/utils.js?v=14"></script>
+  <script src="/js/checkout.js?v=5"></script>
+</body>
+</html>

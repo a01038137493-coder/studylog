@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스터디로그 · 인스타 광고 피드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Pretendard&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0f1b35; --navy2:#1b2c52; --ink:#0c1730;
+    --accent:#ff5a4d; --accent2:#ffd23f; --paper:#f4f1ea;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:#e9ecf2; font-family:"Noto Sans KR",system-ui,sans-serif; color:#1b2a4a; padding:28px 16px 80px; }
+  .page-head{ max-width:920px; margin:0 auto 22px; }
+  .page-head h1{ font-size:1.35rem; font-weight:900; }
+  .page-head p{ font-size:.9rem; color:#5a6b86; margin-top:6px; line-height:1.6; }
+  .toolbar{ position:sticky; top:0; z-index:5; background:#e9ecf2; padding:10px 0 14px; max-width:920px; margin:0 auto 10px; display:flex; gap:8px; flex-wrap:wrap; }
+  .toolbar button{ font:inherit; font-weight:800; font-size:.85rem; padding:8px 14px; border-radius:999px; border:1.5px solid #c2cadb; background:#fff; color:#1b2a4a; cursor:pointer; }
+  .toolbar button.is-on{ background:#1b2a4a; color:#fff; border-color:#1b2a4a; }
+
+  .grid{ max-width:920px; margin:0 auto; display:flex; flex-direction:column; gap:40px; }
+  .post{ background:#fff; border-radius:18px; box-shadow:0 10px 30px rgba(15,27,53,.1); overflow:hidden; }
+  .post__bar{ display:flex; align-items:center; gap:9px; padding:12px 16px; border-bottom:1px solid #eef1f6; }
+  .post__ava{ width:30px; height:30px; border-radius:50%; background:var(--navy); color:#fff; font-weight:900; font-size:.8rem; display:flex; align-items:center; justify-content:center; }
+  .post__name{ font-weight:800; font-size:.9rem; }
+  .post__tag{ margin-left:auto; font-size:.72rem; font-weight:800; color:#8a93a6; }
+
+  /* ===== 1080x1080 카드 (캡처 대상) ===== */
+  .shotwrap{ display:flex; justify-content:center; background:#dfe3ec; padding:18px; }
+  .shot{ width:480px; height:480px; container-type:size; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,.18); }
+  body.full .shot{ width:1080px; height:1080px; max-width:none; border-radius:0; }
+  body.full .shotwrap{ overflow:auto; }
+
+  .card{ width:100%; height:100%; position:relative; display:flex; flex-direction:column; color:#fff;
+         background:radial-gradient(120% 90% at 80% 0%, #24386b 0%, var(--navy) 55%, var(--ink) 100%);
+         padding:9cqmin; overflow:hidden; }
+  .card__brand{ display:flex; align-items:center; gap:1.6cqmin; font-weight:900; font-size:4.4cqmin; letter-spacing:-.02em; }
+  .card__brand .dot{ width:3cqmin; height:3cqmin; border-radius:50%; background:var(--accent); display:inline-block; }
+  .eyebrow{ display:inline-block; margin-top:1cqmin; font-weight:800; font-size:3.4cqmin; letter-spacing:.04em; color:var(--accent2); }
+  .headline{ font-family:"Black Han Sans",sans-serif; font-weight:400; line-height:1.04; letter-spacing:-.01em; }
+  .sub{ font-weight:600; line-height:1.5; color:#d7deec; }
+  .spacer{ flex:1; }
+  .pill-row{ display:flex; gap:2cqmin; flex-wrap:wrap; }
+  .pill{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:1.8cqmin 3cqmin; font-weight:800; font-size:3.2cqmin; }
+  .foot{ display:flex; align-items:center; justify-content:space-between; gap:2cqmin; }
+  .foot__url{ font-weight:800; font-size:3.4cqmin; color:#cfe0ff; }
+  .cta{ background:var(--accent); color:#fff; font-weight:900; font-size:3.8cqmin; padding:2.4cqmin 4.5cqmin; border-radius:999px; }
+  .accent{ color:var(--accent); }
+  .accent2{ color:var(--accent2); }
+  .underline{ box-shadow:inset 0 -0.45em 0 rgba(255,90,77,.45); }
+  .big-num{ font-family:"Black Han Sans",sans-serif; font-size:46cqmin; line-height:.9; letter-spacing:-.02em; }
+
+  .cap{ padding:14px 18px 20px; }
+  .cap h3{ font-size:.8rem; font-weight:900; color:#8a93a6; letter-spacing:.04em; margin-bottom:8px; }
+  .cap p{ font-size:.92rem; line-height:1.65; white-space:pre-wrap; }
+  .cap .tags{ color:#3a63c8; font-weight:700; margin-top:10px; font-size:.86rem; }
+  @media (max-width:540px){ .shot{ width:320px; height:320px; } }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>스터디로그 · 인스타 광고 피드 (5종)</h1>
+    <p>아래 카드를 캡처하면 1080×1080 게시물로 바로 사용할 수 있어요. 회색 카드 위 정사각형이 “이미지”, 그 아래 흰 칸은 게시물 “캡션”입니다.<br>
+       선명한 원본은 <b>[실제 1080px]</b> 버튼을 켜고 각 정사각형을 캡처하세요. (브라우저 우클릭 → 캡처/스크린샷, 또는 화면 캡처)</p>
+  </div>
+
+  <div class="toolbar">
+    <button id="toggleFull">실제 1080px 보기</button>
+    <span style="font-size:.82rem;color:#5a6b86;align-self:center;">← 켜면 카드가 원본 크기(1080)로 커집니다</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- ===== POST 1 : HOOK ===== -->
+    <article class="post">
+      <div class="post__bar"><span class="post__ava">디</span><span class="post__name">studylog</span><span class="post__tag">광고 · 후킹</span></div>
+      <div class="shotwrap"><div class="shot"><div class="card">
+        <div class="card__brand"><span class="dot"></span>스터디로그</div>
+        <span class="eyebrow">재수, 다시 시작</span>
+        <div class="spacer"></div>
+        <div class="headline" style="font-size:11cqmin;">출석은 매일 했는데<br><span class="underline">성적</span>은 왜<br>그대로일까?</div>
+        <p class="sub" style="font-size:4cqmin; margin-top:4cqmin;">문제는 노력의 <b>양</b>이 아니라 <span class="accent2">관리</span>입니다.</p>
+        <div class="spacer"></div>
+        <div class="foot"><span class="foot__url">studylog.vercel.app</span></div>
+      </div></div></div>
+      <div class="cap">
+        <h3>캡션</h3>
+        <p>“오늘도 자리에 앉아는 있었는데… 뭘 했는지 모르겠다.”
+
+재수는 출석이 아니라 ‘성과’로 관리해야 합니다.
+스터디로그는 매일의 목표와 실제 결과를 기록해, 흐릿한 하루를 또렷한 데이터로 바꿔줍니다. 📈
+
+지금 계정 없이 체험 👉 프로필 링크</p>
+        <p class="tags">#재수 #재수생 #반수 #n수 #수능 #공부자극 #학습관리 #스터디플래너 #목표관리 #공부기록</p>
+      </div>
+    </article>
+
+    <!-- ===== POST 2 : HOW IT WORKS ===== -->
+    <article class="post">
+      <div class="post__bar"><span class="post__ava">디</span><span class="post__name">studylog</span><span class="post__tag">광고 · 사용법</span></div>
+      <div class="shotwrap"><div class="shot"><div class="card">
+        <div class="card__brand"><span class="dot"></span>스터디로그</div>
+        <span class="eyebrow">하루 딱 2분</span>
+        <div class="spacer"></div>
+        <div class="headline" style="font-size:10.5cqmin;">아침엔 <span class="accent2">목표</span>를 적고<br>저녁엔 <span class="accent">성과</span>를<br>남긴다</div>
+        <p class="sub" style="font-size:4cqmin; margin-top:4cqmin;">체크인 · 체크아웃으로 매일이 데이터가 됩니다.</p>
+        <div class="spacer"></div>
+        <div class="pill-row">
+          <span class="pill">✅ 오늘 과제</span>
+          <span class="pill">⏱️ 공부시간</span>
+          <span class="pill">📈 달성률</span>
+        </div>
+      </div></div></div>
+      <div class="cap">
+        <h3>캡션</h3>
+        <p>거창한 계획표는 3일이면 무너지죠.
+스터디로그는 딱 두 번이면 끝납니다.
+
+🌅 등원 — 오늘 핵심 과제 체크인
+🌙 하원 — 실제 성과 체크아웃 (달성률 자동 계산)
+
+쌓인 기록이 내일의 전략이 됩니다.
+
+체험하기 👉 프로필 링크</p>
+        <p class="tags">#재수생 #스터디플래너 #공부계획 #타임스탬프 #학습관리 #수능공부 #공스타그램 #열공 #목표관리</p>
+      </div>
+    </article>
+
+    <!-- ===== POST 3 : D-DAY ===== -->
+    <article class="post">
+      <div class="post__bar"><span class="post__ava">디</span><span class="post__name">studylog</span><span class="post__tag">광고 · 디데이</span></div>
+      <div class="shotwrap"><div class="shot"><div class="card" style="background:radial-gradient(120% 90% at 50% 10%, #2a1430 0%, #1a1030 45%, #0c0a1f 100%);">
+        <div class="card__brand"><span class="dot"></span>스터디로그</div>
+        <span class="eyebrow" style="color:#ff7a6e;">2026 수능</span>
+        <div class="spacer"></div>
+        <div style="text-align:center;">
+          <div class="big-num accent">D-150</div>
+          <p class="sub" style="font-size:4.6cqmin; margin-top:4cqmin;">남은 시간, <span class="accent2">‘감’</span>으로 보낼래<br><b>‘데이터’</b>로 채울래?</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="foot"><span class="foot__url">매일 자동 카운트다운 · studylog</span></div>
+      </div></div></div>
+      <div class="cap">
+        <h3>캡션</h3>
+        <p>오늘이 며칠 남았는지보다, 그 하루를 어떻게 썼는지가 등급을 바꿉니다.
+
+스터디로그 홈엔 수능 D-day가 항상 떠 있고, 그 아래 오늘의 목표·성과가 함께 쌓입니다. ⏳
+
+남은 날을 데이터로 채우는 법, 지금 확인하세요 👉 프로필 링크
+(* 디데이 숫자는 앱에서 매일 자동 갱신됩니다)</p>
+        <p class="tags">#수능 #수능디데이 #재수 #재수생 #디데이 #공부자극 #동기부여 #수험생 #열공스타그램</p>
+      </div>
+    </article>
+
+    <!-- ===== POST 4 : STUDENT + PARENT ===== -->
+    <article class="post">
+      <div class="post__bar"><span class="post__ava">디</span><span class="post__name">studylog</span><span class="post__tag">광고 · 신뢰</span></div>
+      <div class="shotwrap"><div class="shot"><div class="card">
+        <div class="card__brand"><span class="dot"></span>스터디로그</div>
+        <span class="eyebrow">학생도, 학부모도</span>
+        <div class="spacer"></div>
+        <div class="headline" style="font-size:11cqmin;">오늘 뭐 했는지<br><span class="underline">숫자</span>로<br>보입니다</div>
+        <p class="sub" style="font-size:4cqmin; margin-top:4cqmin;">달성률 · 컨디션 · 주간 회고까지 한눈에.<br>막연한 불안 대신, 솔직한 데이터로.</p>
+        <div class="spacer"></div>
+        <div class="foot"><span class="foot__url">studylog.vercel.app</span></div>
+      </div></div></div>
+      <div class="cap">
+        <h3>캡션</h3>
+        <p>“공부 잘 돼?” “…응.”
+이 대화, 이제 그만.
+
+스터디로그는 매일의 달성률과 컨디션, 주간 회고를 데이터로 남깁니다.
+학생은 스스로를 객관적으로 보고, 부모님은 잔소리 대신 흐름을 봅니다. 🤝
+
+오늘의 성과, 숫자로 확인하기 👉 프로필 링크</p>
+        <p class="tags">#재수 #학부모 #자녀교육 #입시맘 #수험생부모 #학습관리 #성적관리 #재수생 #메타인지</p>
+      </div>
+    </article>
+
+    <!-- ===== POST 5 : CTA / DEMO ===== -->
+    <article class="post">
+      <div class="post__bar"><span class="post__ava">디</span><span class="post__name">studylog</span><span class="post__tag">광고 · CTA</span></div>
+      <div class="shotwrap"><div class="shot"><div class="card" style="background:radial-gradient(120% 90% at 50% 0%, #ff5a4d 0%, #d83b3b 50%, #8f1f2a 100%);">
+        <div class="card__brand"><span class="dot" style="background:#fff;"></span>스터디로그</div>
+        <span class="eyebrow" style="color:#fff;">지금 바로</span>
+        <div class="spacer"></div>
+        <div class="headline" style="font-size:13cqmin;">계정 없이<br>둘러보기</div>
+        <p class="sub" style="font-size:4.2cqmin; margin-top:4cqmin; color:#fff;">가입·결제 NO. 클릭 한 번이면 데모가 열려요.</p>
+        <div class="spacer"></div>
+        <div class="foot">
+          <span class="foot__url" style="color:#fff; font-size:4cqmin;">studylog.vercel.app</span>
+          <span class="cta" style="background:#fff; color:#d83b3b;">체험하기 →</span>
+        </div>
+      </div></div></div>
+      <div class="cap">
+        <h3>캡션</h3>
+        <p>백 마디 설명보다 1분 체험.
+
+링크 들어가서 ‘학생으로 둘러보기’만 누르면, 실제 데모가 바로 열립니다. (가입 X)
+체크인부터 대시보드 위젯, 달성률까지 직접 만져보세요. 👆
+
+👉 studylog.vercel.app
+프로필 링크에서도 바로 연결돼요!</p>
+        <p class="tags">#스터디로그 #재수 #재수생 #수능 #스터디앱 #공부앱 #학습관리 #무료체험 #입시</p>
+      </div>
+    </article>
+
+  </div>
+
+<script>
+  document.getElementById("toggleFull").addEventListener("click", function(){
+    document.body.classList.toggle("full");
+    this.classList.toggle("is-on");
+    this.textContent = document.body.classList.contains("full") ? "미리보기로 줄이기" : "실제 1080px 보기";
+  });
+</script>
+</body>
+</html>

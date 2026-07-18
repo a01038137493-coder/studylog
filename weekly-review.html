@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>주간 회고 · 스터디로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=61" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/student.html" class="btn btn--ghost btn--sm">← 돌아가기</a>
+    <div class="topbar__brand">주간 회고</div>
+    <span></span>
+  </header>
+
+  <main class="container">
+    <p class="section-hint" id="week-range">이번 주</p>
+    <p id="edit-notice" class="notice notice--info" hidden>이미 작성한 주간 회고를 수정합니다.</p>
+
+    <form id="weekly-review-form" class="form card">
+      <h2 class="form__group-title">한 주 돌아보기</h2>
+      <label class="field"><span class="field__label">이번 주 가장 잘한 것</span><textarea id="biggest_success" class="field__input field__textarea" rows="2"></textarea></label>
+      <label class="field"><span class="field__label">이번 주 가장 밀린 것</span><textarea id="biggest_delay" class="field__input field__textarea" rows="2"></textarea></label>
+      <label class="field"><span class="field__label">반복되는 실패 원인</span><textarea id="repeated_failure_reason" class="field__input field__textarea" rows="2"></textarea></label>
+      <label class="field"><span class="field__label">다음 주 수정 전략</span><textarea id="next_week_adjustment" class="field__input field__textarea" rows="2"></textarea></label>
+
+      <button type="submit" class="btn btn--primary btn--block btn--lg">주간 회고 저장</button>
+    </form>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/utils.js?v=8"></script>
+  <script src="/js/weeklyReview.js?v=8"></script>
+</body>
+</html>

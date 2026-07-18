@@ -1,0 +1,19 @@
+{
+  "name": "studylog",
+  "version": "1.0.0",
+  "description": "스터디로그 — 학생 개인용 공부 기록·목표 트래커. 매일 목표를 세우고 성과를 기록합니다.",
+  "private": true,
+  "scripts": {
+    "build:www": "node scripts/build-www.mjs",
+    "ios:sync": "node scripts/build-www.mjs && cap sync ios",
+    "ios:open": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
+    "@supabase/supabase-js": "^2.110.7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.2"
+  }
+}
