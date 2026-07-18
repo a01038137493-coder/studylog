@@ -1818,6 +1818,26 @@ body.nm .action__desc,
 body.nm .calendar__dow,
 body.nm .footer-quote { color: #2c3340; }
 
+/* ---------------- 소셜 로그인 / 회원가입 ---------------- */
+.form__success { color: var(--primary-600, #2b6cb0); font-size: 0.9rem; min-height: 1.2em; margin: 4px 0 12px; font-weight: 600; }
+
+.auth-divider { display: flex; align-items: center; gap: 10px; color: var(--muted, #8a93a6); font-size: 0.8rem; margin: 16px 0 14px; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: rgba(0, 0, 0, 0.1); }
+
+.btn--social { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; }
+.btn--social + .btn--social { margin-top: 8px; }
+.btn--social svg { width: 18px; height: 18px; flex: none; }
+
+/* 카카오 브랜드 가이드: 배경 #FEE500, 라벨 검정 85% */
+.btn--kakao { background: #fee500; color: rgba(0, 0, 0, 0.85); border: none; }
+.btn--kakao:hover { background: #f4dc00; }
+
+.btn--google { background: #fff; color: #3c4043; border: 1px solid #dadce0; }
+.btn--google:hover { background: #f7f8f8; }
+
+.auth-alt { text-align: center; font-size: 0.88rem; color: var(--muted, #8a93a6); margin-top: 18px; }
+.auth-alt a { color: var(--primary-600, #2b6cb0); font-weight: 700; }
+
 /* ---------------- iOS 앱(Capacitor) safe area 대응 ----------------
  * viewport-fit=cover 로 노치/홈바 영역까지 웹뷰가 확장되므로
  * 콘텐츠가 가려지지 않게 시스템이 알려주는 안전 영역만큼 패딩을 준다.

@@ -3,23 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-  <title>로그인 · 스터디로그</title>
+  <title>회원가입 · 스터디로그</title>
   <link rel="stylesheet" href="/css/style.css?v=20" />
   <script src="/js/vendor/supabase.js"></script>
-  <style>
-    /* 데모(목업) 로그인 영역 — 목업 모드일 때만 표시 */
-    .demo-login { margin-top: 18px; }
-    .demo-login__divider { display: flex; align-items: center; gap: 10px; color: var(--muted, #8a93a6); font-size: 0.8rem; margin: 4px 0 12px; }
-    .demo-login__divider::before, .demo-login__divider::after { content: ""; flex: 1; height: 1px; background: rgba(0, 0, 0, 0.1); }
-    .demo-login__hint { text-align: center; font-size: 0.82rem; color: var(--muted, #8a93a6); margin: 0 0 10px; }
-    .demo-login .btn + .btn { margin-top: 8px; }
-  </style>
 </head>
 <body class="center-screen">
   <main class="auth-card">
     <img src="/assets/logo.svg" alt="스터디로그" class="auth-card__logo" onerror="this.style.display='none'" />
-    <h1 class="auth-card__title">스터디로그</h1>
-    <p class="auth-card__subtitle">매일 목표를 세우고, 실제 성과를 기록하고,<br />누적 데이터를 기반으로 관리합니다.</p>
+    <h1 class="auth-card__title">회원가입</h1>
+    <p class="auth-card__subtitle">매일 목표를 세우고, 실제 성과를 기록하세요.</p>
 
     <button type="button" class="btn btn--social btn--kakao btn--block btn--lg" onclick="signInWithProvider('kakao')">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65-.15.52-.97 3.36-1 3.58 0 0-.02.17.09.24.11.07.24.02.24.02.32-.04 3.66-2.4 4.24-2.81.57.08 1.16.13 1.77.13 5.52 0 10-3.54 10-7.9S17.52 3 12 3z"/></svg>
@@ -30,9 +22,14 @@
       Google로 시작하기
     </button>
 
-    <div class="auth-divider">또는 이메일로 로그인</div>
+    <div class="auth-divider">또는 이메일로 가입</div>
 
-    <form id="login-form" class="form" autocomplete="on">
+    <form id="signup-form" class="form" autocomplete="on">
+      <label class="field">
+        <span class="field__label">이름</span>
+        <input type="text" id="name" class="field__input" placeholder="이름 또는 닉네임" required maxlength="30" />
+      </label>
+
       <label class="field">
         <span class="field__label">이메일</span>
         <input type="email" id="email" class="field__input" placeholder="example@email.com" required autocomplete="email" />
@@ -40,18 +37,24 @@
 
       <label class="field">
         <span class="field__label">비밀번호</span>
-        <input type="password" id="password" class="field__input" placeholder="비밀번호" required autocomplete="current-password" />
+        <input type="password" id="password" class="field__input" placeholder="6자 이상" required minlength="6" autocomplete="new-password" />
       </label>
 
-      <p id="login-error" class="form__error" role="alert"></p>
+      <label class="field">
+        <span class="field__label">비밀번호 확인</span>
+        <input type="password" id="password2" class="field__input" placeholder="비밀번호 다시 입력" required autocomplete="new-password" />
+      </label>
 
-      <button type="submit" class="btn btn--primary btn--block btn--lg">로그인</button>
+      <p id="signup-error" class="form__error" role="alert"></p>
+      <p id="signup-success" class="form__success" role="status" hidden></p>
+
+      <button type="submit" class="btn btn--primary btn--block btn--lg">가입하기</button>
     </form>
 
-    <p class="auth-alt">아직 계정이 없나요? <a href="/signup.html">이메일로 회원가입</a></p>
+    <p class="auth-alt">이미 계정이 있나요? <a href="/login.html">로그인</a></p>
   </main>
 
   <script src="/js/supabaseClient.js?v=mock6"></script>
-  <script src="/js/auth.js?v=2"></script>
+  <script src="/js/signup.js?v=1"></script>
 </body>
 </html>

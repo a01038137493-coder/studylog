@@ -338,3 +338,30 @@ async function logout() {
   await supabaseClient.auth.signOut();
   window.location.href = "/login.html";
 }
+
+/* ============================================================
+ * 소셜 로그인 (카카오 / 구글)
+ *   - Supabase OAuth 로 이동 → 완료 후 /index.html 로 복귀
+ *     (index.html 이 세션을 읽고 role 에 맞는 페이지로 분기)
+ *   - 첫 로그인 시 profiles 행은 DB 트리거가 자동 생성
+ *     (sql/10_b2c_signup.sql)
+ * ============================================================ */
+async function signInWithProvider(provider) {
+  const box =
+    document.getElementById("login-error") ||
+    document.getElementById("signup-error");
+
+  if (window.DT_MOCK) {
+    if (box) box.textContent = "데모 모드에서는 소셜 로그인이 지원되지 않습니다.";
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: window.location.origin + "/index.html" },
+  });
+
+  if (error && box) {
+    box.textContent = "소셜 로그인을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.";
+  }
+}
