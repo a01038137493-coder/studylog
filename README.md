@@ -1,4 +1,4 @@
-# 스터디로그 (StudyLog)
+# 로그 (Log)
 
 학생 개인용 **공부 기록·목표 트래커** iOS 앱입니다.
 매일 목표를 세우고(체크인), 실제 성과를 기록하고(체크아웃), 누적 데이터로 나의 공부를 관리합니다.
@@ -121,7 +121,7 @@ npm run ios:open     # (맥 전용) Xcode 열기
 ```
 
 - 네이티브 프로젝트: `ios/App/App.xcodeproj` (Swift Package Manager 기반, CocoaPods 불필요)
-- 앱 ID: `com.studylog.app` / 표시 이름: 스터디로그 (`capacitor.config.json`)
+- 앱 ID: `com.studylog.app` / 표시 이름: 로그 (`capacitor.config.json`)
 - supabase-js 는 CDN 대신 `js/vendor/supabase.js` 로컬 번들 사용 (앱 오프라인 셸 대응)
 - 노치/홈바 대응: 모든 HTML 에 `viewport-fit=cover` + `css/style.css` 하단 safe-area 패딩
 - 빌드 검증: GitHub Actions → **iOS build (unsigned)** 워크플로 (맥 없이 컴파일 확인)

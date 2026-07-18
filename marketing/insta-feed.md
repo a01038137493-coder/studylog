@@ -1,4 +1,4 @@
-# 스터디로그 · 인스타그램 광고 피드 (5종)
+# 로그 · 인스타그램 광고 피드 (5종)
 
 - **타겟**: 학생 + 학부모 혼합
 - **톤·비주얼**: 동기부여·강렬 (큰 타이포, 강한 카피)
@@ -12,7 +12,7 @@
 
 ## 공통 브랜드 스타일 (프롬프트 앞에 붙여 쓰기)
 
-> **[BRAND STYLE]** premium Instagram ad creative, 1:1 square (1080×1080), deep navy gradient background (#0f1b35 → #1b2c52), accent colors coral-red (#ff5a4d) and mustard-yellow (#ffd23f), modern minimal Korean exam-prep brand "스터디로그", bold sans-serif Korean typography as the hero, generous negative space, flat high-contrast design, subtle film grain, sharp clean vector style, premium app advertising look, small wordmark "● 스터디로그" top-left.
+> **[BRAND STYLE]** premium Instagram ad creative, 1:1 square (1080×1080), deep navy gradient background (#0f1b35 → #1b2c52), accent colors coral-red (#ff5a4d) and mustard-yellow (#ffd23f), modern minimal Korean exam-prep brand "로그", bold sans-serif Korean typography as the hero, generous negative space, flat high-contrast design, subtle film grain, sharp clean vector style, premium app advertising look, small wordmark "● 로그" top-left.
 
 색상 참고: 네이비 `#0f1b35`·`#1b2c52` / 코랄 `#ff5a4d` / 옐로 `#ffd23f` / 페이퍼 `#f4f1ea`
 
@@ -36,7 +36,7 @@
 “오늘도 자리에 앉아는 있었는데… 뭘 했는지 모르겠다.”
 
 재수는 출석이 아니라 ‘성과’로 관리해야 합니다.
-스터디로그는 매일의 목표와 실제 결과를 기록해, 흐릿한 하루를 또렷한 데이터로 바꿔줍니다. 📈
+로그는 매일의 목표와 실제 결과를 기록해, 흐릿한 하루를 또렷한 데이터로 바꿔줍니다. 📈
 
 지금 계정 없이 체험 👉 프로필 링크
 ```
@@ -61,7 +61,7 @@
 **캡션**
 ```
 거창한 계획표는 3일이면 무너지죠.
-스터디로그는 딱 두 번이면 끝납니다.
+로그는 딱 두 번이면 끝납니다.
 
 🌅 등원 — 오늘 핵심 과제 체크인
 🌙 하원 — 실제 성과 체크아웃 (달성률 자동 계산)
@@ -92,7 +92,7 @@
 ```
 오늘이 며칠 남았는지보다, 그 하루를 어떻게 썼는지가 등급을 바꿉니다.
 
-스터디로그 홈엔 수능 D-day가 항상 떠 있고, 그 아래 오늘의 목표·성과가 함께 쌓입니다. ⏳
+로그 홈엔 수능 D-day가 항상 떠 있고, 그 아래 오늘의 목표·성과가 함께 쌓입니다. ⏳
 
 남은 날을 데이터로 채우는 법, 지금 확인하세요 👉 프로필 링크
 (* 디데이 숫자는 앱에서 매일 자동 갱신됩니다)
@@ -122,7 +122,7 @@
 “공부 잘 돼?” “…응.”
 이 대화, 이제 그만.
 
-스터디로그는 매일의 달성률과 컨디션, 주간 회고를 데이터로 남깁니다.
+로그는 매일의 달성률과 컨디션, 주간 회고를 데이터로 남깁니다.
 학생은 스스로를 객관적으로 보고, 부모님은 잔소리 대신 흐름을 봅니다. 🤝
 
 오늘의 성과, 숫자로 확인하기 👉 프로필 링크
@@ -143,7 +143,7 @@
 **비주얼 컨셉**: 코랄-레드 그라데이션(다른 컷과 대비), 탭하는 손가락/커서 아이콘, 흰색 알약 버튼.
 
 **AI 프롬프트**
-> Vivid coral-red gradient background (#ff5a4d → #8f1f2a) — contrast against the navy posts. Small white wordmark "● 스터디로그" top-left. Eyebrow **"지금 바로"** (white). Huge white bold Korean headline **"계정 없이 둘러보기"**; a tapping finger / mouse-cursor click icon; subtext **"가입·결제 없이 클릭 한 번이면 데모가 열려요"**; a white rounded pill button reading **"체험하기 →"** in coral text; large url **"studylog.vercel.app"**. Energetic, action-driving. 1:1 square, bold flat premium style. `--ar 1:1 --style raw`
+> Vivid coral-red gradient background (#ff5a4d → #8f1f2a) — contrast against the navy posts. Small white wordmark "● 로그" top-left. Eyebrow **"지금 바로"** (white). Huge white bold Korean headline **"계정 없이 둘러보기"**; a tapping finger / mouse-cursor click icon; subtext **"가입·결제 없이 클릭 한 번이면 데모가 열려요"**; a white rounded pill button reading **"체험하기 →"** in coral text; large url **"studylog.vercel.app"**. Energetic, action-driving. 1:1 square, bold flat premium style. `--ar 1:1 --style raw`
 
 **캡션**
 ```
@@ -156,7 +156,7 @@
 프로필 링크에서도 바로 연결돼요!
 ```
 **해시태그**
-`#스터디로그 #재수 #재수생 #수능 #스터디앱 #공부앱 #학습관리 #무료체험 #입시`
+`#로그 #재수 #재수생 #수능 #스터디앱 #공부앱 #학습관리 #무료체험 #입시`
 
 ---
 
