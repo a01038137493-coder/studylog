@@ -340,6 +340,38 @@ async function logout() {
 }
 
 /* ============================================================
+ * 계정 삭제 (회원 탈퇴)
+ *   - 앱스토어 가이드라인 5.1.1(v): 계정 생성이 가능한 앱은
+ *     앱 안에서 계정 삭제도 가능해야 한다.
+ *   - sql/11_account_deletion.sql 의 delete_my_account RPC 호출
+ *   - auth.users 행이 지워지면 모든 기록이 cascade 삭제됨
+ * ============================================================ */
+async function deleteMyAccount() {
+  if (window.DT_MOCK) {
+    alert("데모 모드에서는 계정 삭제가 지원되지 않습니다.");
+    return;
+  }
+
+  const first = confirm(
+    "계정을 삭제하면 모든 공부 기록이 영구히 사라지며 복구할 수 없습니다.\n정말 삭제하시겠어요?"
+  );
+  if (!first) return;
+
+  const second = confirm("마지막 확인입니다. 지금 계정을 완전히 삭제할까요?");
+  if (!second) return;
+
+  const { error } = await supabaseClient.rpc("delete_my_account");
+  if (error) {
+    alert("계정 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    return;
+  }
+
+  await supabaseClient.auth.signOut();
+  alert("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
+  window.location.replace("/login.html");
+}
+
+/* ============================================================
  * 소셜 로그인 (카카오 / 구글)
  *   - Supabase OAuth 로 이동 → 완료 후 /index.html 로 복귀
  *     (index.html 이 세션을 읽고 role 에 맞는 페이지로 분기)

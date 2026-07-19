@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=73" />
+  <link rel="stylesheet" href="/css/style.css?v=74" />
   <!-- 메모장 위젯 폰트 (손글씨/또박또박/명조) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -110,6 +110,15 @@
     </div><!-- /widget-canvas -->
 
     <p class="footer-quote">오늘의 계획과 실제 결과를 남기면, 내일의 전략이 달라집니다.</p>
+
+    <!-- 계정 관리: 앱스토어 요건 — 계정 삭제 진입점 + 개인정보처리방침 -->
+    <nav class="account-footer">
+      <a href="/privacy.html">개인정보처리방침</a>
+      <span aria-hidden="true">·</span>
+      <a href="/support.html">문의하기</a>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="account-footer__danger" onclick="deleteMyAccount()">계정 삭제</button>
+    </nav>
     </div><!-- /home-main -->
     </section><!-- /page 1 -->
 
@@ -134,7 +143,7 @@
     </div>
   </main>
 
-  <script src="/js/supabaseClient.js?v=mock6"></script>
+  <script src="/js/supabaseClient.js?v=mock7"></script>
   <script src="/js/utils.js?v=14"></script>
   <script src="/js/dashboard.js?v=36"></script>
   <script src="/js/student.js?v=28"></script>
