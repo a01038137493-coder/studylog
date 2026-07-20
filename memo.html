@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=87" />
+  <link rel="stylesheet" href="/css/style.css?v=88" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -17,7 +17,6 @@
 
   <main class="container">
     <input type="search" id="memo-search" class="field__input memo-search" placeholder="메모 검색" autocomplete="off" />
-    <div class="memo-tags" id="memo-tags" hidden></div>
     <div id="memo-list"><p class="muted">불러오는 중...</p></div>
   </main>
 
@@ -46,18 +45,18 @@
 
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
-  <script src="/js/md.js?v=1"></script>
+  <script src="/js/memofmt.js?v=1"></script>
   <script>
-    /* 메모 목록 — 검색 + 태그 필터. 편집은 memo-edit.html (옵시디언식 전체화면) */
+    /* 메모 목록 — 아이폰 메모장식: 검색 + 제목/본문 미리보기 */
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await requireRole(["student"]);
       if (!profile) return;
 
       const listEl = document.getElementById("memo-list");
       const searchEl = document.getElementById("memo-search");
-      const tagsEl = document.getElementById("memo-tags");
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
       let memos = [];
-      let activeTag = null;
 
       function when(iso) {
         const d = new Date(iso);
@@ -68,39 +67,17 @@
           : `${d.getMonth() + 1}월 ${d.getDate()}일`;
       }
 
-      function preview(content) {
-        const lines = String(content || "").split("\n").slice(1);
-        return lines.join(" ").replace(/[#*_~`>\-]/g, "").replace(/\s+/g, " ").trim();
-      }
-
-      function renderTags() {
-        const counts = new Map();
-        memos.forEach((m) => MD.tagsOf(m.content).forEach((t) => counts.set(t, (counts.get(t) || 0) + 1)));
-        if (!counts.size) { tagsEl.hidden = true; return; }
-        tagsEl.hidden = false;
-        tagsEl.innerHTML = [...counts.entries()]
-          .sort((a, b) => b[1] - a[1])
-          .map(([t, n]) => `<button type="button" class="memo-tag${activeTag === t ? " is-active" : ""}" data-tag="${MD.esc(t)}">#${MD.esc(t)} ${n}</button>`)
-          .join("");
-        tagsEl.querySelectorAll("[data-tag]").forEach((b) => {
-          b.addEventListener("click", () => {
-            activeTag = activeTag === b.dataset.tag ? null : b.dataset.tag;
-            renderTags(); renderList();
-          });
-        });
-      }
-
       function renderList() {
         const q = searchEl.value.trim().toLowerCase();
-        let rows = memos;
-        if (activeTag) rows = rows.filter((m) => MD.tagsOf(m.content).includes(activeTag));
-        if (q) rows = rows.filter((m) => (m.content || "").toLowerCase().includes(q));
+        const rows = q
+          ? memos.filter((m) => MemoFmt.toText(m.content).toLowerCase().includes(q))
+          : memos;
 
         if (!memos.length) {
           listEl.innerHTML = `
             <div class="card memo-empty">
               <p class="memo-empty__title">아직 메모가 없어요</p>
-              <p class="memo-empty__desc">마크다운으로 자유롭게 적고, <b>[[다른 메모]]</b>로 연결하거나 <b>#태그</b>를 붙여보세요</p>
+              <p class="memo-empty__desc">수업 필기, 오답 포인트, 떠오른 생각을 자유롭게 적어보세요</p>
               <a href="/memo-edit.html" class="btn btn--primary btn--lg">첫 메모 쓰기</a>
             </div>`;
           return;
@@ -108,12 +85,16 @@
         if (!rows.length) { listEl.innerHTML = `<p class="muted">검색 결과가 없습니다.</p>`; return; }
 
         listEl.innerHTML = rows.map((m) => {
-          const body = preview(m.content);
+          const lines = MemoFmt.toText(m.content).split("\n").filter((l) => l.trim());
+          const title = lines[0] || "새로운 메모";
+          const body = lines.slice(1).join(" ").trim();
           return `
             <a href="/memo-edit.html?id=${m.id}" class="card memo-item">
-              <span class="memo-item__title">${MD.esc(MD.titleOf(m.content))}</span>
-              ${body ? `<span class="memo-item__body">${MD.esc(body)}</span>` : ""}
-              <span class="memo-item__date">${when(m.updated_at || m.created_at)}</span>
+              <span class="memo-item__title">${esc(title)}</span>
+              <span class="memo-item__meta">
+                <span class="memo-item__date">${when(m.updated_at || m.created_at)}</span>
+                ${body ? `<span class="memo-item__body">${esc(body)}</span>` : ""}
+              </span>
             </a>`;
         }).join("");
       }
@@ -129,7 +110,6 @@
         .order("updated_at", { ascending: false });
       if (error) { listEl.innerHTML = `<p class="muted">메모를 불러오지 못했습니다.</p>`; return; }
       memos = data || [];
-      renderTags();
       renderList();
     });
   </script>
