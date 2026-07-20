@@ -2088,3 +2088,22 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .settings-row__value { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
 /* 일반 사용자: 체크인에서 과목 선택 숨김 */
 body.is-general .task-subject { display: none; }
+
+/* ---------------- 일반 사용자 홈 (심플 투두 플래너) ---------------- */
+.gtodo { padding: 16px 16px 10px; margin-bottom: 14px; }
+.gtodo__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 0 2px; }
+.gtodo__title { font-weight: 800; font-size: 1.02rem; }
+.gtodo__count { color: var(--orange-strong); font-weight: 800; font-size: 0.88rem; }
+.gtodo__empty { color: var(--muted-soft); font-size: 0.9rem; text-align: center; margin: 18px 0; }
+.gtodo__row { margin-bottom: 0; border-radius: 12px; }
+.gtodo__item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px 4px; background: #fff; border: none; border-bottom: 1px solid var(--line); cursor: pointer; font: inherit; color: var(--text); text-align: left; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); animation: none; }
+.gtodo__row:last-of-type .gtodo__item { border-bottom: none; }
+.gtodo__check { flex: none; width: 23px; height: 23px; border-radius: 50%; border: 1.8px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; color: #fff; }
+.gtodo__item.is-done .gtodo__check { background: var(--orange); border-color: var(--orange); }
+.gtodo__text { font-size: 0.95rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gtodo__item.is-done .gtodo__text { color: var(--muted-soft); text-decoration: line-through; }
+.gtodo__addrow { padding-top: 8px; }
+.gtodo__input { width: 100%; box-sizing: border-box; border: none; outline: none; background: none; padding: 10px 4px; font: inherit; font-size: 0.95rem; color: var(--text); }
+.gtodo__input::placeholder { color: var(--muted-soft); font-weight: 600; }
+.gcarry { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--orange-bg); border-radius: 12px; padding: 12px 15px; margin-bottom: 14px; font-size: 0.86rem; font-weight: 600; color: var(--orange-strong); }
+.gcarry__btn { flex: none; background: var(--orange); color: #fff; border: none; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; }

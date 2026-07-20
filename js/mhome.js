@@ -27,6 +27,8 @@
     const profile = await requireRole(["student"]);
     if (!profile) return;
     if (!profile.onboarded) { window.location.replace("/onboarding.html"); return; }
+    // 일반 사용자는 전용 홈으로 (수험생 홈과 완전 분리)
+    if (profile.user_type === "general") { window.location.replace("/general-m.html"); return; }
 
     const T = terms(profile);
 
