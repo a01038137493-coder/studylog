@@ -184,39 +184,21 @@ function colsNow() {
 
 /* 현재 화면 "열 수"에 맞는 위젯 배치 맵을 활성화 (기기/화면 폭별 분리 저장)
  * - 폰(2칸)과 PC(여러 칸)가 각자의 배치를 따로 기억 → 기기를 오가도 서로 덮어쓰지 않음 */
+let pendingLayoutSave = false;   // 처음 보는 화면 폭 → 자동 배치 결과를 1회 저장
+
 function useLayoutForCols(cols) {
   const key = "c" + cols;
   if (!dashLayout.layouts[key]) {
-    // 이 화면 폭을 처음 보는 경우(기기 회전·다른 기기 등):
-    // 구버전 단일 배치 → 없으면 가장 가까운 열 수의 배치를 옮겨 심는다.
-    // (빈 배치로 두면 매번 자동 재배치되어 "저장한 대로 안 나온다"는 문제가 생김)
-    const base = dashLayout._seedPos || nearestLayout(cols);
-    dashLayout.layouts[key] = base ? adaptPos(base, cols) : {};
+    // 이 화면 폭을 처음 보는 경우: 구버전 단일 배치가 있으면 1회 이식, 없으면 자동 배치.
+    // 다른 폭의 좌표를 그대로 물려받으면 행 번호까지 따라와 위젯이 화면 밖으로
+    // 밀리므로, 이 폭에 맞게 새로 채운 뒤 그대로 저장해 다음부터 고정한다.
+    dashLayout.layouts[key] = dashLayout._seedPos
+      ? JSON.parse(JSON.stringify(dashLayout._seedPos))
+      : {};
     dashLayout._seedPos = null;
+    pendingLayoutSave = true;
   }
   dashLayout.pos = dashLayout.layouts[key];
-}
-
-/* 저장된 배치들 중 현재 열 수와 가장 가까운 것 */
-function nearestLayout(cols) {
-  const cands = Object.keys(dashLayout.layouts)
-    .map((k) => ({ k, n: Number(k.slice(1)) }))
-    .filter((x) => Number.isFinite(x.n) && Object.keys(dashLayout.layouts[x.k] || {}).length)
-    .sort((a, b) => Math.abs(a.n - cols) - Math.abs(b.n - cols));
-  return cands.length ? dashLayout.layouts[cands[0].k] : null;
-}
-
-/* 다른 열 수의 배치를 현재 열 수에 맞게 접어 넣기 (오른쪽으로 넘치면 안쪽으로 당김) */
-function adaptPos(src, cols) {
-  const out = {};
-  Object.keys(src).forEach((id) => {
-    const p = src[id];
-    if (!p) return;
-    const { w } = footprint(id);
-    const maxC = Math.max(1, cols - w + 1);
-    out[id] = { c: Math.min(Math.max(1, p.c || 1), maxC), r: Math.max(1, p.r || 1), p: p.p || 1 };
-  });
-  return out;
 }
 
 /* ===== 페이지(좌우 슬라이드) ===== */
@@ -345,6 +327,7 @@ function renderCanvas() {
   for (let pg = 1; pg <= PAGE_COUNT; pg++) {
     const canvas = pageCanvas(pg);
     if (!canvas) continue;
+    const maxRows = visibleRows(canvas);
     const occ = new Set();
     if (pg === 1) {  // 1페이지는 core가 차지하는 칸 선점
       for (let r = coreFp.r; r < coreFp.r + coreFp.h; r++)
@@ -359,12 +342,22 @@ function renderCanvas() {
       const w = Math.min(fp.w, cols);  // 화면이 좁으면 폭을 줄여 오버플로 방지
       const h = fp.h;
       let saved = dashLayout.pos[id];
-      if (!saved) { saved = { ...autoSpot(occ, w, h, cols, pg), p: pg }; dashLayout.pos[id] = saved; }
-      const disp = fits(saved.c, saved.r, w, h, occ, cols) ? saved : autoSpot(occ, w, h, cols, pg);
+      if (!saved) { saved = { ...autoSpot(occ, w, h, cols, pg, maxRows), p: pg }; dashLayout.pos[id] = saved; }
+      // 저장 위치가 비어 있고 화면 안에 들어올 때만 그대로 사용
+      const inView = !maxRows || saved.r + h - 1 <= maxRows;
+      const disp = fits(saved.c, saved.r, w, h, occ, cols) && inView
+        ? saved
+        : autoSpot(occ, w, h, cols, pg, maxRows);
       markOcc(occ, disp.c, disp.r, w, h);
       el.style.gridColumn = `${disp.c} / span ${w}`;
       el.style.gridRow = `${disp.r} / span ${h}`;
     });
+  }
+
+  // 이 화면 폭에서 처음 만든 배치를 저장해 다음 진입 때도 같은 자리에 오게 한다
+  if (pendingLayoutSave) {
+    pendingLayoutSave = false;
+    saveLayout();
   }
 }
 
@@ -376,13 +369,38 @@ function firstFreeIn(occ, w, h, cols) {
   return { c: 1, r: 1 };
 }
 /* 자동 배치: 1페이지에서는 코어(학생 카드) '아래'부터 줄지어 채운다.
-   → 코어 양옆 좁은 빈틈에 흩어져 화면 폭마다 깨져 보이던 문제 방지(어느 폭이든 카드 위+위젯 정렬). */
-function autoSpot(occ, w, h, cols, page) {
+   → 코어 양옆 좁은 빈틈에 흩어져 화면 폭마다 깨져 보이던 문제 방지(어느 폭이든 카드 위+위젯 정렬).
+   maxRows(화면에 보이는 마지막 행)를 주면 그 안에서 먼저 찾고, 자리가 없으면
+   코어 옆(위쪽 행)까지 훑는다. 가로 화면처럼 세로가 짧을 때 위젯이 탭바 아래로
+   숨어버리는 것을 막는다. */
+function autoSpot(occ, w, h, cols, page, maxRows) {
   const startR = page === 1 ? coreFp.r + coreFp.h : 1;
+  const limit = maxRows && maxRows >= h ? maxRows : 0;
+
+  if (limit) {
+    for (let r = startR; r + h - 1 <= limit; r++)
+      for (let c = 1; c <= cols - w + 1; c++)
+        if (fits(c, r, w, h, occ, cols)) return { c, r };
+    // 코어 아래에 자리가 없으면 코어 옆(1행부터)에서 화면 안쪽으로
+    for (let r = 1; r + h - 1 <= limit; r++)
+      for (let c = 1; c <= cols - w + 1; c++)
+        if (fits(c, r, w, h, occ, cols)) return { c, r };
+  }
+
   for (let r = startR; r < 200; r++)
     for (let c = 1; c <= cols - w + 1; c++)
       if (fits(c, r, w, h, occ, cols)) return { c, r };
   return firstFreeIn(occ, w, h, cols);   // 예외적으로 못 찾으면 전체 스캔
+}
+
+/* 화면에 보이는 마지막 격자 행 (탭바·상단 여백 제외). 못 구하면 0 = 제한 없음 */
+function visibleRows(canvas) {
+  if (!canvas) return 0;
+  const top = canvas.getBoundingClientRect().top;
+  const tabbar = document.querySelector(".tabbar");
+  const reserve = (tabbar ? tabbar.getBoundingClientRect().height : 0) + 16;
+  const avail = window.innerHeight - top - reserve;
+  return avail > CELL_H ? Math.floor((avail + GAP) / (CELL_H + GAP)) : 0;
 }
 function markOcc(occ, c, r, w, h) {
   for (let rr = r; rr < r + h; rr++)
