@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=80" />
+  <link rel="stylesheet" href="/css/style.css?v=81" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -90,6 +90,8 @@
       </label>
 
       <p class="evsheet__error" id="ev-error" role="alert"></p>
+
+      <button type="button" class="evsheet__delete" id="ev-delete" hidden>일정 삭제</button>
     </div>
   </div>
 
@@ -264,37 +266,79 @@
         let html = `<p class="fcal__events-title">${m}월 ${d}일</p>`;
         if (hasRec) html += `<div class="fcal-ev fcal-ev--rec"><span class="fcal-ev__time">공부</span><span class="fcal-ev__title">체크아웃 기록 완료 ✓</span></div>`;
         if (list.length) {
-          html += list.map((ev) => {
+          html += list.map((ev, idx) => {
             const t = new Date(ev.startDate);
             const time = ev.isAllDay ? "종일" : `${pad(t.getHours())}:${pad(t.getMinutes())}`;
-            return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`;
+            return `<button type="button" class="fcal-ev fcal-ev--tap" data-ev="${idx}">
+              <span class="fcal-ev__time">${time}</span>
+              <span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span>
+              <span class="fcal-ev__chevron" aria-hidden="true">›</span>
+            </button>`;
           }).join("");
         } else if (!hasRec) {
           html += `<p class="fcal__events-empty">${calPlugin ? "일정이 없습니다 · 날짜를 길게 누르면 일정을 등록할 수 있어요" : "Apple 캘린더 일정은 앱에서 표시됩니다"}</p>`;
         }
         box.innerHTML = html;
+
+        // 일정 탭 → 수정/삭제 시트
+        box.querySelectorAll("[data-ev]").forEach((row) => {
+          row.addEventListener("click", () => {
+            const ev = (events.get(selected) || [])[Number(row.dataset.ev)];
+            if (ev) openEditSheet(ev);
+          });
+        });
       }
 
-      /* ---------- 새 일정 시트 ---------- */
+      /* ---------- 새 일정 / 수정 시트 ---------- */
       const sheet = document.getElementById("evsheet");
       const evErr = document.getElementById("ev-error");
+      let editingId = null;   // null = 새 일정, 값 있으면 해당 일정 수정
+
+      function fillSheet({ title, allday, sd, st, ed, et, repeat, alert5 }) {
+        evErr.textContent = "";
+        document.getElementById("ev-title").value = title;
+        document.getElementById("ev-allday").checked = allday;
+        document.getElementById("ev-start-date").value = sd;
+        document.getElementById("ev-start-time").value = st;
+        document.getElementById("ev-end-date").value = ed;
+        document.getElementById("ev-end-time").value = et;
+        document.getElementById("ev-repeat").value = repeat;
+        document.getElementById("ev-alert").value = alert5;
+        syncAllday();
+        sheet.hidden = false;
+      }
 
       function openSheet(dateKey) {
         if (!calPlugin) { alert("일정 등록은 앱에서 사용할 수 있어요."); return; }
-        evErr.textContent = "";
-        document.getElementById("ev-title").value = "";
-        document.getElementById("ev-allday").checked = false;
-        document.getElementById("ev-start-date").value = dateKey;
-        document.getElementById("ev-start-time").value = "09:00";
-        document.getElementById("ev-end-date").value = dateKey;
-        document.getElementById("ev-end-time").value = "10:00";
-        document.getElementById("ev-repeat").value = "";
-        document.getElementById("ev-alert").value = "-5";
-        syncAllday();
-        sheet.hidden = false;
+        editingId = null;
+        document.querySelector(".evsheet__title").textContent = "새 일정";
+        document.getElementById("ev-delete").hidden = true;
+        fillSheet({ title: "", allday: false, sd: dateKey, st: "09:00", ed: dateKey, et: "10:00", repeat: "", alert5: "-5" });
         setTimeout(() => document.getElementById("ev-title").focus(), 50);
       }
-      function closeSheet() { sheet.hidden = true; }
+
+      function openEditSheet(ev) {
+        editingId = ev.id;
+        document.querySelector(".evsheet__title").textContent = "일정 수정";
+        document.getElementById("ev-delete").hidden = false;
+        const s = new Date(ev.startDate);
+        const e = new Date(ev.endDate || ev.startDate);
+        // 알림: 기존 값이 선택지에 있으면 채우고, 없으면 '없음'
+        const known = ["0", "-5", "-10", "-15", "-30", "-60", "-120", "-1440", "-2880", "-10080"];
+        const a = Array.isArray(ev.alerts) && ev.alerts.length ? String(ev.alerts[0]) : "";
+        fillSheet({
+          title: ev.title || "",
+          allday: !!ev.isAllDay,
+          sd: dstr(s.getFullYear(), s.getMonth(), s.getDate()),
+          st: `${pad(s.getHours())}:${pad(s.getMinutes())}`,
+          ed: dstr(e.getFullYear(), e.getMonth(), e.getDate()),
+          et: `${pad(e.getHours())}:${pad(e.getMinutes())}`,
+          repeat: "",                       // 반복은 조회가 안 돼 기본값 — 바꾸면 새 반복으로 덮어씀
+          alert5: known.includes(a) ? a : "",
+        });
+      }
+
+      function closeSheet() { sheet.hidden = true; editingId = null; }
 
       function syncAllday() {
         const allday = document.getElementById("ev-allday").checked;
@@ -327,16 +371,34 @@
         btn.disabled = true;
         try {
           if (!(await ensureCalendarAccess())) throw new Error("permission");
-          await calPlugin.createEvent(opts);
+          if (editingId) await calPlugin.modifyEvent({ id: editingId, ...opts });
+          else await calPlugin.createEvent(opts);
           closeSheet();
           selected = sd;
           await loadMonth();
           renderGrid();
           renderEvents();
         } catch (e) {
-          evErr.textContent = "일정을 저장하지 못했습니다. 캘린더 접근 권한을 확인해주세요.";
+          evErr.textContent = editingId
+            ? "이 일정은 수정할 수 없어요. (공휴일 등 구독 캘린더 일정)"
+            : "일정을 저장하지 못했습니다. 캘린더 접근 권한을 확인해주세요.";
         } finally {
           btn.disabled = false;
+        }
+      });
+
+      /* 일정 삭제 */
+      document.getElementById("ev-delete").addEventListener("click", async () => {
+        if (!editingId) return;
+        if (!confirm("이 일정을 삭제할까요?")) return;
+        try {
+          await calPlugin.deleteEventsById({ ids: [editingId] });
+          closeSheet();
+          await loadMonth();
+          renderGrid();
+          renderEvents();
+        } catch (e) {
+          evErr.textContent = "이 일정은 삭제할 수 없어요. (공휴일 등 구독 캘린더 일정)";
         }
       });
 

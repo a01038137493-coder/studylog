@@ -1942,3 +1942,15 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 /* 할 일 페이지 — 오늘 일정 */
 .todo-events { padding: 14px 16px 8px; margin-bottom: 12px; }
 .todo-events__title { font-weight: 800; font-size: 0.9rem; color: var(--muted); margin: 0 0 10px 2px; }
+
+/* 일정 행 탭 가능 스타일 + 삭제 버튼 */
+.fcal-ev--tap { width: 100%; cursor: pointer; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.fcal-ev--tap:active { background: var(--bg-soft); }
+.fcal-ev__chevron { margin-left: auto; color: var(--muted-soft); font-size: 1.05rem; }
+.evsheet__delete {
+  display: block; width: 100%; margin-top: 14px;
+  background: var(--orange-bg); color: var(--orange-strong);
+  border: none; border-radius: 12px; padding: 14px;
+  font: inherit; font-weight: 800; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
