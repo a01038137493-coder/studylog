@@ -92,7 +92,6 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
   opacity: 1;
   transition: opacity 0.45s ease;
 }
-body.nm .app-loader { background: #d6dde9; }     /* 학생 대시보드(뉴모피즘) 배경과 일치 */
 .app-loader.is-hidden { opacity: 0; pointer-events: none; }
 .app-loader__inner {
   display: flex;
@@ -737,18 +736,6 @@ body.nm .app-loader { background: #d6dde9; }     /* 학생 대시보드(뉴모�
 .hero-focus__dots { display: flex; justify-content: center; gap: 7px; margin-top: 16px; }
 .hero-focus__dot { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: rgba(255, 255, 255, 0.28); cursor: pointer; transition: width 0.18s ease, background 0.18s ease, border-radius 0.18s ease; }
 .hero-focus__dot.is-active { width: 20px; border-radius: 4px; background: #e3a23e; }
-/* nm(뉴모피즘) 테마: 상태 카드가 라이트 → 글자/포인트 어둡게 */
-body.nm .hero-tasks__label { color: #2c3340; }
-body.nm .hero-tasks__count { color: #c2862a; }
-body.nm .hero-tasks__bar { background: rgba(90, 107, 134, 0.22); }
-body.nm .hero-tasks__subject { color: #9a6a1e; background: rgba(227, 162, 62, 0.2); }
-body.nm .hero-focus__check, body.nm .hero-focus__subcheck { border-color: rgba(90, 107, 134, 0.5); color: #fff; }
-body.nm .hero-focus__title { color: #2c3340; }
-body.nm .hero-focus__task.is-done .hero-focus__title { color: #8893a5; }
-body.nm .hero-focus__subtext { color: #3a4252; }
-body.nm .hero-focus__sub.is-done .hero-focus__subtext { color: #8893a5; }
-body.nm .hero-focus__dot { background: rgba(90, 107, 134, 0.35); }
-body.nm .hero-focus__dot.is-active { background: #c2862a; }
 
 /* ---------------- 달성률 표시 ---------------- */
 .rate-display { text-align: center; padding: 20px; background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius-sm); margin: 20px 0; }
@@ -1466,8 +1453,6 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
   transition: width 0.2s ease, background 0.2s ease, border-radius 0.2s ease;
 }
 .pager-dot.is-active { width: 22px; border-radius: 4px; background: var(--navy); }
-body.nm .pager-dot { background: rgba(90, 107, 134, 0.35); }
-body.nm .pager-dot.is-active { background: #5a6b86; }
 
 /* 삭제(−) 버튼: 편집 모드에서만 표시. core 위젯엔 버튼이 없어 고정 */
 .widget__del {
@@ -1598,7 +1583,6 @@ body.nm .pager-dot.is-active { background: #5a6b86; }
   background: radial-gradient(circle at 50% 42%, #ffffff 0%, #eef1f6 80%);
 }
 .clock__watch { width: 100%; height: 100%; display: block; }
-body.nm .widget--clock-analog { background: #d6dde9; }
 
 /* 오늘 과제 위젯 — 포커스형 (지금 할 일 한 개씩 + 완료 체크) */
 .widget--tasks {
@@ -1606,10 +1590,6 @@ body.nm .widget--clock-analog { background: #d6dde9; }
   background: linear-gradient(165deg, #ffffff 0%, #f4f6fb 100%);
   border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-xs);
   font-family: "Pretendard Variable", system-ui, sans-serif; color: var(--navy);
-}
-body.nm .widget--tasks {
-  background: #d6dde9; border: none;
-  box-shadow: -9px -9px 18px rgba(255, 255, 255, 1), 9px 9px 20px rgba(150, 167, 195, 0.55);
 }
 .tasksw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .tasksw__top { display: flex; align-items: center; gap: 6px; }
@@ -1679,15 +1659,6 @@ body.nm .widget--tasks {
 }
 .memo__text::placeholder { color: #bcae66; }
 
-/* 뉴모피즘 테마에서도 노란 포스트잇 유지 (살짝 떠 보이게) */
-body.nm .widget--memo {
-  background: #fdf2a6; border: none;
-  box-shadow: -7px -7px 16px rgba(255, 255, 255, 0.65), 8px 8px 18px rgba(150, 167, 195, 0.5);
-}
-body.nm .memo__title { color: #9a8829; }
-body.nm .memo__font { background: #fffdf0; border-color: #e6d885; color: #5c5320; }
-body.nm .memo__text { color: #4a4320; }
-
 /* 한줄 다짐 위젯 — 사용자 지정 폰트(assets/fonts/) 적용 */
 @font-face {
   font-family: "MottoFont";
@@ -1718,12 +1689,6 @@ body.nm .memo__text { color: #4a4320; }
   font-family: "Pretendard Variable", system-ui, sans-serif;
   font-size: 0.9rem; font-weight: 600; color: var(--muted-soft);
 }
-body.nm .widget--motto {
-  background: #d6dde9; border: none;
-  box-shadow: -9px -9px 18px rgba(255, 255, 255, 1), 9px 9px 20px rgba(150, 167, 195, 0.55);
-}
-body.nm .motto__label { color: #6b7585; }
-body.nm .motto__text { color: #2f3744; }
 
 /* 편집 바 (하단 고정): + 위젯 추가 / 완료 */
 .edit-bar {
@@ -1736,7 +1701,6 @@ body.nm .motto__text { color: #2f3744; }
   box-shadow: 0 6px 20px rgba(0,0,0,0.22);
 }
 .edit-bar__add { background: #fff; color: var(--navy); border: 1.5px solid var(--line-strong); }
-.edit-bar__style { background: #fff; color: var(--navy); border: 1.5px solid var(--line-strong); }
 .edit-bar__done { background: var(--primary); color: #fff; }
 
 /* 위젯 추가 카탈로그 (바텀시트) */
@@ -1774,74 +1738,6 @@ body.nm .motto__text { color: #2f3744; }
   .catalog-modal { align-items: center; }
   .catalog { border-radius: 20px; }
 }
-
-/* ============================================================
-   Soft UI / 뉴모피즘 테마 — 학생 대시보드 전용 (body.nm)
-   배경=카드색 동일 + 밝은 하이라이트/어두운 그림자로 "튀어나옴"
-   ============================================================ */
-body.nm { background: #d6dde9; }
-
-/* 공통: 카드/위젯 — 배경=페이지색, 테두리 제거, 이중 그림자 */
-body.nm .status-card,
-body.nm .flow-card,
-body.nm .action,
-body.nm .calendar,
-body.nm .widget--clock {
-  background: #d6dde9;
-  border: none;
-  box-shadow: -9px -9px 18px rgba(255, 255, 255, 1), 9px 9px 20px rgba(150, 167, 195, 0.55);
-}
-
-/* hover: 살짝 더 떠오르게 */
-body.nm .flow-card:hover,
-body.nm .action:hover {
-  transform: translateY(-2px);
-  box-shadow: -10px -10px 20px rgba(255, 255, 255, 1), 11px 11px 24px rgba(150, 167, 195, 0.6);
-}
-
-/* '지금 할 일': 떠오른 상태 + 주황 테두리 강조 */
-body.nm .is-next {
-  box-shadow: -9px -9px 18px rgba(255, 255, 255, 1), 9px 9px 20px rgba(150, 167, 195, 0.55), 0 0 0 3.5px rgba(239, 142, 60, 0.95) !important;
-}
-
-/* 메인 상태 카드: 검정 → 라이트 뉴모피즘 */
-body.nm .status-card { color: #39414f; }
-body.nm .status-card::after { display: none; }
-body.nm .status-card__hello,
-body.nm .status-card__date { color: #2c3340; opacity: 1; }
-body.nm .status-card__name { color: #2c3340; }
-body.nm .status-card__dday {
-  background: #d6dde9; color: #2c3340;
-  box-shadow: inset 3px 3px 6px rgba(150, 167, 195, 0.55), inset -3px -3px 6px rgba(255, 255, 255, 1);
-}
-body.nm .status-card__dday-label { color: #2c3340; opacity: 1; }
-body.nm .daily-quote--in-card { border-top-color: rgba(174, 188, 209, 0.45); }
-body.nm .daily-quote--in-card .daily-quote__text { color: #3a4252; }
-body.nm .daily-quote--in-card .daily-quote__mark { color: rgba(80, 90, 110, 0.3); }
-body.nm .daily-quote--in-card .daily-quote__author { color: #2c3340; }
-
-/* 상태 pill: 떠오른 작은 칩 */
-body.nm .pill {
-  background: #d6dde9; color: #2c3340;
-  box-shadow: -4px -4px 9px rgba(255, 255, 255, 1), 4px 4px 9px rgba(150, 167, 195, 0.5);
-}
-body.nm .pill::before { color: #aab3c2; }
-body.nm .pill--done { color: #1f9d55; }
-body.nm .pill--done::before { color: #1f9d55; }
-
-/* 체크아웃 결과 스트립 항목도 떠오르게 */
-body.nm .result-strip__item {
-  background: #d6dde9;
-  box-shadow: -4px -4px 9px rgba(255, 255, 255, 1), 4px 4px 9px rgba(150, 167, 195, 0.5);
-}
-body.nm .result-strip__label { color: #2c3340; }
-body.nm .result-strip__value { color: #2c3340; }
-
-/* 회색 보조 텍스트도 검정 계열로 */
-body.nm .flow-card__meta,
-body.nm .action__desc,
-body.nm .calendar__dow,
-body.nm .footer-quote { color: #2c3340; }
 
 /* ---------------- 소셜 로그인 / 회원가입 ---------------- */
 .form__success { color: var(--primary-600, #2b6cb0); font-size: 0.9rem; min-height: 1.2em; margin: 4px 0 12px; font-weight: 600; }

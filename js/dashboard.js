@@ -39,7 +39,6 @@ async function initDashboard(profile) {
   const loaded = await loadLayout(profile.id);
   dashLayout = normalizeLayout(loaded);
   if (loaded == null) dashLayout.extra = ["timer"]; // 최초 진입 기본 위젯
-  applyTheme();
   wireCalendarDelete();
   renderCanvas();
   setupLongPress();
@@ -128,7 +127,6 @@ function normalizeLayout(l) {
     pos: {},
     // 구버전(단일 배치)에서 올라온 경우: 처음 만나는 화면에 1회만 이식
     _seedPos: l && !l.layouts && l.pos && typeof l.pos === "object" ? l.pos : null,
-    theme: l && l.theme === "default" ? "default" : "nm",  // 기본값: 뉴모피즘
     memo: {
       text: l && l.memo && typeof l.memo.text === "string" ? l.memo.text : "",
       font: l && l.memo && typeof l.memo.font === "string" ? l.memo.font : "default",
@@ -140,20 +138,6 @@ function normalizeLayout(l) {
       design: l && l.clock && l.clock.design === "analog" ? "analog" : "digital",
     },
   };
-}
-
-/* 스타일 적용: 뉴모피즘(nm) / 기본(default) */
-function applyTheme() {
-  document.body.classList.toggle("nm", dashLayout.theme !== "default");
-  const btn = document.getElementById("edit-style");
-  if (btn) btn.textContent = dashLayout.theme === "default" ? "스타일: 기본" : "스타일: 뉴모피즘";
-}
-
-function toggleTheme() {
-  dashLayout.theme = dashLayout.theme === "default" ? "nm" : "default";
-  applyTheme();
-  renderCanvas();   // core 높이 등 재계산
-  saveLayout();
 }
 
 /* ============================================================
@@ -716,16 +700,13 @@ function showEditBar(show) {
       bar.id = "edit-bar";
       bar.className = "edit-bar";
       bar.innerHTML = `
-        <button type="button" class="edit-bar__btn edit-bar__style" id="edit-style">스타일</button>
         <button type="button" class="edit-bar__btn edit-bar__add" id="edit-add">+ 위젯 추가</button>
         <button type="button" class="edit-bar__btn edit-bar__done" id="edit-done">완료</button>`;
       document.body.appendChild(bar);
       bar.querySelector("#edit-done").addEventListener("click", exitEditMode);
       bar.querySelector("#edit-add").addEventListener("click", openCatalog);
-      bar.querySelector("#edit-style").addEventListener("click", toggleTheme);
     }
     bar.hidden = false;
-    applyTheme();  // 스타일 버튼 라벨 동기화
   } else if (bar) {
     bar.hidden = true;
   }
@@ -1267,7 +1248,6 @@ function loadWeather() {
     dashLayout = normalizeLayout(null);
   }
   try {
-    applyTheme();
     renderCanvas();
   } catch (e) {
     /* 측정 실패해도 화면은 반드시 노출 */
