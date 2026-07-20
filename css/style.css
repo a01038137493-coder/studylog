@@ -2048,5 +2048,7 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .memo-act { width: 79px; border: none; font: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .memo-act--pin { background: #f0913a; }
 .memo-act--del { background: #d9534f; }
-.memo-row .memo-item { position: relative; margin-bottom: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
+/* .card 의 fadeUp 애니메이션(fill: both)이 인라인 transform 을 덮어써서
+   스와이프 이동이 화면에 반영되지 않는다 → 이 카드에서는 애니메이션 해제 */
+.memo-row .memo-item { animation: none; position: relative; margin-bottom: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
 .memo-item__pin { font-size: 0.82rem; }
