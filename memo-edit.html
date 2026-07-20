@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=93" />
+  <link rel="stylesheet" href="/css/style.css?v=94" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg memoedit-page">
@@ -13,7 +13,6 @@
     <span class="memoedit__status" id="me-status"></span>
     <div class="topbar__right">
       <button type="button" class="btn btn--ghost btn--sm" id="me-done" hidden>완료</button>
-      <button type="button" class="btn btn--ghost btn--sm" id="me-del" hidden aria-label="삭제">🗑</button>
     </div>
   </header>
 
@@ -48,7 +47,6 @@
 
       const body = document.getElementById("me-body");
       const statusEl = document.getElementById("me-status");
-      const delBtn = document.getElementById("me-del");
       const doneBtn = document.getElementById("me-done");
 
       let id = new URLSearchParams(location.search).get("id");
@@ -61,7 +59,6 @@
         if (data) {
           body.innerHTML = MemoFmt.toHtml(data.content || "");
           saved = MemoFmt.clean(body.innerHTML);
-          delBtn.hidden = false;
         } else { id = null; }
       }
       if (!id) setTimeout(() => body.focus(), 60);
@@ -80,7 +77,6 @@
               .from("memos").insert({ student_id: profile.id, content }).select().single();
             if (error) throw error;
             id = data.id;
-            delBtn.hidden = false;
             history.replaceState(null, "", `/memo-edit.html?id=${id}`);
           }
           saved = content;
@@ -109,13 +105,6 @@
       body.addEventListener("focus", () => { doneBtn.hidden = false; });
       doneBtn.addEventListener("click", () => { body.blur(); doneBtn.hidden = true; save(); });
 
-      delBtn.addEventListener("click", async () => {
-        if (!id || !confirm("이 메모를 삭제할까요?")) return;
-        clearTimeout(timer);
-        const { error } = await supabaseClient.from("memos").delete().eq("id", id);
-        if (error) { status("삭제 실패"); return; }
-        window.location.href = "/memo.html";
-      });
 
       /* 서식 툴바 */
       document.getElementById("me-bar").querySelectorAll("button").forEach((b) => {
