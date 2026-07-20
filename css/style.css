@@ -1954,3 +1954,14 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
   font: inherit; font-weight: 800; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ---------------- 모바일 홈: 오늘 진행 카드 + 스트릭 ---------------- */
+.mprog { display: block; padding: 16px 18px; margin-bottom: 12px; }
+.mprog__row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mprog__label { font-weight: 800; }
+.mprog__count { color: var(--orange-strong); font-weight: 800; font-size: 0.9rem; }
+.mprog__bar { height: 7px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+.mprog__fill { height: 100%; border-radius: 999px; background: var(--orange); transition: width 0.25s ease; width: 0; }
+.mprog__next { margin: 11px 0 0; font-size: 0.88rem; font-weight: 600; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mstreak { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--muted-soft); margin: 0 0 14px; }
+.mstreak--on { color: var(--orange-strong); }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=81" />
+  <link rel="stylesheet" href="/css/style.css?v=82" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -32,6 +32,19 @@
     <!-- student.js 호환용 (모바일에선 미표시) -->
     <span id="student-name" hidden></span>
     <div id="daily-quote" hidden></div>
+
+    <!-- 오늘 진행: 과제 n/N + 다음 할 일 (탭하면 할 일 페이지) -->
+    <a href="/todo.html" class="card mprog" id="mprog" hidden>
+      <div class="mprog__row">
+        <span class="mprog__label">오늘 과제</span>
+        <span class="mprog__count" id="mprog-count">0/0 완료</span>
+      </div>
+      <div class="mprog__bar"><div class="mprog__fill" id="mprog-fill"></div></div>
+      <p class="mprog__next" id="mprog-next"></p>
+    </a>
+
+    <!-- 스트릭 -->
+    <p class="mstreak" id="mstreak" hidden></p>
 
     <!-- 체크아웃 완료 후 오늘 결과 요약 -->
     <div class="result-strip" id="result-strip" hidden></div>
@@ -95,5 +108,6 @@
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
   <script src="/js/student.js?v=28"></script>
+  <script src="/js/mhome.js?v=1"></script>
 </body>
 </html>
