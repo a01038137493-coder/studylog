@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>메모 · 디턴로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=87" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg memoedit-page">
+  <header class="topbar">
+    <a href="/memo.html" class="btn btn--ghost btn--sm">← 메모</a>
+    <span class="memoedit__status" id="me-status"></span>
+    <div class="topbar__right">
+      <button type="button" class="btn btn--ghost btn--sm" id="me-toggle">읽기</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="me-del" hidden aria-label="삭제">🗑</button>
+    </div>
+  </header>
+
+  <main class="memoedit">
+    <textarea id="me-text" class="memoedit__text" placeholder="# 제목&#10;&#10;마크다운으로 적어보세요.&#10;- 할 일  - [ ] 체크박스&#10;[[다른 메모]] 로 연결, #태그 로 분류" spellcheck="false"></textarea>
+    <div id="me-preview" class="memoedit__preview md" hidden></div>
+  </main>
+
+  <!-- 편집 보조 툴바 (키보드 위) -->
+  <div class="mdbar" id="me-bar">
+    <button type="button" data-ins="# ">H</button>
+    <button type="button" data-wrap="**">B</button>
+    <button type="button" data-ins="- ">•</button>
+    <button type="button" data-ins="- [ ] ">☑</button>
+    <button type="button" data-wrap="[[|]]">[[ ]]</button>
+    <button type="button" data-ins="#">#</button>
+    <button type="button" data-wrap="`">&lt;/&gt;</button>
+  </div>
+
+  <script src="/js/supabaseClient.js?v=mock9"></script>
+  <script src="/js/utils.js?v=14"></script>
+  <script src="/js/md.js?v=1"></script>
+  <script>
+    /* 옵시디언식 메모 편집기: 전체화면 · 자동저장 · 읽기/편집 전환 · [[위키링크]] */
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = await requireRole(["student"]);
+      if (!profile) return;
+
+      const text = document.getElementById("me-text");
+      const preview = document.getElementById("me-preview");
+      const statusEl = document.getElementById("me-status");
+      const toggleBtn = document.getElementById("me-toggle");
+      const delBtn = document.getElementById("me-del");
+
+      let id = new URLSearchParams(location.search).get("id");
+      let saved = "";
+      let timer = null;
+      let reading = false;
+
+      const status = (s) => { statusEl.textContent = s; };
+
+      /* 기존 메모 로드 */
+      if (id) {
+        const { data } = await supabaseClient.from("memos").select("*").eq("id", id).maybeSingle();
+        if (data) {
+          text.value = saved = data.content || "";
+          delBtn.hidden = false;
+        } else {
+          id = null;
+        }
+      } else {
+        // 새 메모를 [[링크]]로 만든 경우 제목 미리 채우기
+        const t = new URLSearchParams(location.search).get("title");
+        if (t) text.value = `# ${t}\n\n`;
+      }
+      if (!id) setTimeout(() => text.focus(), 60);
+
+      /* 자동 저장 (입력 후 800ms, 화면 이탈 시 즉시) */
+      async function save() {
+        const content = text.value;
+        if (content === saved) return;
+        if (!content.trim() && !id) return;          // 빈 새 메모는 저장 안 함
+        status("저장 중…");
+        try {
+          if (id) {
+            const { error } = await supabaseClient.from("memos").update({ content }).eq("id", id);
+            if (error) throw error;
+          } else {
+            const { data, error } = await supabaseClient
+              .from("memos").insert({ student_id: profile.id, content }).select().single();
+            if (error) throw error;
+            id = data.id;
+            delBtn.hidden = false;
+            history.replaceState(null, "", `/memo-edit.html?id=${id}`);
+          }
+          saved = content;
+          status("저장됨");
+          setTimeout(() => { if (statusEl.textContent === "저장됨") status(""); }, 1600);
+        } catch (e) {
+          status("저장 실패");
+        }
+      }
+
+      text.addEventListener("input", () => {
+        status("…");
+        clearTimeout(timer);
+        timer = setTimeout(save, 800);
+      });
+      window.addEventListener("pagehide", save);
+      document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+
+      /* 읽기 / 편집 전환 */
+      function renderPreview() {
+        preview.innerHTML = MD.render(text.value);
+        preview.querySelectorAll(".md-wikilink").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            await save();
+            const target = a.dataset.link;
+            const { data } = await supabaseClient
+              .from("memos").select("id, content").eq("student_id", profile.id);
+            const hit = (data || []).find((m) => MD.titleOf(m.content) === target);
+            window.location.href = hit
+              ? `/memo-edit.html?id=${hit.id}`
+              : `/memo-edit.html?title=${encodeURIComponent(target)}`;
+          });
+        });
+      }
+      toggleBtn.addEventListener("click", () => {
+        reading = !reading;
+        if (reading) renderPreview();
+        preview.hidden = !reading;
+        text.hidden = reading;
+        document.getElementById("me-bar").hidden = reading;
+        toggleBtn.textContent = reading ? "편집" : "읽기";
+      });
+
+      /* 삭제 */
+      delBtn.addEventListener("click", async () => {
+        if (!id || !confirm("이 메모를 삭제할까요?")) return;
+        clearTimeout(timer);
+        const { error } = await supabaseClient.from("memos").delete().eq("id", id);
+        if (error) { status("삭제 실패"); return; }
+        window.location.href = "/memo.html";
+      });
+
+      /* 마크다운 툴바 */
+      document.getElementById("me-bar").querySelectorAll("button").forEach((b) => {
+        b.addEventListener("mousedown", (e) => e.preventDefault());   // 포커스 유지
+        b.addEventListener("click", () => {
+          const s = text.selectionStart, e2 = text.selectionEnd;
+          const v = text.value;
+          if (b.dataset.wrap) {
+            const w = b.dataset.wrap;
+            const [open, close] = w.includes("|") ? w.split("|") : [w, w];
+            text.value = v.slice(0, s) + open + v.slice(s, e2) + close + v.slice(e2);
+            text.selectionStart = text.selectionEnd = e2 + open.length;
+          } else {
+            const ls = v.lastIndexOf("\n", s - 1) + 1;
+            text.value = v.slice(0, ls) + b.dataset.ins + v.slice(ls);
+            text.selectionStart = text.selectionEnd = s + b.dataset.ins.length;
+          }
+          text.focus();
+          text.dispatchEvent(new Event("input"));
+        });
+      });
+    });
+  </script>
+</body>
+</html>
