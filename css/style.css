@@ -1901,15 +1901,25 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .fcal-ev__title { font-size: 0.92rem; font-weight: 600; }
 
 /* ---------------- 새 일정 등록 시트 ---------------- */
-.evsheet { position: fixed; inset: 0; z-index: 400; }
+.evsheet { position: fixed; inset: 0; z-index: 400; display: flex; align-items: flex-end; justify-content: center; }
 .evsheet__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); }
 .evsheet__panel {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  max-width: 560px; margin: 0 auto;
+  position: relative; width: 100%;
+  max-width: 560px;
   background: #fff; border-radius: 22px 22px 0 0;
   padding: 14px 20px calc(24px + env(safe-area-inset-bottom, 0px));
-  max-height: 82vh; overflow-y: auto;
+  max-height: 82dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+/* 태블릿·가로 화면: 바텀시트가 잘리므로 가운데 모달로 */
+@media (min-width: 768px), (orientation: landscape) and (min-height: 500px) {
+  .evsheet { align-items: center; padding: 20px; box-sizing: border-box; }
+  .evsheet__panel {
+    border-radius: 22px;
+    padding-bottom: 24px;
+    max-height: calc(100dvh - 40px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  }
 }
 .evsheet__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .evsheet__title { font-weight: 800; font-size: 1.02rem; }
