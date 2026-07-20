@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=89" />
+  <link rel="stylesheet" href="/css/style.css?v=90" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -47,7 +47,7 @@
   <script src="/js/utils.js?v=14"></script>
   <script src="/js/memofmt.js?v=1"></script>
   <script>
-    /* 메모 목록 — 아이폰 메모장식: 검색 + 제목/본문 미리보기 */
+    /* 메모 목록 — 아이폰 메모장식: 검색 + 좌측 스와이프로 고정/삭제 */
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await requireRole(["student"]);
       if (!profile) return;
@@ -57,6 +57,7 @@
       const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
       let memos = [];
+      let openRow = null;          // 현재 열려 있는 스와이프 행
 
       function when(iso) {
         const d = new Date(iso);
@@ -67,11 +68,117 @@
           : `${d.getMonth() + 1}월 ${d.getDate()}일`;
       }
 
+      function sorted(rows) {
+        return [...rows].sort((a, b) => {
+          if (!!b.pinned !== !!a.pinned) return b.pinned ? 1 : -1;
+          return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
+        });
+      }
+
+      function cardHtml(m) {
+        const lines = MemoFmt.toText(m.content).split("\n").filter((l) => l.trim());
+        const title = lines[0] || "새로운 메모";
+        const body = lines.slice(1).join(" ").trim();
+        return `
+          <div class="memo-row" data-id="${m.id}">
+            <div class="memo-row__actions">
+              <button type="button" class="memo-act memo-act--pin" data-act="pin">${m.pinned ? "고정 해제" : "고정"}</button>
+              <button type="button" class="memo-act memo-act--del" data-act="del">삭제</button>
+            </div>
+            <a href="/memo-edit.html?id=${m.id}" class="card memo-item">
+              <span class="memo-item__title">${m.pinned ? '<span class="memo-item__pin">📌</span> ' : ""}${esc(title)}</span>
+              <span class="memo-item__meta">
+                <span class="memo-item__date">${when(m.updated_at || m.created_at)}</span>
+                ${body ? `<span class="memo-item__body">${esc(body)}</span>` : ""}
+              </span>
+            </a>
+          </div>`;
+      }
+
+      function closeOpen() {
+        if (!openRow) return;
+        openRow.classList.remove("is-open");
+        openRow.querySelector(".memo-item").style.transform = "";
+        openRow = null;
+      }
+
+      /* 좌측 스와이프 (세로 스크롤과 충돌하지 않게 방향 판정) */
+      const OPEN_X = -158;
+      function wireSwipe(row) {
+        const card = row.querySelector(".memo-item");
+        let sx = 0, sy = 0, dx = 0, dir = null, dragging = false;
+
+        card.addEventListener("touchstart", (e) => {
+          if (openRow && openRow !== row) closeOpen();
+          sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+          dx = 0; dir = null; dragging = true;
+          card.style.transition = "none";
+        }, { passive: true });
+
+        card.addEventListener("touchmove", (e) => {
+          if (!dragging) return;
+          const mx = e.touches[0].clientX - sx;
+          const my = e.touches[0].clientY - sy;
+          if (!dir) {
+            if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+            dir = Math.abs(mx) > Math.abs(my) ? "x" : "y";
+          }
+          if (dir !== "x") return;
+          e.preventDefault();                                   // 가로 드래그일 때만 스크롤 차단
+          const base = row.classList.contains("is-open") ? OPEN_X : 0;
+          dx = Math.max(OPEN_X - 40, Math.min(0, base + mx));    // 왼쪽으로만, 약간의 여유
+          card.style.transform = `translateX(${dx}px)`;
+        }, { passive: false });
+
+        const finish = () => {
+          if (!dragging) return;
+          dragging = false;
+          card.style.transition = "";
+          if (dir !== "x") return;
+          const open = dx < OPEN_X / 2;
+          if (open) {
+            card.style.transform = `translateX(${OPEN_X}px)`;
+            row.classList.add("is-open");
+            openRow = row;
+          } else {
+            card.style.transform = "";
+            row.classList.remove("is-open");
+            if (openRow === row) openRow = null;
+          }
+        };
+        card.addEventListener("touchend", finish);
+        card.addEventListener("touchcancel", finish);
+
+        // 열린 상태에서 카드를 누르면 이동 대신 닫기
+        card.addEventListener("click", (e) => {
+          if (row.classList.contains("is-open")) { e.preventDefault(); closeOpen(); }
+        });
+
+        row.querySelectorAll("[data-act]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = row.dataset.id;
+            const memo = memos.find((m) => m.id === id);
+            if (!memo) return;
+            if (btn.dataset.act === "pin") {
+              const next = !memo.pinned;
+              const { error } = await supabaseClient.from("memos").update({ pinned: next }).eq("id", id);
+              if (!error) memo.pinned = next;
+            } else {
+              if (!confirm("이 메모를 삭제할까요?")) { closeOpen(); return; }
+              const { error } = await supabaseClient.from("memos").delete().eq("id", id);
+              if (!error) memos = memos.filter((m) => m.id !== id);
+            }
+            openRow = null;
+            renderList();
+          });
+        });
+      }
+
       function renderList() {
         const q = searchEl.value.trim().toLowerCase();
-        const rows = q
+        const rows = sorted(q
           ? memos.filter((m) => MemoFmt.toText(m.content).toLowerCase().includes(q))
-          : memos;
+          : memos);
 
         if (!memos.length) {
           listEl.innerHTML = `
@@ -84,22 +191,16 @@
         }
         if (!rows.length) { listEl.innerHTML = `<p class="muted">검색 결과가 없습니다.</p>`; return; }
 
-        listEl.innerHTML = rows.map((m) => {
-          const lines = MemoFmt.toText(m.content).split("\n").filter((l) => l.trim());
-          const title = lines[0] || "새로운 메모";
-          const body = lines.slice(1).join(" ").trim();
-          return `
-            <a href="/memo-edit.html?id=${m.id}" class="card memo-item">
-              <span class="memo-item__title">${esc(title)}</span>
-              <span class="memo-item__meta">
-                <span class="memo-item__date">${when(m.updated_at || m.created_at)}</span>
-                ${body ? `<span class="memo-item__body">${esc(body)}</span>` : ""}
-              </span>
-            </a>`;
-        }).join("");
+        const pinned = rows.filter((m) => m.pinned);
+        const rest = rows.filter((m) => !m.pinned);
+        listEl.innerHTML =
+          (pinned.length ? `<p class="memo-section">고정된 메모</p>` + pinned.map(cardHtml).join("") : "") +
+          (rest.length ? (pinned.length ? `<p class="memo-section">메모</p>` : "") + rest.map(cardHtml).join("") : "");
+
+        listEl.querySelectorAll(".memo-row").forEach(wireSwipe);
       }
 
-      searchEl.addEventListener("input", renderList);
+      searchEl.addEventListener("input", () => { openRow = null; renderList(); });
       document.getElementById("memo-new").addEventListener("click", () => {
         window.location.href = "/memo-edit.html";
       });

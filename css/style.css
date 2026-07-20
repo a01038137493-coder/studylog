@@ -2039,3 +2039,14 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .fmtbar button { flex: none; min-width: 42px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font: inherit; font-size: 0.88rem; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fmtbar button:active { background: var(--bg); }
 .fmtbar__sep { flex: none; width: 1px; height: 22px; background: var(--line); margin: 0 2px; }
+
+/* 메모 스와이프 (좌측으로 밀어 고정/삭제) */
+.memo-section { font-size: 0.8rem; font-weight: 800; color: var(--muted); margin: 14px 4px 8px; }
+.memo-section:first-child { margin-top: 2px; }
+.memo-row { position: relative; margin-bottom: 9px; border-radius: var(--radius, 16px); overflow: hidden; }
+.memo-row__actions { position: absolute; inset: 0 0 0 auto; display: flex; }
+.memo-act { width: 79px; border: none; font: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.memo-act--pin { background: #f0913a; }
+.memo-act--del { background: #d9534f; }
+.memo-row .memo-item { position: relative; margin-bottom: 0; touch-action: pan-y; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
+.memo-item__pin { font-size: 0.82rem; }
