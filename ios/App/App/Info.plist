@@ -4,6 +4,10 @@
 <dict>
     <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>캘린더 화면에 Apple 캘린더 일정을 함께 표시하기 위해 접근 권한이 필요합니다.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>캘린더 화면에 Apple 캘린더 일정을 함께 표시하기 위해 접근 권한이 필요합니다.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

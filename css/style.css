@@ -1861,3 +1861,55 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
   .tabbar__item { padding: 10px 0 9px; }
   .has-tabbar { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ---------------- 할 일 페이지 ---------------- */
+.todo-summary { padding: 16px 18px; margin-bottom: 12px; }
+.todo-summary__row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.todo-summary__label { font-weight: 800; }
+.todo-summary__count { color: var(--orange-strong); font-weight: 800; font-size: 0.9rem; }
+.todo-summary__bar { height: 6px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+.todo-summary__fill { height: 100%; border-radius: 999px; background: var(--orange); transition: width 0.25s ease; width: 0; }
+.todo-item { padding: 6px 10px; margin-bottom: 10px; }
+.todo-item__main { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; background: none; border: none; cursor: pointer; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.todo-item__checkbox { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
+.todo-item.is-done .todo-item__checkbox { background: var(--green); border-color: var(--green); }
+.todo-item__body { display: flex; flex-direction: column; gap: 3px; }
+.todo-item__subject { align-self: flex-start; font-size: 0.72rem; font-weight: 800; color: var(--orange-strong); background: var(--orange-bg); border-radius: 6px; padding: 2px 7px; }
+.todo-item__title { font-weight: 700; font-size: 1rem; }
+.todo-item.is-done .todo-item__title { color: var(--muted-soft); text-decoration: line-through; }
+.todo-item__subs { list-style: none; margin: 0; padding: 0 8px 10px 46px; }
+.todo-item__sub { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 0; background: none; border: none; cursor: pointer; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.todo-item__subcheck { flex: none; width: 19px; height: 19px; border-radius: 50%; border: 1.6px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #fff; }
+.todo-item__sub.is-done .todo-item__subcheck { background: var(--green); border-color: var(--green); }
+.todo-item__subtext { font-size: 0.9rem; color: var(--text); }
+.todo-item__sub.is-done .todo-item__subtext { color: var(--muted-soft); text-decoration: line-through; }
+.todo-empty { text-align: center; padding: 44px 24px; }
+.todo-empty__title { font-size: 1.1rem; font-weight: 800; margin: 0 0 6px; }
+.todo-empty__desc { color: var(--muted); margin: 0 0 20px; }
+
+/* ---------------- 풀스크린 캘린더 ---------------- */
+body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.fcal { flex: 1; display: flex; flex-direction: column; max-width: 900px; width: 100%; margin: 0 auto; padding: 4px 14px 0; box-sizing: border-box; }
+.fcal__head { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px 8px; }
+.fcal__title { font-size: 1.15rem; font-weight: 800; margin: 0; }
+.fcal__nav { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 1.25rem; color: var(--text); cursor: pointer; line-height: 1; }
+.fcal__dows { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted-soft); padding-bottom: 6px; }
+.fcal__dows .is-sun { color: #d05b5b; }
+.fcal__dows .is-sat { color: #4a76c7; }
+.fcal__grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; gap: 3px; min-height: 0; }
+.fcal__cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; padding-top: 6px; background: none; border: none; border-radius: 12px; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; }
+.fcal__cell--empty { cursor: default; }
+.fcal__num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.fcal__cell.is-today .fcal__num { background: var(--navy); color: #fff; font-weight: 800; }
+.fcal__cell.is-selected { background: #ececee; }
+.fcal__dots { display: flex; gap: 3px; min-height: 6px; }
+.fcal__dot { width: 5px; height: 5px; border-radius: 50%; }
+.fcal__dot--rec { background: var(--green); }
+.fcal__dot--ev { background: var(--orange); }
+.fcal__events { max-height: 30vh; overflow-y: auto; padding: 10px 2px 8px; }
+.fcal__events-title { font-size: 0.85rem; font-weight: 800; color: var(--muted); margin: 0 0 8px 4px; }
+.fcal__events-empty { color: var(--muted-soft); font-size: 0.85rem; text-align: center; margin: 14px 0; }
+.fcal-ev { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; margin-bottom: 7px; }
+.fcal-ev__time { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--orange-strong); min-width: 40px; }
+.fcal-ev--rec .fcal-ev__time { color: var(--green-strong); }
+.fcal-ev__title { font-size: 0.92rem; font-weight: 600; }

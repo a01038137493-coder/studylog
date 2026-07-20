@@ -7,25 +7,33 @@
   <link rel="stylesheet" href="/css/style.css?v=79" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
-<body class="app-bg has-tabbar">
-  <header class="topbar">
-    <div class="topbar__brand">캘린더</div>
-    <span></span>
-  </header>
+<body class="app-bg has-tabbar fcal-page">
+  <main class="fcal">
+    <!-- 월 헤더 -->
+    <div class="fcal__head">
+      <button type="button" class="fcal__nav" id="fcal-prev" aria-label="이전 달">‹</button>
+      <h1 class="fcal__title" id="fcal-title">—</h1>
+      <button type="button" class="fcal__nav" id="fcal-next" aria-label="다음 달">›</button>
+    </div>
 
-  <main class="container">
-    <section class="card calpage">
-      <div class="calendar" id="calendar"></div>
-      <p class="calpage__hint"><span class="calpage__dot"></span> 기록(체크아웃)한 날</p>
-    </section>
+    <!-- 요일 -->
+    <div class="fcal__dows">
+      <span class="is-sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="is-sat">토</span>
+    </div>
+
+    <!-- 날짜 그리드 (화면 채움) -->
+    <div class="fcal__grid" id="fcal-grid"></div>
+
+    <!-- 선택한 날 일정 -->
+    <div class="fcal__events" id="fcal-events"></div>
   </main>
 
   <nav class="tabbar">
-    <a href="/student-m.html" class="tabbar__item">
+    <a href="/student.html" class="tabbar__item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>홈</span>
     </a>
-    <a href="/checkin.html" class="tabbar__item">
+    <a href="/todo.html" class="tabbar__item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
       <span>할 일</span>
     </a>
@@ -46,43 +54,140 @@
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
   <script>
-    /* 이번 달 달력 + 체크아웃 기록 있는 날 표시 */
+    /* 풀스크린 월간 캘린더
+     * - 공부 기록(체크아웃)한 날: 초록 점
+     * - Apple 캘린더 일정(앱에서만): 주황 점 + 날짜 탭하면 아래에 일정 목록
+     */
     document.addEventListener("DOMContentLoaded", async () => {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth(); // 0-based
-      const today = now.getDate();
-      const firstDow = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const dows = ["일", "월", "화", "수", "목", "금", "토"];
+      const profile = await getCurrentProfile();
+      if (!profile) { window.location.href = "/welcome.html"; return; }
+
       const pad = (n) => String(n).padStart(2, "0");
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const dstr = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
-      // 이번 달 체크아웃 기록 날짜 수집 (로그인 상태에서만)
-      const recorded = new Set();
-      try {
-        const profile = await getCurrentProfile();
-        if (!profile) { window.location.href = "/welcome.html"; return; }
-        const start = `${year}-${pad(month + 1)}-01`;
-        const end = `${year}-${pad(month + 1)}-${pad(daysInMonth)}`;
-        const { data } = await supabaseClient
-          .from("daily_checkouts")
-          .select("date")
-          .eq("student_id", profile.id)
-          .gte("date", start)
-          .lte("date", end);
-        (data || []).forEach((r) => recorded.add(r.date));
-      } catch (e) {}
+      const now = new Date();
+      let viewY = now.getFullYear();
+      let viewM = now.getMonth();                 // 0-based
+      let selected = dstr(viewY, viewM, now.getDate());
 
-      let cells = dows.map((d) => `<div class="calendar__dow">${d}</div>`).join("");
-      for (let i = 0; i < firstDow; i++) cells += `<div class="calendar__cell"></div>`;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const isToday = d === today;
-        const hasRec = recorded.has(`${year}-${pad(month + 1)}-${pad(d)}`);
-        cells += `<div class="calendar__cell${isToday ? " calendar__cell--today" : ""}${hasRec ? " calendar__cell--rec" : ""}">${d}</div>`;
+      const recorded = new Set();                  // 체크아웃한 날
+      const events = new Map();                    // 날짜 → Apple 캘린더 일정 배열
+
+      /* Apple 캘린더 (네이티브 앱에서만) */
+      const calPlugin = window.Capacitor && window.Capacitor.Plugins
+        ? window.Capacitor.Plugins.CapacitorCalendar : null;
+      let calGranted = false;
+
+      async function ensureCalendarAccess() {
+        if (!calPlugin || calGranted) return calGranted;
+        try {
+          const { result } = await calPlugin.requestFullCalendarAccess();
+          calGranted = result === "granted";
+        } catch (e) { calGranted = false; }
+        return calGranted;
       }
-      document.getElementById("calendar").innerHTML = `
-        <div class="calendar__title">${year}년 ${month + 1}월</div>
-        <div class="calendar__grid">${cells}</div>`;
+
+      async function loadMonth() {
+        const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+        recorded.clear();
+        events.clear();
+
+        try {
+          const { data } = await supabaseClient
+            .from("daily_checkouts")
+            .select("date")
+            .eq("student_id", profile.id)
+            .gte("date", dstr(viewY, viewM, 1))
+            .lte("date", dstr(viewY, viewM, daysInMonth));
+          (data || []).forEach((r) => recorded.add(r.date));
+        } catch (e) {}
+
+        if (await ensureCalendarAccess()) {
+          try {
+            const from = new Date(viewY, viewM, 1).getTime();
+            const to = new Date(viewY, viewM, daysInMonth, 23, 59, 59).getTime();
+            const { result } = await calPlugin.listEventsInRange({ from, to });
+            (result || []).forEach((ev) => {
+              const d = new Date(ev.startDate);
+              const key = dstr(d.getFullYear(), d.getMonth(), d.getDate());
+              if (!events.has(key)) events.set(key, []);
+              events.get(key).push(ev);
+            });
+            events.forEach((list) => list.sort((a, b) => a.startDate - b.startDate));
+          } catch (e) {}
+        }
+      }
+
+      function renderGrid() {
+        document.getElementById("fcal-title").textContent = `${viewY}년 ${viewM + 1}월`;
+        const firstDow = new Date(viewY, viewM, 1).getDay();
+        const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+        const todayStr = dstr(now.getFullYear(), now.getMonth(), now.getDate());
+
+        let html = "";
+        for (let i = 0; i < firstDow; i++) html += `<div class="fcal__cell fcal__cell--empty"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = dstr(viewY, viewM, d);
+          const cls = [
+            "fcal__cell",
+            key === todayStr ? "is-today" : "",
+            key === selected ? "is-selected" : "",
+          ].join(" ");
+          const dots =
+            (recorded.has(key) ? `<i class="fcal__dot fcal__dot--rec"></i>` : "") +
+            (events.has(key) ? `<i class="fcal__dot fcal__dot--ev"></i>` : "");
+          html += `<button type="button" class="${cls}" data-date="${key}">
+            <span class="fcal__num">${d}</span>
+            <span class="fcal__dots">${dots}</span>
+          </button>`;
+        }
+        const grid = document.getElementById("fcal-grid");
+        grid.innerHTML = html;
+        grid.querySelectorAll("[data-date]").forEach((cell) => {
+          cell.addEventListener("click", () => {
+            selected = cell.dataset.date;
+            renderGrid();
+            renderEvents();
+          });
+        });
+      }
+
+      function renderEvents() {
+        const box = document.getElementById("fcal-events");
+        const list = events.get(selected) || [];
+        const hasRec = recorded.has(selected);
+        const [y, m, d] = selected.split("-").map(Number);
+
+        let html = `<p class="fcal__events-title">${m}월 ${d}일</p>`;
+        if (hasRec) html += `<div class="fcal-ev fcal-ev--rec"><span class="fcal-ev__time">공부</span><span class="fcal-ev__title">체크아웃 기록 완료 ✓</span></div>`;
+        if (list.length) {
+          html += list.map((ev) => {
+            const t = new Date(ev.startDate);
+            const time = ev.isAllDay ? "종일" : `${pad(t.getHours())}:${pad(t.getMinutes())}`;
+            return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`;
+          }).join("");
+        } else if (!hasRec) {
+          html += `<p class="fcal__events-empty">${calPlugin ? "일정이 없습니다" : "Apple 캘린더 일정은 앱에서 표시됩니다"}</p>`;
+        }
+        box.innerHTML = html;
+      }
+
+      document.getElementById("fcal-prev").addEventListener("click", async () => {
+        viewM--; if (viewM < 0) { viewM = 11; viewY--; }
+        await loadMonth(); renderGrid(); renderEvents();
+      });
+      document.getElementById("fcal-next").addEventListener("click", async () => {
+        viewM++; if (viewM > 11) { viewM = 0; viewY++; }
+        await loadMonth(); renderGrid(); renderEvents();
+      });
+
+      renderGrid();          // 데이터 로드 전 골격 먼저
+      renderEvents();
+      await loadMonth();
+      renderGrid();
+      renderEvents();
     });
   </script>
 </body>
