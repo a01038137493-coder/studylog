@@ -109,6 +109,12 @@ function addTaskRow(task) {
 
 /* 서브 과제 한 줄 추가 (focusNew=true면 새로 만든 입력에 포커스) */
 function addSubtask(subs, text, focusNew) {
+  // 한글(IME) 조합 중에 포커스를 옮기면 조합 중이던 글자가 새 입력칸에
+  // 딸려 들어가는 iOS WebKit 문제 → 먼저 blur 로 조합을 확정한 뒤
+  // 다음 프레임에 새 입력칸으로 포커스를 옮긴다.
+  if (focusNew && document.activeElement && document.activeElement.blur) {
+    document.activeElement.blur();
+  }
   const sub = document.createElement("div");
   sub.className = "task-sub";
   sub.innerHTML = `
@@ -117,7 +123,7 @@ function addSubtask(subs, text, focusNew) {
     <button type="button" class="task-sub__del" aria-label="서브 과제 삭제">✕</button>`;
   sub.querySelector(".task-sub__del").addEventListener("click", () => sub.remove());
   subs.appendChild(sub);
-  if (focusNew) sub.querySelector(".task-sub__text").focus();
+  if (focusNew) setTimeout(() => sub.querySelector(".task-sub__text").focus(), 0);
 }
 
 function renumberTasks() {

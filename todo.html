@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>할 일 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=79" />
+  <link rel="stylesheet" href="/css/style.css?v=80" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -16,6 +16,12 @@
   </header>
 
   <main class="container">
+    <!-- 오늘 일정 (Apple 캘린더, 앱에서만) -->
+    <section class="card todo-events" id="todo-events" hidden>
+      <p class="todo-events__title">오늘 일정</p>
+      <div id="todo-events-list"></div>
+    </section>
+
     <!-- 진행 요약 -->
     <section class="card todo-summary" id="todo-summary" hidden>
       <div class="todo-summary__row">
@@ -73,6 +79,32 @@
       if (!profile) return;
 
       const today = getTodayString();
+
+      /* 오늘 일정 (Apple 캘린더) — 과제 로딩과 독립적으로 비동기 표시 */
+      (async () => {
+        try {
+          const calPlugin = window.Capacitor && window.Capacitor.Plugins
+            ? window.Capacitor.Plugins.CapacitorCalendar : null;
+          if (!calPlugin) return;
+          const { result: perm } = await calPlugin.requestFullCalendarAccess();
+          if (perm !== "granted") return;
+          const [y, m, d] = today.split("-").map(Number);
+          const { result } = await calPlugin.listEventsInRange({
+            from: new Date(y, m - 1, d).getTime(),
+            to: new Date(y, m - 1, d, 23, 59, 59).getTime(),
+          });
+          if (!result || !result.length) return;
+          result.sort((a, b) => a.startDate - b.startDate);
+          const pad2 = (n) => String(n).padStart(2, "0");
+          document.getElementById("todo-events-list").innerHTML = result.map((ev) => {
+            const t = new Date(ev.startDate);
+            const time = ev.isAllDay ? "종일" : `${pad2(t.getHours())}:${pad2(t.getMinutes())}`;
+            return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${escapeHtml(ev.title || "(제목 없음)")}</span></div>`;
+          }).join("");
+          document.getElementById("todo-events").hidden = false;
+        } catch (e) {}
+      })();
+
       const progKey = `dt_taskprog_${profile.id}_${today}`;
       const loadProg = () => {
         try { return JSON.parse(localStorage.getItem(progKey)) || { done: {}, sub: {} }; }

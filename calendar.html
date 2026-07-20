@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=79" />
+  <link rel="stylesheet" href="/css/style.css?v=80" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -16,9 +16,9 @@
       <button type="button" class="fcal__nav" id="fcal-next" aria-label="다음 달">›</button>
     </div>
 
-    <!-- 요일 -->
+    <!-- 요일 (월요일 시작, 고정) -->
     <div class="fcal__dows">
-      <span class="is-sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="is-sat">토</span>
+      <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="is-sat">토</span><span class="is-sun">일</span>
     </div>
 
     <!-- 날짜 그리드 (화면 채움) -->
@@ -27,6 +27,71 @@
     <!-- 선택한 날 일정 -->
     <div class="fcal__events" id="fcal-events"></div>
   </main>
+
+  <!-- 새 일정 등록 시트 (날짜 길게 누르면 열림) -->
+  <div class="evsheet" id="evsheet" hidden>
+    <div class="evsheet__backdrop" data-ev-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <button type="button" class="evsheet__cancel" data-ev-close>취소</button>
+        <span class="evsheet__title">새 일정</span>
+        <button type="button" class="evsheet__save" id="ev-save">저장</button>
+      </div>
+
+      <input type="text" id="ev-title" class="field__input evsheet__field" placeholder="제목" maxlength="80" />
+
+      <label class="evsheet__row">
+        <span>하루 종일</span>
+        <input type="checkbox" id="ev-allday" class="evsheet__toggle" />
+      </label>
+
+      <div class="evsheet__row evsheet__row--col">
+        <span>시작</span>
+        <div class="evsheet__dt">
+          <input type="date" id="ev-start-date" class="field__input" />
+          <input type="time" id="ev-start-time" class="field__input" />
+        </div>
+      </div>
+
+      <div class="evsheet__row evsheet__row--col">
+        <span>종료</span>
+        <div class="evsheet__dt">
+          <input type="date" id="ev-end-date" class="field__input" />
+          <input type="time" id="ev-end-time" class="field__input" />
+        </div>
+      </div>
+
+      <label class="evsheet__row">
+        <span>반복</span>
+        <select id="ev-repeat" class="field__input evsheet__select">
+          <option value="">안 함</option>
+          <option value="daily">매일</option>
+          <option value="weekly">매주</option>
+          <option value="monthly">매월</option>
+          <option value="yearly">매년</option>
+        </select>
+      </label>
+
+      <label class="evsheet__row">
+        <span>알림</span>
+        <select id="ev-alert" class="field__input evsheet__select">
+          <option value="">없음</option>
+          <option value="0">일정 시작 시간</option>
+          <option value="-5" selected>5분 전</option>
+          <option value="-10">10분 전</option>
+          <option value="-15">15분 전</option>
+          <option value="-30">30분 전</option>
+          <option value="-60">1시간 전</option>
+          <option value="-120">2시간 전</option>
+          <option value="-1440">1일 전</option>
+          <option value="-2880">2일 전</option>
+          <option value="-10080">7일 전</option>
+        </select>
+      </label>
+
+      <p class="evsheet__error" id="ev-error" role="alert"></p>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/student.html" class="tabbar__item">
@@ -54,9 +119,10 @@
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
   <script>
-    /* 풀스크린 월간 캘린더
-     * - 공부 기록(체크아웃)한 날: 초록 점
-     * - Apple 캘린더 일정(앱에서만): 주황 점 + 날짜 탭하면 아래에 일정 목록
+    /* 풀스크린 월간 캘린더 (월요일 시작)
+     * - 공부 기록(체크아웃)한 날: 초록 점 / Apple 캘린더 일정: 주황 점
+     * - 날짜 탭: 선택 → 아래에 일정 목록 / 날짜 길게(0.5초): 새 일정 등록
+     * - 좌우 스와이프: 이전·다음 달 (요일 헤더는 고정)
      */
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await getCurrentProfile();
@@ -120,9 +186,42 @@
         }
       }
 
+      async function gotoMonth(delta) {
+        viewM += delta;
+        if (viewM < 0) { viewM = 11; viewY--; }
+        if (viewM > 11) { viewM = 0; viewY++; }
+        renderGrid();
+        await loadMonth();
+        renderGrid();
+        renderEvents();
+      }
+
+      /* 길게 누르면 새 일정 시트 (탭과 구분: 이동·해제 시 취소) */
+      let pressTimer = null;
+      let longPressed = false;
+      function wireLongPress(cell) {
+        cell.addEventListener("pointerdown", (e) => {
+          longPressed = false;
+          const sx = e.clientX, sy = e.clientY;
+          pressTimer = setTimeout(() => {
+            longPressed = true;
+            openSheet(cell.dataset.date);
+          }, 500);
+          const cancel = () => { clearTimeout(pressTimer); pressTimer = null; };
+          const onMove = (ev2) => {
+            if (Math.abs(ev2.clientX - sx) > 10 || Math.abs(ev2.clientY - sy) > 10) cancel();
+          };
+          cell.addEventListener("pointermove", onMove, { once: false });
+          cell.addEventListener("pointerup", cancel, { once: true });
+          cell.addEventListener("pointerleave", cancel, { once: true });
+        });
+        cell.addEventListener("contextmenu", (e) => e.preventDefault());
+      }
+
       function renderGrid() {
         document.getElementById("fcal-title").textContent = `${viewY}년 ${viewM + 1}월`;
-        const firstDow = new Date(viewY, viewM, 1).getDay();
+        // 월요일 시작: 일(0)→6, 월(1)→0 …
+        const firstDow = (new Date(viewY, viewM, 1).getDay() + 6) % 7;
         const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
         const todayStr = dstr(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -147,10 +246,12 @@
         grid.innerHTML = html;
         grid.querySelectorAll("[data-date]").forEach((cell) => {
           cell.addEventListener("click", () => {
+            if (longPressed) { longPressed = false; return; }
             selected = cell.dataset.date;
             renderGrid();
             renderEvents();
           });
+          wireLongPress(cell);
         });
       }
 
@@ -169,19 +270,96 @@
             return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`;
           }).join("");
         } else if (!hasRec) {
-          html += `<p class="fcal__events-empty">${calPlugin ? "일정이 없습니다" : "Apple 캘린더 일정은 앱에서 표시됩니다"}</p>`;
+          html += `<p class="fcal__events-empty">${calPlugin ? "일정이 없습니다 · 날짜를 길게 누르면 일정을 등록할 수 있어요" : "Apple 캘린더 일정은 앱에서 표시됩니다"}</p>`;
         }
         box.innerHTML = html;
       }
 
-      document.getElementById("fcal-prev").addEventListener("click", async () => {
-        viewM--; if (viewM < 0) { viewM = 11; viewY--; }
-        await loadMonth(); renderGrid(); renderEvents();
+      /* ---------- 새 일정 시트 ---------- */
+      const sheet = document.getElementById("evsheet");
+      const evErr = document.getElementById("ev-error");
+
+      function openSheet(dateKey) {
+        if (!calPlugin) { alert("일정 등록은 앱에서 사용할 수 있어요."); return; }
+        evErr.textContent = "";
+        document.getElementById("ev-title").value = "";
+        document.getElementById("ev-allday").checked = false;
+        document.getElementById("ev-start-date").value = dateKey;
+        document.getElementById("ev-start-time").value = "09:00";
+        document.getElementById("ev-end-date").value = dateKey;
+        document.getElementById("ev-end-time").value = "10:00";
+        document.getElementById("ev-repeat").value = "";
+        document.getElementById("ev-alert").value = "-5";
+        syncAllday();
+        sheet.hidden = false;
+        setTimeout(() => document.getElementById("ev-title").focus(), 50);
+      }
+      function closeSheet() { sheet.hidden = true; }
+
+      function syncAllday() {
+        const allday = document.getElementById("ev-allday").checked;
+        document.getElementById("ev-start-time").style.display = allday ? "none" : "";
+        document.getElementById("ev-end-time").style.display = allday ? "none" : "";
+      }
+      document.getElementById("ev-allday").addEventListener("change", syncAllday);
+      sheet.querySelectorAll("[data-ev-close]").forEach((el) => el.addEventListener("click", closeSheet));
+
+      document.getElementById("ev-save").addEventListener("click", async () => {
+        const title = document.getElementById("ev-title").value.trim();
+        if (!title) { evErr.textContent = "제목을 입력해주세요."; return; }
+
+        const allday = document.getElementById("ev-allday").checked;
+        const sd = document.getElementById("ev-start-date").value;
+        const ed = document.getElementById("ev-end-date").value || sd;
+        const st = allday ? "00:00" : (document.getElementById("ev-start-time").value || "09:00");
+        const et = allday ? "23:59" : (document.getElementById("ev-end-time").value || "10:00");
+        const startDate = new Date(`${sd}T${st}:00`).getTime();
+        const endDate = new Date(`${ed}T${et}:00`).getTime();
+        if (!(endDate >= startDate)) { evErr.textContent = "종료가 시작보다 빠릅니다."; return; }
+
+        const opts = { title, startDate, endDate, isAllDay: allday };
+        const rep = document.getElementById("ev-repeat").value;
+        if (rep) opts.recurrence = { frequency: rep };
+        const alert5 = document.getElementById("ev-alert").value;
+        if (alert5 !== "") opts.alerts = [Number(alert5)];
+
+        const btn = document.getElementById("ev-save");
+        btn.disabled = true;
+        try {
+          if (!(await ensureCalendarAccess())) throw new Error("permission");
+          await calPlugin.createEvent(opts);
+          closeSheet();
+          selected = sd;
+          await loadMonth();
+          renderGrid();
+          renderEvents();
+        } catch (e) {
+          evErr.textContent = "일정을 저장하지 못했습니다. 캘린더 접근 권한을 확인해주세요.";
+        } finally {
+          btn.disabled = false;
+        }
       });
-      document.getElementById("fcal-next").addEventListener("click", async () => {
-        viewM++; if (viewM > 11) { viewM = 0; viewY++; }
-        await loadMonth(); renderGrid(); renderEvents();
-      });
+
+      /* ---------- 좌우 스와이프로 달 이동 (요일 헤더·그리드 영역) ---------- */
+      (function wireSwipe() {
+        const area = document.getElementById("fcal-grid");
+        let tx = null, ty = null;
+        area.addEventListener("touchstart", (e) => {
+          tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+        }, { passive: true });
+        area.addEventListener("touchend", (e) => {
+          if (tx === null) return;
+          const dx = e.changedTouches[0].clientX - tx;
+          const dy = e.changedTouches[0].clientY - ty;
+          tx = ty = null;
+          if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+            gotoMonth(dx < 0 ? 1 : -1);
+          }
+        }, { passive: true });
+      })();
+
+      document.getElementById("fcal-prev").addEventListener("click", () => gotoMonth(-1));
+      document.getElementById("fcal-next").addEventListener("click", () => gotoMonth(1));
 
       renderGrid();          // 데이터 로드 전 골격 먼저
       renderEvents();

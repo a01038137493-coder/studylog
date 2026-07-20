@@ -1913,3 +1913,32 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .fcal-ev__time { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--orange-strong); min-width: 40px; }
 .fcal-ev--rec .fcal-ev__time { color: var(--green-strong); }
 .fcal-ev__title { font-size: 0.92rem; font-weight: 600; }
+
+/* ---------------- 새 일정 등록 시트 ---------------- */
+.evsheet { position: fixed; inset: 0; z-index: 400; }
+.evsheet__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4); }
+.evsheet__panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  max-width: 560px; margin: 0 auto;
+  background: #fff; border-radius: 22px 22px 0 0;
+  padding: 14px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  max-height: 82vh; overflow-y: auto;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+.evsheet__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.evsheet__title { font-weight: 800; font-size: 1.02rem; }
+.evsheet__cancel { background: none; border: none; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; padding: 6px; }
+.evsheet__save { background: var(--primary); color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+.evsheet__save:disabled { background: #bcbcbc; }
+.evsheet__field { margin-bottom: 6px; }
+.evsheet__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 2px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 0.95rem; }
+.evsheet__row--col { flex-direction: column; align-items: flex-start; gap: 8px; }
+.evsheet__dt { display: flex; gap: 8px; width: 100%; }
+.evsheet__dt .field__input { flex: 1; }
+.evsheet__toggle { width: 22px; height: 22px; accent-color: var(--navy); }
+.evsheet__select { max-width: 46%; }
+.evsheet__error { color: var(--orange-strong); font-size: 0.85rem; min-height: 1.2em; margin: 10px 0 0; }
+
+/* 할 일 페이지 — 오늘 일정 */
+.todo-events { padding: 14px 16px 8px; margin-bottom: 12px; }
+.todo-events__title { font-weight: 800; font-size: 0.9rem; color: var(--muted); margin: 0 0 10px 2px; }
