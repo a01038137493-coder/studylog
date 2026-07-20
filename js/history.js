@@ -9,23 +9,41 @@
  * ------------------------------------------------------------
  */
 
+/* 기간 필터: 0 = 전체 */
+const PERIOD_LABEL = { 7: "최근 7일", 15: "최근 15일", 30: "최근 1달", 90: "최근 3달", 0: "전체 기간" };
+
 document.addEventListener("DOMContentLoaded", async () => {
   const profile = await requireRole(["student"]);
   if (!profile) return;
 
-  const sevenAgo = dateNDaysAgo(6);
-  const { data: checkouts } = await supabaseClient
-    .from("daily_checkouts")
-    .select("*")
-    .eq("student_id", profile.id)
-    .gte("date", sevenAgo)
-    .order("date", { ascending: false });
+  async function load(days) {
+    document.querySelectorAll(".period-label").forEach((el) => {
+      el.textContent = PERIOD_LABEL[days] || "최근 7일";
+    });
 
-  const list = checkouts || [];
-  renderSummary(list);
-  renderDaily(list);
-  renderFailureTop(list);
+    let q = supabaseClient
+      .from("daily_checkouts")
+      .select("*")
+      .eq("student_id", profile.id)
+      .order("date", { ascending: false });
+    if (days > 0) q = q.gte("date", dateNDaysAgo(days - 1));
 
+    const { data: checkouts } = await q;
+    const list = checkouts || [];
+    renderSummary(list);
+    renderDaily(list, days);
+    renderFailureTop(list);
+  }
+
+  document.querySelectorAll("#period .period__btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#period .period__btn").forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      load(Number(btn.dataset.days));
+    });
+  });
+
+  await load(7);
   await renderWeeklyGoals(profile.id);
   await renderRecentReview(profile.id);
 });
@@ -55,15 +73,20 @@ function renderSummary(list) {
   document.getElementById("stat-done").textContent = `${done}개`;
 }
 
-/* 최근 7일 일자별 완료율 */
-function renderDaily(list) {
+/* 일자별 완료율 (긴 기간은 최근 30일만 그린다 — 막대가 너무 촘촘해지는 것 방지) */
+function renderDaily(list, days) {
   const wrap = document.getElementById("daily-completion");
   if (list.length === 0) {
-    wrap.innerHTML = `<p class="muted">최근 7일 기록이 없습니다.</p>`;
+    wrap.innerHTML = `<p class="muted">${PERIOD_LABEL[days] || "선택한 기간"} 기록이 없습니다.</p>`;
     return;
   }
-  const rows = [...list].sort((a, b) => a.date.localeCompare(b.date));
-  wrap.innerHTML = rows
+  const MAX_BARS = 30;
+  const trimmed = list.length > MAX_BARS ? list.slice(0, MAX_BARS) : list;   // list는 최신순
+  const rows = [...trimmed].sort((a, b) => a.date.localeCompare(b.date));
+  const note = list.length > MAX_BARS
+    ? `<p class="muted bar-list__note">기록 ${list.length}일 중 최근 ${MAX_BARS}일만 표시</p>`
+    : "";
+  wrap.innerHTML = note + rows
     .map((c) => {
       const pct = rateOf(c);
       const md = c.date.slice(5).replace("-", "/");

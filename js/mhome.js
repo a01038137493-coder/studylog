@@ -152,10 +152,10 @@
       for (let i = 0; i < 7; i++) if (days.has(shiftDate(monday, i))) weekCount++;
 
       const el = document.getElementById("mstat");
-      el.innerHTML = streak > 0
-        ? `<b>🔥 ${streak}일 연속</b> · 이번 주 ${weekCount}일 기록`
-        : `오늘 성과를 기록하면 스트릭이 시작돼요 🔥`;
-      el.hidden = false;
+      if (streak > 0) {
+        el.innerHTML = `<b>🔥 ${streak}일 연속</b> · 이번 주 ${weekCount}일 기록`;
+        el.hidden = false;
+      }
     } catch (e) {}
 
     /* ---------- 오늘 일정 (Apple 캘린더) ---------- */

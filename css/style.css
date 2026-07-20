@@ -1977,3 +1977,15 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .mrow + .mrow { border-top: 1px solid var(--line); }
 .mrow__chevron { color: var(--muted-soft); }
 .mrow__badge { background: var(--orange-bg); color: var(--orange-strong); font-size: 0.7rem; font-weight: 800; border-radius: 6px; padding: 2px 7px; margin-left: 6px; }
+
+/* ---------------- 기록 페이지 기간 필터 ---------------- */
+.period { display: flex; gap: 6px; margin: 4px 0 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.period::-webkit-scrollbar { display: none; }
+.period__btn {
+  flex: none; padding: 8px 15px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff;
+  font: inherit; font-size: 0.85rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.period__btn.is-active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.bar-list__note { font-size: 0.8rem; margin: 0 0 10px; }
