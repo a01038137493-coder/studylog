@@ -13,8 +13,8 @@
 
 // 🔑 Supabase 프로젝트 정보 (Settings > API)
 // publishable key 는 브라우저에 노출되어도 안전한 공개 키입니다. (service_role 아님)
-const SUPABASE_URL = "https://qydoptxexksjlqajgaei.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_zd3-KV4XF_Fgqj6Y0MKzdA_scMvE83-";
+const SUPABASE_URL = "https://dklpbpldgnwckyfgikdt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_TUVifI_U6Ht2PFN6BfOGEw_RDKjmUEE";
 
 /* ============================================================
  * 🧪 목업(데모) 모드 — 실제 백엔드 없이 브라우저에서만 동작
