@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=82" />
+  <link rel="stylesheet" href="/css/style.css?v=84" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -23,61 +23,35 @@
   </div>
 
   <main class="container">
-    <!-- 헤더: D-Day 칩(좌) + 날짜(중앙) -->
+    <!-- 헤더: 날짜(좌) + D-Day(우) -->
     <div class="mhead">
-      <span class="mhead__dday">수능 <b id="dday">D-—</b></span>
-      <span class="mhead__date" id="today-date">오늘</span>
+      <span class="mhead__date" id="m-date">오늘</span>
+      <span class="mhead__dday">수능 <b id="m-dday">D-—</b></span>
     </div>
 
-    <!-- student.js 호환용 (모바일에선 미표시) -->
-    <span id="student-name" hidden></span>
-    <div id="daily-quote" hidden></div>
-
-    <!-- 오늘 진행: 과제 n/N + 다음 할 일 (탭하면 할 일 페이지) -->
-    <a href="/todo.html" class="card mprog" id="mprog" hidden>
-      <div class="mprog__row">
-        <span class="mprog__label">오늘 과제</span>
-        <span class="mprog__count" id="mprog-count">0/0 완료</span>
-      </div>
-      <div class="mprog__bar"><div class="mprog__fill" id="mprog-fill"></div></div>
-      <p class="mprog__next" id="mprog-next"></p>
-    </a>
-
-    <!-- 스트릭 -->
-    <p class="mstreak" id="mstreak" hidden></p>
-
-    <!-- 체크아웃 완료 후 오늘 결과 요약 -->
-    <div class="result-strip" id="result-strip" hidden></div>
-
-    <!-- 오늘의 흐름 -->
-    <section class="flow">
-      <div class="flow__steps">
-        <a href="/checkin.html" class="flow-card" id="act-checkin">
-          <span class="flow-card__tag flow-card__tag--am">체크인</span>
-          <span class="flow-card__title">오늘 플랜</span>
-          <span class="flow-card__meta" id="checkin-meta">아직 작성 전 · 지금 입력</span>
-        </a>
-
-        <a href="/checkout.html" class="flow-card" id="act-checkout">
-          <span class="flow-card__tag flow-card__tag--pm">체크아웃</span>
-          <span class="flow-card__title">오늘 성과</span>
-          <span class="flow-card__meta" id="checkout-meta">플랜 입력 후 가능</span>
-        </a>
-      </div>
+    <!-- 오늘 카드: 상태에 따라 플랜 CTA / 과제 체크 리스트 / 결과 요약 -->
+    <section class="card mtoday" id="mtoday">
+      <p class="mtoday__loading">불러오는 중…</p>
     </section>
 
-    <!-- 주간 메뉴 -->
-    <section class="action-grid action-grid--secondary">
-      <a href="/weekly-goal.html" class="action" id="act-weekly-goal">
-        <img class="action__icon" src="/assets/icon/%EB%AA%A9%ED%91%9C.png" alt="" />
-        <span class="action__title">이번 주 목표</span>
-        <span class="action__desc">월요일에 주간 목표를 정합니다</span>
-      </a>
+    <!-- 스탯 한 줄: 스트릭 · 이번 주 기록 -->
+    <p class="mstat" id="mstat" hidden></p>
 
-      <a href="/weekly-review.html" class="action" id="act-weekly-review">
-        <img class="action__icon" src="/assets/icon/icon-calendar-subscription.svg" alt="" />
-        <span class="action__title">주간 회고</span>
-        <span class="action__desc">금요일에 한 주를 돌아봅니다</span>
+    <!-- 오늘 일정 (Apple 캘린더) -->
+    <section class="mevents" id="mevents" hidden>
+      <p class="msection-title">오늘 일정</p>
+      <div id="mevents-list"></div>
+    </section>
+
+    <!-- 주간 메뉴 (작은 행) -->
+    <section class="card mrows">
+      <a href="/weekly-goal.html" class="mrow" id="mrow-goal">
+        <span>이번 주 목표 <span class="mrow__badge" hidden>오늘</span></span>
+        <span class="mrow__chevron" aria-hidden="true">›</span>
+      </a>
+      <a href="/weekly-review.html" class="mrow" id="mrow-review">
+        <span>주간 회고 <span class="mrow__badge" hidden>오늘</span></span>
+        <span class="mrow__chevron" aria-hidden="true">›</span>
       </a>
     </section>
   </main>
@@ -107,7 +81,6 @@
 
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
-  <script src="/js/student.js?v=28"></script>
-  <script src="/js/mhome.js?v=1"></script>
+  <script src="/js/mhome.js?v=2"></script>
 </body>
 </html>

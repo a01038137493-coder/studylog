@@ -1817,28 +1817,6 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
   .edit-bar { bottom: calc(22px + env(safe-area-inset-bottom)); }
 }
 
-/* ============================================================
-   모바일 홈 헤더 (student-m.html 전용)
-   ============================================================ */
-.mhead { display: flex; align-items: center; position: relative; min-height: 40px; margin: 10px 0 18px; }
-.mhead__dday {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 8px 13px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-.mhead__dday b { color: var(--navy); font-weight: 800; }
-.mhead__date {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--text);
-  font-size: 1.02rem;
-  font-weight: 700;
-}
-
 /* 캘린더 페이지 */
 .calpage { padding: 18px 16px; }
 .calpage__hint { display: flex; align-items: center; gap: 6px; justify-content: center; color: var(--muted-soft); font-size: 0.8rem; margin: 12px 0 0; }
@@ -1870,7 +1848,7 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
 .todo-summary__bar { height: 6px; border-radius: 999px; background: var(--bg); overflow: hidden; }
 .todo-summary__fill { height: 100%; border-radius: 999px; background: var(--orange); transition: width 0.25s ease; width: 0; }
 .todo-item { padding: 6px 10px; margin-bottom: 10px; }
-.todo-item__main { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; background: none; border: none; cursor: pointer; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.todo-item__main { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; background: none; border: none; cursor: pointer; font: inherit; color: var(--text); text-align: left; -webkit-tap-highlight-color: transparent; }
 .todo-item__checkbox { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
 .todo-item.is-done .todo-item__checkbox { background: var(--green); border-color: var(--green); }
 .todo-item__body { display: flex; flex-direction: column; gap: 3px; }
@@ -1955,13 +1933,47 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ---------------- 모바일 홈: 오늘 진행 카드 + 스트릭 ---------------- */
-.mprog { display: block; padding: 16px 18px; margin-bottom: 12px; }
-.mprog__row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.mprog__label { font-weight: 800; }
-.mprog__count { color: var(--orange-strong); font-weight: 800; font-size: 0.9rem; }
-.mprog__bar { height: 7px; border-radius: 999px; background: var(--bg); overflow: hidden; }
-.mprog__fill { height: 100%; border-radius: 999px; background: var(--orange); transition: width 0.25s ease; width: 0; }
-.mprog__next { margin: 11px 0 0; font-size: 0.88rem; font-weight: 600; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mstreak { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--muted-soft); margin: 0 0 14px; }
-.mstreak--on { color: var(--orange-strong); }
+
+/* ============================================================
+   모바일 홈 v2 (student-m.html 전용)
+   ============================================================ */
+.mhead { display: flex; align-items: center; justify-content: space-between; min-height: 40px; margin: 12px 2px 16px; }
+.mhead__date { font-size: 1.2rem; font-weight: 800; }
+.mhead__dday { background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 7px 12px; font-size: 0.82rem; color: var(--muted); }
+.mhead__dday b { color: var(--navy); font-weight: 800; }
+
+/* 오늘 카드 */
+.mtoday { padding: 18px 18px 16px; margin-bottom: 10px; }
+.mtoday__loading { color: var(--muted-soft); text-align: center; margin: 10px 0; }
+.mtoday__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.mtoday__title { font-weight: 800; font-size: 1.02rem; }
+.mtoday__count { color: var(--orange-strong); font-weight: 800; font-size: 0.9rem; }
+.mtoday__link { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.mtoday__bar { height: 7px; border-radius: 999px; background: var(--bg); overflow: hidden; margin-bottom: 6px; }
+.mtoday__fill { height: 100%; border-radius: 999px; background: var(--orange); transition: width 0.25s ease; }
+.mtoday__tasks { display: flex; flex-direction: column; }
+.mtoday__task { display: flex; align-items: center; gap: 11px; width: 100%; padding: 11px 2px; background: none; border: none; border-bottom: 1px solid var(--line); cursor: pointer; font: inherit; color: var(--text); text-align: left; -webkit-tap-highlight-color: transparent; }
+.mtoday__task:last-child { border-bottom: none; }
+.mtoday__check { flex: none; width: 23px; height: 23px; border-radius: 50%; border: 1.8px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; color: #fff; }
+.mtoday__task.is-done .mtoday__check { background: var(--green); border-color: var(--green); }
+.mtoday__task-text { font-size: 0.94rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mtoday__task-text b { color: var(--orange-strong); font-weight: 800; }
+.mtoday__task.is-done .mtoday__task-text { color: var(--muted-soft); text-decoration: line-through; }
+.mtoday__more { display: block; text-align: center; color: var(--muted); font-size: 0.85rem; font-weight: 600; padding: 9px 0 2px; }
+.mtoday__cta { margin-top: 13px; }
+.mtoday__empty-title { font-size: 1.05rem; font-weight: 800; text-align: center; margin: 8px 0 5px; }
+.mtoday__empty-desc { color: var(--muted); font-size: 0.88rem; text-align: center; margin: 0 0 16px; }
+.mtoday__rate { font-size: 2.6rem; font-weight: 250; text-align: center; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+.mtoday__rate small { font-size: 1.2rem; color: var(--muted); }
+.mtoday__rate-label { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 0 0 4px; }
+
+/* 스탯 · 섹션 타이틀 · 주간 행 */
+.mstat { text-align: center; font-size: 0.86rem; font-weight: 600; color: var(--muted-soft); margin: 0 0 16px; }
+.mstat b { color: var(--orange-strong); font-weight: 800; }
+.msection-title { font-weight: 800; font-size: 0.9rem; color: var(--muted); margin: 0 2px 8px; }
+.mevents { margin-bottom: 14px; }
+.mrows { padding: 4px 6px; }
+.mrow { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px; font-weight: 600; font-size: 0.95rem; }
+.mrow + .mrow { border-top: 1px solid var(--line); }
+.mrow__chevron { color: var(--muted-soft); }
+.mrow__badge { background: var(--orange-bg); color: var(--orange-strong); font-size: 0.7rem; font-weight: 800; border-radius: 6px; padding: 2px 7px; margin-left: 6px; }
