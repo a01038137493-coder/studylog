@@ -360,6 +360,19 @@ async function deleteMyAccount() {
   const second = confirm("마지막 확인입니다. 지금 계정을 완전히 삭제할까요?");
   if (!second) return;
 
+  // 업로드한 파일 먼저 정리 (storage 테이블은 SQL 로 직접 지울 수 없어 앱에서 처리)
+  try {
+    const user = await getCurrentUser();
+    if (user) {
+      const { data: rows } = await supabaseClient
+        .from("files").select("path").eq("student_id", user.id);
+      const paths = (rows || []).map((r) => r.path).filter(Boolean);
+      if (paths.length) await supabaseClient.storage.from("memo-files").remove(paths);
+    }
+  } catch (e) {
+    /* 파일 정리 실패해도 계정 삭제는 진행 */
+  }
+
   const { error } = await supabaseClient.rpc("delete_my_account");
   if (error) {
     alert("계정 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>파일 · 디턴로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=95" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg has-tabbar">
+  <header class="topbar">
+    <div class="topbar__brand">파일</div>
+    <div class="topbar__right">
+      <button type="button" class="btn btn--ghost btn--sm" id="file-add">＋ 올리기</button>
+    </div>
+  </header>
+
+  <input type="file" id="file-input" hidden multiple
+         accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.hwp,.hwpx" />
+
+  <main class="container">
+    <input type="search" id="file-search" class="field__input memo-search" placeholder="파일 검색" autocomplete="off" />
+    <p class="file-status" id="file-status" hidden></p>
+    <div id="file-list"><p class="muted">불러오는 중...</p></div>
+  </main>
+
+  <nav class="tabbar">
+    <a href="/student.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>홈</span>
+    </a>
+    <a href="/calendar.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+      <span>캘린더</span>
+    </a>
+    <a href="/memo.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v6h5M8 13h8M8 17h5"/></svg>
+      <span>메모</span>
+    </a>
+    <a href="/files.html" class="tabbar__item is-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>파일</span>
+    </a>
+    <a href="/settings.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+      <span>설정</span>
+    </a>
+  </nav>
+
+  <script src="/js/supabaseClient.js?v=mock10"></script>
+  <script src="/js/utils.js?v=14"></script>
+  <script>
+    /* 파일 보관함 — Supabase Storage(비공개 버킷 memo-files) + files 테이블
+     * 업로드: 사진/PDF/문서 (파일당 25MB) · 열기: 만료되는 서명 URL
+     * 삭제: 카드를 왼쪽으로 밀기 */
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = await requireRole(["student"]);
+      if (!profile) return;
+
+      const BUCKET = "memo-files";
+      const MAX_SIZE = 25 * 1024 * 1024;
+      const listEl = document.getElementById("file-list");
+      const searchEl = document.getElementById("file-search");
+      const statusEl = document.getElementById("file-status");
+      const input = document.getElementById("file-input");
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      let files = [];
+      let openRow = null;
+      const thumbs = new Map();      // path → 서명 URL (이미지 미리보기 캐시)
+
+      const isImage = (m) => String(m || "").startsWith("image/");
+      const sizeText = (n) => {
+        const k = Number(n) || 0;
+        if (k < 1024) return `${k} B`;
+        if (k < 1024 * 1024) return `${Math.round(k / 1024)} KB`;
+        return `${(k / 1024 / 1024).toFixed(1)} MB`;
+      };
+      const when = (iso) => {
+        const d = new Date(iso);
+        const now = new Date();
+        const p = (n) => String(n).padStart(2, "0");
+        return d.toDateString() === now.toDateString()
+          ? `오늘 ${p(d.getHours())}:${p(d.getMinutes())}`
+          : `${d.getMonth() + 1}월 ${d.getDate()}일`;
+      };
+      const icon = (mime, name) => {
+        const ext = (name.split(".").pop() || "").toLowerCase();
+        if (String(mime).includes("pdf") || ext === "pdf") return "📕";
+        if (["doc", "docx", "hwp", "hwpx", "txt"].includes(ext)) return "📄";
+        if (["xls", "xlsx", "csv"].includes(ext)) return "📊";
+        if (["ppt", "pptx"].includes(ext)) return "📽";
+        return "📁";
+      };
+
+      const status = (msg) => {
+        if (!msg) { statusEl.hidden = true; return; }
+        statusEl.textContent = msg;
+        statusEl.hidden = false;
+      };
+
+      async function signed(path, sec = 3600) {
+        const { data } = await supabaseClient.storage.from(BUCKET).createSignedUrl(path, sec);
+        return data ? data.signedUrl : null;
+      }
+
+      /* ---------- 업로드 ---------- */
+      document.getElementById("file-add").addEventListener("click", () => input.click());
+      input.addEventListener("change", async () => {
+        const picked = [...input.files];
+        input.value = "";
+        if (!picked.length) return;
+
+        let done = 0;
+        for (const f of picked) {
+          if (f.size > MAX_SIZE) {
+            status(`${f.name} — 25MB를 넘어 건너뜁니다`);
+            continue;
+          }
+          status(`올리는 중… ${++done}/${picked.length}`);
+          const safe = f.name.replace(/[^\w.\-가-힣 ]/g, "_");
+          const path = `${profile.id}/${Date.now()}-${safe}`;
+          const up = await supabaseClient.storage.from(BUCKET).upload(path, f, {
+            contentType: f.type || "application/octet-stream",
+            upsert: false,
+          });
+          if (up.error) { status(`${f.name} 업로드 실패`); continue; }
+          const ins = await supabaseClient.from("files").insert({
+            student_id: profile.id, name: f.name, path, mime: f.type, size: f.size,
+          });
+          if (ins.error) {
+            await supabaseClient.storage.from(BUCKET).remove([path]);   // 메타 실패 시 파일도 정리
+            status(`${f.name} 저장 실패`);
+          }
+        }
+        status("");
+        await load();
+      });
+
+      /* ---------- 목록 ---------- */
+      function rowHtml(f) {
+        const thumb = isImage(f.mime) && thumbs.has(f.path)
+          ? `<img class="file-item__thumb" src="${thumbs.get(f.path)}" alt="" loading="lazy" />`
+          : `<span class="file-item__icon">${icon(f.mime, f.name)}</span>`;
+        return `
+          <div class="memo-row file-row" data-id="${f.id}" data-path="${esc(f.path)}">
+            <div class="memo-row__actions">
+              <button type="button" class="memo-act memo-act--del" data-act="del">삭제</button>
+            </div>
+            <button type="button" class="card memo-item file-item" data-open="${esc(f.path)}">
+              ${thumb}
+              <span class="file-item__body">
+                <span class="file-item__name">${esc(f.name)}</span>
+                <span class="file-item__meta">${when(f.created_at)} · ${sizeText(f.size)}</span>
+              </span>
+            </button>
+          </div>`;
+      }
+
+      function closeOpen() {
+        if (!openRow) return;
+        openRow.classList.remove("is-open");
+        openRow.querySelector(".memo-item").style.transform = "";
+        openRow = null;
+      }
+
+      const OPEN_X = -92;
+      function wireRow(row) {
+        const card = row.querySelector(".memo-item");
+        let sx = 0, sy = 0, dx = 0, dir = null, active = false, moved = false;
+        const setX = (x) => { card.style.transform = x ? `translateX(${x}px)` : ""; };
+
+        card.addEventListener("pointerdown", (e) => {
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          if (openRow && openRow !== row) closeOpen();
+          sx = e.clientX; sy = e.clientY; dx = 0; dir = null; active = true; moved = false;
+          card.style.transition = "none";
+        });
+        card.addEventListener("pointermove", (e) => {
+          if (!active) return;
+          const mx = e.clientX - sx, my = e.clientY - sy;
+          if (!dir) {
+            if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
+            if (Math.abs(my) > Math.abs(mx)) { active = false; return; }
+            dir = "x";
+            try { card.setPointerCapture(e.pointerId); } catch (err) {}
+          }
+          moved = true;
+          const base = row.classList.contains("is-open") ? OPEN_X : 0;
+          dx = Math.max(OPEN_X - 30, Math.min(0, base + mx));
+          setX(dx);
+        });
+        const finish = () => {
+          if (!active) return;
+          active = false;
+          card.style.transition = "";
+          if (dir !== "x") return;
+          if (dx < OPEN_X / 2) { setX(OPEN_X); row.classList.add("is-open"); openRow = row; }
+          else { setX(0); row.classList.remove("is-open"); if (openRow === row) openRow = null; }
+        };
+        card.addEventListener("pointerup", finish);
+        card.addEventListener("pointercancel", finish);
+
+        /* 탭 → 파일 열기 (서명 URL) */
+        card.addEventListener("click", async () => {
+          if (moved) { moved = false; return; }
+          if (row.classList.contains("is-open")) { closeOpen(); return; }
+          status("여는 중…");
+          const url = await signed(card.dataset.open);
+          status("");
+          if (!url) { alert("파일을 열지 못했습니다."); return; }
+          const w = window.open(url, "_blank");
+          if (!w) window.location.href = url;
+        });
+
+        row.querySelector("[data-act]").addEventListener("click", async () => {
+          const f = files.find((x) => x.id === row.dataset.id);
+          if (!f || !confirm(`'${f.name}' 을(를) 삭제할까요?`)) { closeOpen(); return; }
+          const { error: se } = await supabaseClient.storage.from(BUCKET).remove([f.path]);
+          const { error: de } = await supabaseClient.from("files").delete().eq("id", f.id);
+          if (se || de) { status("삭제 실패"); return; }
+          files = files.filter((x) => x.id !== f.id);
+          openRow = null;
+          render();
+        });
+      }
+
+      function render() {
+        const q = searchEl.value.trim().toLowerCase();
+        const rows = q ? files.filter((f) => f.name.toLowerCase().includes(q)) : files;
+
+        if (!files.length) {
+          listEl.innerHTML = `
+            <div class="card memo-empty">
+              <p class="memo-empty__title">아직 올린 파일이 없어요</p>
+              <p class="memo-empty__desc">필기 사진, 문제지 PDF, 문서를 올려두면<br />폰과 태블릿 어디서나 열어볼 수 있어요</p>
+              <button type="button" class="btn btn--primary btn--lg" id="file-first">파일 올리기</button>
+            </div>`;
+          document.getElementById("file-first").addEventListener("click", () => input.click());
+          return;
+        }
+        if (!rows.length) { listEl.innerHTML = `<p class="muted">검색 결과가 없습니다.</p>`; return; }
+
+        listEl.innerHTML = rows.map(rowHtml).join("");
+        listEl.querySelectorAll(".file-row").forEach(wireRow);
+      }
+
+      async function loadThumbs() {
+        const imgs = files.filter((f) => isImage(f.mime) && !thumbs.has(f.path)).slice(0, 40);
+        if (!imgs.length) return;
+        const { data } = await supabaseClient.storage.from(BUCKET)
+          .createSignedUrls(imgs.map((f) => f.path), 3600);
+        (data || []).forEach((d) => { if (d.signedUrl) thumbs.set(d.path, d.signedUrl); });
+        render();
+      }
+
+      async function load() {
+        const { data, error } = await supabaseClient
+          .from("files").select("*")
+          .eq("student_id", profile.id)
+          .order("created_at", { ascending: false });
+        if (error) { listEl.innerHTML = `<p class="muted">파일을 불러오지 못했습니다.</p>`; return; }
+        files = data || [];
+        render();
+        loadThumbs();
+      }
+
+      searchEl.addEventListener("input", () => { openRow = null; render(); });
+      await load();
+    });
+  </script>
+</body>
+</html>

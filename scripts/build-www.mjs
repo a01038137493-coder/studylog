@@ -18,7 +18,7 @@ const COPY = [
   "login.html",
   "signup.html",
   "privacy.html",
-  "todo.html",
+  "files.html",
   "memo.html",
   "memo-edit.html",
   "support.html",

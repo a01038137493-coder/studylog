@@ -107,7 +107,7 @@
           <span class="mtoday__check">${prog.done[i] ? "✓" : ""}</span>
           <span class="mtoday__task-text">${t.subject ? `<b>[${esc(subjectLabel(t.subject))}]</b> ` : ""}${esc(t.text || "")}</span>
         </button>`).join("");
-      const more = n > MAX ? `<a href="/todo.html" class="mtoday__more">+ ${n - MAX}개 더 보기</a>` : "";
+      const more = n > MAX ? `<a href="/checkin.html" class="mtoday__more">+ ${n - MAX}개 더 보기</a>` : "";
 
       box.innerHTML = `
         <div class="mtoday__head">

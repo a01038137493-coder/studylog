@@ -4,6 +4,10 @@
 <dict>
     <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>메모에 첨부할 사진을 선택하기 위해 사진 보관함 접근 권한이 필요합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>필기나 문제지를 촬영해 파일로 저장하기 위해 카메라 접근 권한이 필요합니다.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>캘린더 화면에 Apple 캘린더 일정을 함께 표시하기 위해 접근 권한이 필요합니다.</string>
 	<key>NSCalendarsUsageDescription</key>
