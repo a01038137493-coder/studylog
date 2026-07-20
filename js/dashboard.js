@@ -187,13 +187,36 @@ function colsNow() {
 function useLayoutForCols(cols) {
   const key = "c" + cols;
   if (!dashLayout.layouts[key]) {
-    // 이 화면 폭을 처음 보는 경우: 구버전 단일 배치가 있으면 1회 이식, 없으면 자동 배치
-    dashLayout.layouts[key] = dashLayout._seedPos
-      ? JSON.parse(JSON.stringify(dashLayout._seedPos))
-      : {};
+    // 이 화면 폭을 처음 보는 경우(기기 회전·다른 기기 등):
+    // 구버전 단일 배치 → 없으면 가장 가까운 열 수의 배치를 옮겨 심는다.
+    // (빈 배치로 두면 매번 자동 재배치되어 "저장한 대로 안 나온다"는 문제가 생김)
+    const base = dashLayout._seedPos || nearestLayout(cols);
+    dashLayout.layouts[key] = base ? adaptPos(base, cols) : {};
     dashLayout._seedPos = null;
   }
   dashLayout.pos = dashLayout.layouts[key];
+}
+
+/* 저장된 배치들 중 현재 열 수와 가장 가까운 것 */
+function nearestLayout(cols) {
+  const cands = Object.keys(dashLayout.layouts)
+    .map((k) => ({ k, n: Number(k.slice(1)) }))
+    .filter((x) => Number.isFinite(x.n) && Object.keys(dashLayout.layouts[x.k] || {}).length)
+    .sort((a, b) => Math.abs(a.n - cols) - Math.abs(b.n - cols));
+  return cands.length ? dashLayout.layouts[cands[0].k] : null;
+}
+
+/* 다른 열 수의 배치를 현재 열 수에 맞게 접어 넣기 (오른쪽으로 넘치면 안쪽으로 당김) */
+function adaptPos(src, cols) {
+  const out = {};
+  Object.keys(src).forEach((id) => {
+    const p = src[id];
+    if (!p) return;
+    const { w } = footprint(id);
+    const maxC = Math.max(1, cols - w + 1);
+    out[id] = { c: Math.min(Math.max(1, p.c || 1), maxC), r: Math.max(1, p.r || 1), p: p.p || 1 };
+  });
+  return out;
 }
 
 /* ===== 페이지(좌우 슬라이드) ===== */
