@@ -5,19 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 디턴로그</title>
   <link rel="stylesheet" href="/css/style.css?v=79" />
-  <!-- 메모장 위젯 폰트 (손글씨/또박또박/명조) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
-  <!-- 모바일은 별도 페이지(student-m.html)에서 개발 — 이 파일은 태블릿/PC 전용 -->
+  <!-- 태블릿/PC는 위젯 대시보드(student.html)로 — 이 파일은 모바일 전용 -->
   <script>
-    if (window.matchMedia("(max-width: 600px)").matches) window.location.replace("/student-m.html");
+    if (window.matchMedia("(min-width: 601px)").matches) window.location.replace("/student.html");
   </script>
 
-  <!-- 로딩 스플래시: 데이터 준비 후 utils.js의 hideAppLoader()가 부드럽게 제거 -->
+  <!-- 로딩 스플래시 -->
   <div id="app-loader" class="app-loader" role="status" aria-label="불러오는 중">
     <script>window.__loaderStart = Date.now();</script>
     <div class="app-loader__inner">
@@ -26,40 +22,21 @@
     </div>
   </div>
 
-  <main class="container home-wide">
-    <div class="pager" id="pager">
-    <section class="page">
-    <div class="home-main">
+  <main class="container">
+    <!-- 헤더: D-Day 칩(좌) + 날짜(중앙) -->
+    <div class="mhead">
+      <span class="mhead__dday">수능 <b id="dday">D-—</b></span>
+      <span class="mhead__date" id="today-date">오늘</span>
+    </div>
 
-    <!-- 전역 그리드 캔버스: 메인카드(고정) + 달력 + 추가 위젯 (1페이지) -->
-    <div class="widget-canvas" id="widget-canvas" data-page="1">
+    <!-- student.js 호환용 (모바일에선 미표시) -->
+    <span id="student-name" hidden></span>
+    <div id="daily-quote" hidden></div>
 
-    <!-- 고정 메인 위젯 (캡처 영역): 학생카드 + 체크인/체크아웃 + 목표/회고/기록 -->
-    <section class="widget widget--core" data-widget="core">
+    <!-- 체크아웃 완료 후 오늘 결과 요약 -->
+    <div class="result-strip" id="result-strip" hidden></div>
 
-    <!-- 상단 상태 카드 -->
-    <section class="card status-card">
-      <div class="status-card__top">
-        <div>
-          <p class="status-card__hello">안녕하세요,</p>
-          <h1 class="status-card__name" id="student-name">학생</h1>
-        </div>
-        <div class="status-card__dday">
-          <span class="status-card__dday-label">수능까지</span>
-          <span class="status-card__dday-value" id="dday">D-—</span>
-        </div>
-      </div>
-      <p class="status-card__date" id="today-date">오늘</p>
-
-      <!-- 체크아웃 완료 후 오늘 결과 요약 -->
-      <div class="result-strip" id="result-strip" hidden></div>
-
-      <!-- 오늘의 한마디 (위인 명언) -->
-      <div class="daily-quote daily-quote--in-card" id="daily-quote"></div>
-    </section>
-
-    <div class="home-grid">
-    <!-- 오늘의 흐름: 체크인(플랜) → 체크아웃(성과). 플랜은 하루 중 추가·수정 가능 -->
+    <!-- 오늘의 흐름 -->
     <section class="flow">
       <div class="flow__steps">
         <a href="/checkin.html" class="flow-card" id="act-checkin">
@@ -76,7 +53,7 @@
       </div>
     </section>
 
-    <!-- 보조 메뉴 -->
+    <!-- 주간 메뉴 -->
     <section class="action-grid action-grid--secondary">
       <a href="/weekly-goal.html" class="action" id="act-weekly-goal">
         <img class="action__icon" src="/assets/icon/%EB%AA%A9%ED%91%9C.png" alt="" />
@@ -89,49 +66,11 @@
         <span class="action__title">주간 회고</span>
         <span class="action__desc">금요일에 한 주를 돌아봅니다</span>
       </a>
-
-      <a href="/my-history.html" class="action" id="act-history">
-        <img class="action__icon" src="/assets/icon/ditton_my_records_icon_transparent_clean.png" alt="" />
-        <span class="action__title">내 기록 보기</span>
-        <span class="action__desc">최근 성과를 확인합니다</span>
-      </a>
     </section>
-    </div><!-- /home-grid -->
-    </section><!-- /widget--core -->
-
-      <section class="widget widget--calendar" data-widget="calendar">
-        <button type="button" class="widget__del" aria-label="삭제">−</button>
-        <div class="calendar" id="calendar"></div>
-      </section>
-    </div><!-- /widget-canvas -->
-
-    <p class="footer-quote">오늘의 계획과 실제 결과를 남기면, 내일의 전략이 달라집니다.</p>
-    </div><!-- /home-main -->
-    </section><!-- /page 1 -->
-
-    <section class="page">
-      <div class="home-main">
-        <div class="widget-canvas" data-page="2"></div>
-      </div>
-    </section>
-
-    <section class="page">
-      <div class="home-main">
-        <div class="widget-canvas" data-page="3"></div>
-      </div>
-    </section>
-    </div><!-- /pager -->
-
-    <!-- 페이지 점 인디케이터 -->
-    <div class="pager-dots" id="pager-dots">
-      <button type="button" class="pager-dot is-active" data-page="1" aria-label="1페이지"></button>
-      <button type="button" class="pager-dot" data-page="2" aria-label="2페이지"></button>
-      <button type="button" class="pager-dot" data-page="3" aria-label="3페이지"></button>
-    </div>
   </main>
 
   <nav class="tabbar">
-    <a href="/student.html" class="tabbar__item is-active">
+    <a href="/student-m.html" class="tabbar__item is-active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>홈</span>
     </a>
@@ -155,7 +94,6 @@
 
   <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
-  <script src="/js/dashboard.js?v=37"></script>
   <script src="/js/student.js?v=28"></script>
 </body>
 </html>

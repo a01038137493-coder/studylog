@@ -1818,102 +1818,39 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
 }
 
 /* ============================================================
-   모바일 홈 (타이머 중심 레이아웃) — 폰 전용, 라이트 테마
-   태블릿(>480px)은 위젯 대시보드 유지
+   모바일 홈 헤더 (student-m.html 전용)
    ============================================================ */
-.mtimer { display: none; }
+.mhead { display: flex; align-items: center; position: relative; min-height: 40px; margin: 10px 0 18px; }
+.mhead__dday {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 8px 13px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.mhead__dday b { color: var(--navy); font-weight: 800; }
+.mhead__date {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text);
+  font-size: 1.02rem;
+  font-weight: 700;
+}
 
-@media (max-width: 480px) {
-  /* 상단바·상태카드 숨김 — D-Day/날짜는 타이머 헤더(mtimer__head)가 표시 */
-  body.mhome .topbar { display: none; }
-  body.mhome .status-card {
-    background: none;
-    box-shadow: none;
-    border: none;
-    padding: 0;
-    min-height: 0;
-  }
-  body.mhome .status-card::before,
-  body.mhome .status-card::after { display: none; }
-  body.mhome .status-card__top,
-  body.mhome .status-card__date,
-  body.mhome .daily-quote { display: none; }
+/* 캘린더 페이지 */
+.calpage { padding: 18px 16px; }
+.calpage__hint { display: flex; align-items: center; gap: 6px; justify-content: center; color: var(--muted-soft); font-size: 0.8rem; margin: 12px 0 0; }
+.calpage__dot, .calendar__cell--rec::after { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.calendar__cell--rec { position: relative; }
+.calendar__cell--rec::after { position: absolute; left: 50%; transform: translateX(-50%); bottom: 1px; }
 
-  /* 타이머 헤더: D-Day 칩(좌) + 날짜(중앙) */
-  body.mhome .mtimer__head {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    position: relative;
-    min-height: 38px;
-    margin-bottom: 22px;
-  }
-  body.mhome .mtimer__dday {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 8px 13px;
-    font-size: 0.88rem;
-    font-weight: 800;
-    color: var(--navy);
-  }
-  body.mhome .mtimer__date {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--text);
-    font-size: 1.02rem;
-    font-weight: 700;
-  }
-
-  /* 공부 스톱워치 히어로 */
-  body.mhome .mtimer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 0 26px;
-  }
-  body.mhome .mtimer__time {
-    font-size: 3.9rem;
-    font-weight: 250;
-    color: var(--navy);
-    margin: 6px 0 0;
-    letter-spacing: 0.01em;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-  }
-  body.mhome .mtimer__btn {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    border: none;
-    background: #f0913a;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 8px 22px rgba(240, 145, 58, 0.4);
-    -webkit-tap-highlight-color: transparent;
-  }
-  body.mhome .mtimer__btn svg { width: 26px; height: 26px; }
-  body.mhome .mtimer__ic-pause { display: none; }
-  body.mhome .mtimer__btn.is-running .mtimer__ic-play { display: none; }
-  body.mhome .mtimer__btn.is-running .mtimer__ic-pause { display: block; }
-  body.mhome .mtimer__hint { color: var(--muted); font-size: 0.82rem; margin: 0; }
-
-  /* 모바일에선 위젯 편집/달력/추가 페이지 숨김 (태블릿 전용 기능) */
-  body.mhome .widget--calendar,
-  body.mhome .pager-dots,
-  body.mhome .page:nth-child(n + 2),
-  body.mhome .footer-quote { display: none; }
-  body.mhome .pager { display: block; overflow: visible; }
-
-  /* 플로팅 필(pill) 탭바 — 모바일 공통 */
+/* 모바일: 플로팅 필(pill) 탭바 */
+@media (max-width: 600px) {
   .tabbar {
-    left: 16px;
-    right: 16px;
+    left: 12px;
+    right: 12px;
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     border-radius: 999px;
     border: 1px solid var(--line);

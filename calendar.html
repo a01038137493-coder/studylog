@@ -3,53 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-  <title>설정 · 디턴로그</title>
+  <title>캘린더 · 디턴로그</title>
   <link rel="stylesheet" href="/css/style.css?v=79" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
-    <div class="topbar__brand">설정</div>
+    <div class="topbar__brand">캘린더</div>
     <span></span>
   </header>
 
   <main class="container">
-    <!-- 프로필 -->
-    <section class="card settings-profile">
-      <span class="settings-profile__name" id="profile-name">—</span>
-      <span class="settings-profile__email" id="profile-email">—</span>
+    <section class="card calpage">
+      <div class="calendar" id="calendar"></div>
+      <p class="calpage__hint"><span class="calpage__dot"></span> 기록(체크아웃)한 날</p>
     </section>
-
-    <!-- 일반 메뉴 -->
-    <section class="card settings-menu">
-      <a href="/privacy.html" class="settings-row">
-        개인정보처리방침
-        <span class="settings-row__chevron" aria-hidden="true">›</span>
-      </a>
-      <a href="/support.html" class="settings-row">
-        문의하기
-        <span class="settings-row__chevron" aria-hidden="true">›</span>
-      </a>
-      <button type="button" class="settings-row" onclick="logout()">
-        로그아웃
-        <span class="settings-row__chevron" aria-hidden="true">›</span>
-      </button>
-    </section>
-
-    <!-- 위험 영역 -->
-    <section class="card settings-menu">
-      <button type="button" class="settings-row settings-row--danger" onclick="deleteMyAccount()">
-        계정 삭제
-        <span class="settings-row__chevron" aria-hidden="true">›</span>
-      </button>
-      <p class="settings-menu__hint">계정을 삭제하면 모든 공부 기록이 영구히 사라지며 복구할 수 없습니다.</p>
-    </section>
-
-    <p class="settings-version">디턴로그 v1.0.0</p>
   </main>
 
   <nav class="tabbar">
-    <a href="/student.html" class="tabbar__item">
+    <a href="/student-m.html" class="tabbar__item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>홈</span>
     </a>
@@ -57,7 +29,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
       <span>할 일</span>
     </a>
-    <a href="/calendar.html" class="tabbar__item">
+    <a href="/calendar.html" class="tabbar__item is-active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
       <span>캘린더</span>
     </a>
@@ -65,20 +37,52 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>
       <span>기록</span>
     </a>
-    <a href="/settings.html" class="tabbar__item is-active">
+    <a href="/settings.html" class="tabbar__item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
       <span>설정</span>
     </a>
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock9"></script>
+  <script src="/js/utils.js?v=14"></script>
   <script>
+    /* 이번 달 달력 + 체크아웃 기록 있는 날 표시 */
     document.addEventListener("DOMContentLoaded", async () => {
-      const user = await requireAuth();
-      if (!user) return;
-      document.getElementById("profile-email").textContent = user.email || "";
-      const profile = await getCurrentProfile();
-      document.getElementById("profile-name").textContent = (profile && profile.name) || "학생";
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0-based
+      const today = now.getDate();
+      const firstDow = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const dows = ["일", "월", "화", "수", "목", "금", "토"];
+      const pad = (n) => String(n).padStart(2, "0");
+
+      // 이번 달 체크아웃 기록 날짜 수집 (로그인 상태에서만)
+      const recorded = new Set();
+      try {
+        const profile = await getCurrentProfile();
+        if (!profile) { window.location.href = "/welcome.html"; return; }
+        const start = `${year}-${pad(month + 1)}-01`;
+        const end = `${year}-${pad(month + 1)}-${pad(daysInMonth)}`;
+        const { data } = await supabaseClient
+          .from("daily_checkouts")
+          .select("date")
+          .eq("student_id", profile.id)
+          .gte("date", start)
+          .lte("date", end);
+        (data || []).forEach((r) => recorded.add(r.date));
+      } catch (e) {}
+
+      let cells = dows.map((d) => `<div class="calendar__dow">${d}</div>`).join("");
+      for (let i = 0; i < firstDow; i++) cells += `<div class="calendar__cell"></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const isToday = d === today;
+        const hasRec = recorded.has(`${year}-${pad(month + 1)}-${pad(d)}`);
+        cells += `<div class="calendar__cell${isToday ? " calendar__cell--today" : ""}${hasRec ? " calendar__cell--rec" : ""}">${d}</div>`;
+      }
+      document.getElementById("calendar").innerHTML = `
+        <div class="calendar__title">${year}년 ${month + 1}월</div>
+        <div class="calendar__grid">${cells}</div>`;
     });
   </script>
 </body>
