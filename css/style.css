@@ -168,6 +168,14 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .topbar:has(> a.btn) > a.btn { justify-self: start; }
 .topbar:has(> a.btn) .topbar__brand { justify-self: center; }
 .topbar:has(> a.btn) > span { justify-self: end; }
+.topbar:has(> a.btn) > .topbar__right { justify-self: end; }
+
+/* 상단바가 있는 화면은 바가 상태표시줄까지 덮도록 (네이티브 앱과 동일).
+   body 의 safe-area 패딩을 걷고 바 자체에 얹는다. */
+@supports selector(body:has(*)) {
+  body:has(> .topbar) { padding-top: 0; }
+  body:has(> .topbar) > .topbar { padding-top: calc(11px + env(safe-area-inset-top, 0px)); }
+}
 
 .section-hint { color: var(--muted); font-size: 0.9rem; margin: 6px 2px 12px; }
 
