@@ -125,7 +125,7 @@
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
-  <script src="/js/utils.js?v=15"></script>
+  <script src="/js/utils.js?v=16"></script>
   <script src="/js/scheduleParse.js?v=1"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
@@ -275,7 +275,7 @@
         if (list.length) {
           html += list.map((ev, idx) => {
             const t = new Date(ev.startDate);
-            const time = ev.isAllDay ? "종일" : `${pad(t.getHours())}:${pad(t.getMinutes())}`;
+            const time = ev.isAllDay ? "종일" : fmtTime12(t);
             return `<button type="button" class="fcal-ev fcal-ev--tap" data-ev="${idx}">
               <span class="fcal-ev__time">${time}</span>
               <span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span>

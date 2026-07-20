@@ -48,7 +48,7 @@
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
-  <script src="/js/utils.js?v=15"></script>
+  <script src="/js/utils.js?v=16"></script>
   <script>
     /* 파일 보관함 — Supabase Storage(비공개 버킷 memo-files) + files 테이블
      * 업로드: 사진/PDF/문서 (파일당 25MB) · 열기: 만료되는 서명 URL
@@ -82,7 +82,7 @@
         const now = new Date();
         const p = (n) => String(n).padStart(2, "0");
         return d.toDateString() === now.toDateString()
-          ? `오늘 ${p(d.getHours())}:${p(d.getMinutes())}`
+          ? `오늘 ${fmtTime12(d)}`
           : `${d.getMonth() + 1}월 ${d.getDate()}일`;
       };
       const icon = (mime, name) => {

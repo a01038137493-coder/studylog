@@ -44,7 +44,7 @@
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
-  <script src="/js/utils.js?v=15"></script>
+  <script src="/js/utils.js?v=16"></script>
   <script src="/js/memofmt.js?v=1"></script>
   <script>
     /* 메모 목록 — 아이폰 메모장식: 검색 + 좌측 스와이프로 고정/삭제 */
@@ -64,7 +64,7 @@
         const now = new Date();
         const p = (n) => String(n).padStart(2, "0");
         return d.toDateString() === now.toDateString()
-          ? `오늘 ${p(d.getHours())}:${p(d.getMinutes())}`
+          ? `오늘 ${fmtTime12(d)}`
           : `${d.getMonth() + 1}월 ${d.getDate()}일`;
       }
 

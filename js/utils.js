@@ -321,3 +321,11 @@ function terms(profile) {
     ? { plan: "오늘 할 일", planCta: "오늘 할 일 정하기", result: "하루 마무리", resultCta: "하루 마무리하기", task: "할 일" }
     : { plan: "오늘 플랜", planCta: "오늘 플랜 만들기", result: "오늘 성과", resultCta: "성과 기록하기", task: "과제" };
 }
+
+/* 12시간제 시각 표시: "오후 3:05" */
+function fmtTime12(d) {
+  const h = d.getHours(), m = d.getMinutes();
+  const ampm = h < 12 ? "오전" : "오후";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return ampm + " " + h12 + ":" + String(m).padStart(2, "0");
+}

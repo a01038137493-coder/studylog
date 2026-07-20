@@ -202,7 +202,7 @@
             document.getElementById("g-events-list").innerHTML =
               result.slice(0, 3).map((ev) => {
                 const t = new Date(ev.startDate);
-                const time = ev.isAllDay ? "종일" : `${pad(t.getHours())}:${pad(t.getMinutes())}`;
+                const time = ev.isAllDay ? "종일" : fmtTime12(t);
                 return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`;
               }).join("") +
               (result.length > 3 ? `<a href="/calendar.html" class="mtoday__more">+ ${result.length - 3}개 더 보기</a>` : "");
