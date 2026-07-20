@@ -2048,5 +2048,5 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .memo-act { width: 79px; border: none; font: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .memo-act--pin { background: #f0913a; }
 .memo-act--del { background: #d9534f; }
-.memo-row .memo-item { position: relative; margin-bottom: 0; touch-action: pan-y; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
+.memo-row .memo-item { position: relative; margin-bottom: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
 .memo-item__pin { font-size: 0.82rem; }
