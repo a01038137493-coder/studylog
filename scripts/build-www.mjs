@@ -15,6 +15,7 @@ const OUT = "www";
 const COPY = [
   "index.html",
   "welcome.html",
+  "onboarding.html",
   "login.html",
   "signup.html",
   "privacy.html",

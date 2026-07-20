@@ -21,19 +21,33 @@
   };
 
   document.addEventListener("DOMContentLoaded", async () => {
-    /* 헤더 — 네트워크 없이 즉시 */
+    /* 헤더 — 날짜는 네트워크 없이 즉시 */
     document.getElementById("m-date").textContent = formatKoreanDate();
-    const dd = getDdayToSuneung();
-    document.getElementById("m-dday").textContent =
-      dd > 0 ? `D-${dd}` : dd === 0 ? "D-DAY" : `D+${Math.abs(dd)}`;
-
-    /* 주간 행: 월요일=목표, 금요일=회고에 '오늘' 배지 */
-    const dow = new Date().getDay();
-    if (dow === 1) document.querySelector("#mrow-goal .mrow__badge").hidden = false;
-    if (dow === 5) document.querySelector("#mrow-review .mrow__badge").hidden = false;
 
     const profile = await requireRole(["student"]);
     if (!profile) return;
+    if (!profile.onboarded) { window.location.replace("/onboarding.html"); return; }
+
+    const T = terms(profile);
+
+    /* D-Day: 수험생은 수능, 일반은 직접 정한 목표일(없으면 숨김) */
+    const dd = ddayFor(profile);
+    const ddayEl = document.querySelector(".mhead__dday");
+    if (dd) {
+      ddayEl.innerHTML = `${esc(dd.label)} <b id="m-dday">${ddayText(dd.days)}</b>`;
+    } else {
+      ddayEl.hidden = true;
+    }
+
+    /* 주간 목표·회고는 수험생 전용 */
+    const rows = document.querySelector(".mrows");
+    if (isGeneral(profile)) {
+      if (rows) rows.hidden = true;
+    } else {
+      const dow = new Date().getDay();
+      if (dow === 1) document.querySelector("#mrow-goal .mrow__badge").hidden = false;
+      if (dow === 5) document.querySelector("#mrow-review .mrow__badge").hidden = false;
+    }
 
     const today = getTodayString();
     const box = document.getElementById("mtoday");
@@ -79,20 +93,20 @@
         const rate = Math.round(Number(checkout.task_completion_rate ?? checkout.achievement_rate) || 0);
         box.innerHTML = `
           <div class="mtoday__head">
-            <span class="mtoday__title">오늘 기록 완료 🎉</span>
+            <span class="mtoday__title">${T.result} 완료 🎉</span>
             <a href="/my-history.html" class="mtoday__link">자세히 ›</a>
           </div>
           <p class="mtoday__rate">${rate}<small>%</small></p>
-          <p class="mtoday__rate-label">과제 완료율 · 완료 ${done} · 일부 ${partial} · 미완료 ${missed}</p>`;
+          <p class="mtoday__rate-label">${T.task} 완료율 · 완료 ${done} · 일부 ${partial} · 미완료 ${missed}</p>`;
         return;
       }
 
       /* ② 플랜 전 → CTA 하나만 */
       if (!tasks || !tasks.length) {
         box.innerHTML = `
-          <p class="mtoday__empty-title">오늘 플랜이 아직 없어요</p>
-          <p class="mtoday__empty-desc">오늘 끝낼 과제를 정하면 하루가 정리됩니다</p>
-          <a href="/checkin.html" class="btn btn--primary btn--block btn--lg">오늘 플랜 만들기</a>`;
+          <p class="mtoday__empty-title">${T.plan}이 아직 없어요</p>
+          <p class="mtoday__empty-desc">오늘 끝낼 ${T.task}를 정하면 하루가 정리됩니다</p>
+          <a href="/checkin.html" class="btn btn--primary btn--block btn--lg">${T.planCta}</a>`;
         return;
       }
 
@@ -117,7 +131,7 @@
         <div class="mtoday__bar"><div class="mtoday__fill" style="width:${pct}%"></div></div>
         <div class="mtoday__tasks">${rows}</div>
         ${more}
-        <a href="/checkout.html" class="btn btn--primary btn--block mtoday__cta">성과 기록하기</a>`;
+        <a href="/checkout.html" class="btn btn--primary btn--block mtoday__cta">${T.resultCta}</a>`;
 
       box.querySelectorAll("[data-task]").forEach((row) => {
         row.addEventListener("click", () => {

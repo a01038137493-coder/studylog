@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>설정 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=96" />
+  <link rel="stylesheet" href="/css/style.css?v=97" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -22,7 +22,11 @@
 
     <!-- 일반 메뉴 -->
     <section class="card settings-menu">
-      <a href="/my-history.html" class="settings-row">
+      <button type="button" class="settings-row" id="utype-row">
+        <span>사용 유형</span>
+        <span class="settings-row__value"><span id="utype-label">—</span> <span class="settings-row__chevron" aria-hidden="true">›</span></span>
+      </button>
+      <a href="/my-history.html" class="settings-row" id="history-row">
         내 기록
         <span class="settings-row__chevron" aria-hidden="true">›</span>
       </a>
@@ -51,6 +55,36 @@
 
     <p class="settings-version">디턴로그 v1.0.0</p>
   </main>
+
+  <div class="evsheet" id="utype-sheet" hidden>
+    <div class="evsheet__backdrop" data-ut-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <button type="button" class="evsheet__cancel" data-ut-close>취소</button>
+        <span class="evsheet__title">사용 유형</span>
+        <button type="button" class="evsheet__save" id="ut-save">저장</button>
+      </div>
+      <button type="button" class="card onb__opt" data-type="exam">
+        <span class="onb__opt-title">수험생</span>
+        <span class="onb__opt-desc">수능 D-Day · 과목별 과제 · 주간 목표와 회고</span>
+      </button>
+      <button type="button" class="card onb__opt" data-type="general">
+        <span class="onb__opt-title">일반 사용자</span>
+        <span class="onb__opt-desc">할 일 · 일정 · 메모 · 파일 중심</span>
+      </button>
+      <section class="onb__goal" id="ut-goal" hidden>
+        <label class="field">
+          <span class="field__label">목표 이름 (선택)</span>
+          <input type="text" id="ut-goal-label" class="field__input" placeholder="예: 자격증 시험" maxlength="20" />
+        </label>
+        <label class="field">
+          <span class="field__label">목표일 (선택)</span>
+          <input type="date" id="ut-goal-date" class="field__input" />
+        </label>
+      </section>
+      <p class="evsheet__error" id="ut-error" role="alert"></p>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/student.html" class="tabbar__item">
@@ -83,6 +117,45 @@
       document.getElementById("profile-email").textContent = user.email || "";
       const profile = await getCurrentProfile();
       document.getElementById("profile-name").textContent = (profile && profile.name) || "학생";
+
+      /* 사용 유형 */
+      const sheet = document.getElementById("utype-sheet");
+      const utLabel = document.getElementById("utype-label");
+      const goalBox = document.getElementById("ut-goal");
+      const errEl = document.getElementById("ut-error");
+      let picked = (profile && profile.user_type) || "exam";
+
+      const paint = () => {
+        utLabel.textContent = picked === "general" ? "일반 사용자" : "수험생";
+        sheet.querySelectorAll(".onb__opt").forEach((b) => b.classList.toggle("is-picked", b.dataset.type === picked));
+        goalBox.hidden = picked !== "general";
+      };
+      paint();
+      // 일반 사용자는 '내 기록'(학습 통계) 숨김
+      if (picked === "general") document.getElementById("history-row").hidden = true;
+
+      document.getElementById("ut-goal-label").value = (profile && profile.goal_label) || "";
+      document.getElementById("ut-goal-date").value = (profile && profile.goal_date) || "";
+
+      document.getElementById("utype-row").addEventListener("click", () => { sheet.hidden = false; });
+      sheet.querySelectorAll("[data-ut-close]").forEach((el) => el.addEventListener("click", () => { sheet.hidden = true; }));
+      sheet.querySelectorAll(".onb__opt").forEach((b) => b.addEventListener("click", () => { picked = b.dataset.type; paint(); }));
+
+      document.getElementById("ut-save").addEventListener("click", async () => {
+        errEl.textContent = "";
+        const patch = { user_type: picked };
+        if (picked === "general") {
+          const d = document.getElementById("ut-goal-date").value;
+          const l = document.getElementById("ut-goal-label").value.trim();
+          patch.goal_date = d || null;
+          patch.goal_label = d ? (l || "목표") : null;
+        } else {
+          patch.goal_date = null; patch.goal_label = null;
+        }
+        const { error } = await supabaseClient.from("profiles").update(patch).eq("id", user.id);
+        if (error) { errEl.textContent = "저장하지 못했습니다."; return; }
+        window.location.reload();
+      });
     });
   </script>
 </body>

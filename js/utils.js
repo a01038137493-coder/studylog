@@ -288,3 +288,36 @@ function setupFullscreen() {
 }
 if (document.readyState !== "loading") setupFullscreen();
 else document.addEventListener("DOMContentLoaded", setupFullscreen);
+
+
+/* ============================================================
+ * 사용자 유형 (exam=수험생 / general=일반)
+ *  - 수험생: 수능 D-Day 고정 사용
+ *  - 일반:   profiles.goal_date 를 쓰고, 없으면 D-Day 미표시
+ * ============================================================ */
+function isGeneral(profile) {
+  return profile && profile.user_type === "general";
+}
+
+/* 유형에 맞는 D-Day 정보. 표시할 게 없으면 null */
+function ddayFor(profile) {
+  if (isGeneral(profile)) {
+    if (!profile.goal_date) return null;
+    const today = new Date(getTodayString());
+    const diff = Math.round((new Date(profile.goal_date) - today) / (1000 * 60 * 60 * 24));
+    return { label: profile.goal_label || "목표", days: diff };
+  }
+  return { label: "수능", days: getDdayToSuneung() };
+}
+
+/* D-Day 숫자를 'D-12' / 'D-DAY' / 'D+3' 로 */
+function ddayText(days) {
+  return days > 0 ? `D-${days}` : days === 0 ? "D-DAY" : `D+${Math.abs(days)}`;
+}
+
+/* 유형별 용어 (일반 사용자는 학습 용어 대신 중립적인 말) */
+function terms(profile) {
+  return isGeneral(profile)
+    ? { plan: "오늘 할 일", planCta: "오늘 할 일 정하기", result: "하루 마무리", resultCta: "하루 마무리하기", task: "할 일" }
+    : { plan: "오늘 플랜", planCta: "오늘 플랜 만들기", result: "오늘 성과", resultCta: "성과 기록하기", task: "과제" };
+}

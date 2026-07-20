@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>시작하기 · 디턴로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=97" />
+  <script src="/js/vendor/supabase.js"></script>
+</head>
+<body class="app-bg onb-page">
+  <main class="container onb">
+    <h1 class="onb__title">어떤 용도로 쓰시나요?</h1>
+    <p class="onb__desc">선택에 맞춰 화면이 달라집니다. 나중에 설정에서 바꿀 수 있어요.</p>
+
+    <button type="button" class="card onb__opt" data-type="exam">
+      <span class="onb__opt-title">수험생</span>
+      <span class="onb__opt-desc">수능 D-Day, 과목별 과제, 주간 목표·회고까지 학습 관리에 필요한 기능을 모두 사용합니다</span>
+    </button>
+
+    <button type="button" class="card onb__opt" data-type="general">
+      <span class="onb__opt-title">일반 사용자</span>
+      <span class="onb__opt-desc">할 일·일정·메모·파일 중심으로 단순하게. 원하면 목표일을 직접 정할 수 있어요</span>
+    </button>
+
+    <!-- 일반 선택 시에만 노출 -->
+    <section class="card onb__goal" id="onb-goal" hidden>
+      <p class="onb__goal-title">목표일이 있나요? <span class="onb__goal-opt">(선택)</span></p>
+      <label class="field">
+        <span class="field__label">목표 이름</span>
+        <input type="text" id="onb-goal-label" class="field__input" placeholder="예: 자격증 시험, 프로젝트 마감" maxlength="20" />
+      </label>
+      <label class="field">
+        <span class="field__label">날짜</span>
+        <input type="date" id="onb-goal-date" class="field__input" />
+      </label>
+      <p class="onb__hint">비워두면 홈에 D-Day가 표시되지 않습니다.</p>
+    </section>
+
+    <button type="button" class="btn btn--primary btn--block btn--lg onb__start" id="onb-start" disabled>시작하기</button>
+    <p class="form__error" id="onb-error" role="alert"></p>
+  </main>
+
+  <script src="/js/supabaseClient.js?v=mock10"></script>
+  <script src="/js/utils.js?v=15"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await requireAuth();
+      if (!user) return;
+
+      let picked = null;
+      const startBtn = document.getElementById("onb-start");
+      const goalBox = document.getElementById("onb-goal");
+      const errEl = document.getElementById("onb-error");
+
+      document.querySelectorAll(".onb__opt").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          picked = btn.dataset.type;
+          document.querySelectorAll(".onb__opt").forEach((b) => b.classList.toggle("is-picked", b === btn));
+          goalBox.hidden = picked !== "general";
+          startBtn.disabled = false;
+        });
+      });
+
+      startBtn.addEventListener("click", async () => {
+        if (!picked) return;
+        startBtn.disabled = true;
+        errEl.textContent = "";
+
+        const patch = { user_type: picked, onboarded: true };
+        if (picked === "general") {
+          const d = document.getElementById("onb-goal-date").value;
+          const l = document.getElementById("onb-goal-label").value.trim();
+          patch.goal_date = d || null;
+          patch.goal_label = d ? (l || "목표") : null;
+        } else {
+          patch.goal_date = null;
+          patch.goal_label = null;
+        }
+
+        const { error } = await supabaseClient.from("profiles").update(patch).eq("id", user.id);
+        if (error) {
+          errEl.textContent = "저장하지 못했습니다. 잠시 후 다시 시도해주세요.";
+          startBtn.disabled = false;
+          return;
+        }
+        window.location.replace("/index.html");
+      });
+    });
+  </script>
+</body>
+</html>

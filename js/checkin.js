@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("planned_total_hours").value = DEFAULT_STUDY_HOURS;
   autoAllocate(DEFAULT_STUDY_HOURS);
 
+  if (isGeneral(currentProfile)) document.body.classList.add("is-general");
   document.getElementById("add-task").addEventListener("click", () => addTaskRow());
   renderRiskChips();
   setupConditionSlider();
@@ -82,7 +83,7 @@ function addTaskRow(task) {
       </div>
     </div>
     <div class="task-row__main">
-      <select class="field__input field__select field__select--sm task-subject" aria-label="과목 선택">${subjectOptions(task && task.subject)}</select>
+      <select class="field__input field__select field__select--sm task-subject" aria-label="과목 선택"${isGeneral(currentProfile) ? " hidden" : ""}>${subjectOptions(task && task.subject)}</select>
       <input type="text" class="field__input task-text" placeholder="오늘 끝낼 핵심 과제" value="${task && task.text ? escapeHtml(task.text) : ""}" />
     </div>
     <div class="task-subs"></div>`;

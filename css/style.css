@@ -2071,3 +2071,20 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .file-item__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: left; }
 .file-item__name { font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-item__meta { color: var(--muted-soft); font-size: 0.78rem; }
+
+/* ---------------- 온보딩 / 사용 유형 ---------------- */
+.onb { max-width: 560px; padding-top: 8vh; }
+.onb__title { font-size: 1.45rem; font-weight: 800; margin: 0 0 8px; }
+.onb__desc { color: var(--muted); font-size: 0.9rem; margin: 0 0 22px; line-height: 1.6; }
+.onb__opt { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; padding: 18px 20px; margin-bottom: 12px; border: 2px solid var(--line); cursor: pointer; font: inherit; color: var(--text); -webkit-tap-highlight-color: transparent; }
+.onb__opt.is-picked { border-color: var(--orange); }
+.onb__opt-title { font-size: 1.05rem; font-weight: 800; }
+.onb__opt-desc { color: var(--muted); font-size: 0.86rem; line-height: 1.6; }
+.onb__goal { padding: 16px 18px 6px; margin-bottom: 14px; }
+.onb__goal-title { font-weight: 800; margin: 0 0 12px; }
+.onb__goal-opt { color: var(--muted-soft); font-weight: 600; font-size: 0.85rem; }
+.onb__hint { color: var(--muted-soft); font-size: 0.8rem; margin: 2px 0 6px; }
+.onb__start { margin-top: 6px; }
+.settings-row__value { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
+/* 일반 사용자: 체크인에서 과목 선택 숨김 */
+body.is-general .task-subject { display: none; }
