@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=97" />
+  <link rel="stylesheet" href="/css/style.css?v=98" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -13,8 +13,14 @@
     <div class="fcal__head">
       <button type="button" class="fcal__nav" id="fcal-prev" aria-label="이전 달">‹</button>
       <h1 class="fcal__title" id="fcal-title">—</h1>
-      <button type="button" class="fcal__nav" id="fcal-next" aria-label="다음 달">›</button>
+      <div class="fcal__right">
+        <button type="button" class="fcal__nav" id="fcal-next" aria-label="다음 달">›</button>
+        <button type="button" class="fcal__nav fcal__ocr" id="fcal-ocr" aria-label="스크린샷으로 일정 추가">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>
+        </button>
+      </div>
     </div>
+    <input type="file" id="fcal-ocr-input" accept="image/*" hidden />
 
     <!-- 요일 (월요일 시작, 고정) -->
     <div class="fcal__dows">
@@ -120,6 +126,7 @@
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
   <script src="/js/utils.js?v=15"></script>
+  <script src="/js/scheduleParse.js?v=1"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
      * - 공부 기록(체크아웃)한 날: 초록 점 / Apple 캘린더 일정: 주황 점
@@ -422,6 +429,77 @@
 
       document.getElementById("fcal-prev").addEventListener("click", () => gotoMonth(-1));
       document.getElementById("fcal-next").addEventListener("click", () => gotoMonth(1));
+
+      /* ---------- 스크린샷으로 일정 추가 (온디바이스 OCR) ---------- */
+      const ocrInput = document.getElementById("fcal-ocr-input");
+
+      document.getElementById("fcal-ocr").addEventListener("click", () => {
+        const viz = window.Capacitor && window.Capacitor.Plugins
+          ? window.Capacitor.Plugins.VisionOCR : null;
+        if (!viz) { alert("스크린샷 인식은 앱에서 사용할 수 있어요."); return; }
+        ocrInput.click();
+      });
+
+      ocrInput.addEventListener("change", async () => {
+        const file = ocrInput.files && ocrInput.files[0];
+        ocrInput.value = "";
+        if (!file) return;
+        const titleEl = document.getElementById("fcal-title");
+        const prevTitle = titleEl.textContent;
+        try {
+          titleEl.textContent = "대화를 읽는 중…";
+          const base64 = await downscaleToBase64(file, 2048);
+          const { text } = await window.Capacitor.Plugins.VisionOCR.recognize({ base64 });
+          titleEl.textContent = prevTitle;
+
+          const { candidate, cancelled } = ScheduleParse.parse(text, new Date());
+          if (!candidate) {
+            alert(cancelled
+              ? "취소된 일정만 발견했어요.\n새로 등록할 일정이 없습니다."
+              : "등록할 일정을 찾지 못했습니다.\n\n날짜와 시간이 포함된 대화가 화면에\n보이도록 다시 캡처해주세요.");
+            return;
+          }
+          openSheetFromCandidate(candidate);
+        } catch (e) {
+          titleEl.textContent = prevTitle;
+          alert("이미지를 처리하지 못했습니다.\n다른 스크린샷으로 다시 시도해주세요.");
+        }
+      });
+
+      /* 긴 변 2048px 로 줄여 base64(JPEG) 로 — 원본 해상도를 그대로 넘기지 않는다 */
+      function downscaleToBase64(file, maxDim) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.floor(img.width * scale));
+            canvas.height = Math.max(1, Math.floor(img.height * scale));
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(img.src);
+            resolve(canvas.toDataURL("image/jpeg", 0.9).split(",")[1]);
+          };
+          img.onerror = reject;
+          img.src = URL.createObjectURL(file);
+        });
+      }
+
+      /* 인식 결과로 새 일정 시트를 미리 채워서 연다 (등록 전 확인은 사용자가) */
+      function openSheetFromCandidate(c) {
+        const d = c.start;
+        openSheet(dstr(d.getFullYear(), d.getMonth(), d.getDate()));
+        document.getElementById("ev-title").value = c.title || "";
+        if (c.hasTime) {
+          document.getElementById("ev-start-time").value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+          const end = new Date(d.getTime() + 3600000);
+          document.getElementById("ev-end-date").value = dstr(end.getFullYear(), end.getMonth(), end.getDate());
+          document.getElementById("ev-end-time").value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+        }
+        const info = [];
+        if (c.source) info.push(`“${c.source}”`);
+        if (c.ambiguities.length) info.push("⚠ " + c.ambiguities.join(" · "));
+        evErr.textContent = info.join("  ");
+      }
 
       renderGrid();          // 데이터 로드 전 골격 먼저
       renderEvents();
