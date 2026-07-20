@@ -3,38 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-  <title>오늘 · 합격로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=76" />
+  <title>오늘 · 디턴로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=78" />
   <!-- 메모장 위젯 폰트 (손글씨/또박또박/명조) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
-<body class="app-bg">
+<body class="app-bg has-tabbar mhome">
   <!-- 로딩 스플래시: 데이터 준비 후 utils.js의 hideAppLoader()가 부드럽게 제거 -->
   <div id="app-loader" class="app-loader" role="status" aria-label="불러오는 중">
     <script>window.__loaderStart = Date.now();</script>
     <div class="app-loader__inner">
-      <div class="app-loader__brand">합격로그</div>
+      <div class="app-loader__brand">디턴로그</div>
       <div class="app-loader__spinner"></div>
     </div>
   </div>
 
   <header class="topbar">
-    <div class="topbar__brand">합격로그</div>
-    <div class="topbar__right">
-      <button id="fsBtn" class="btn btn--ghost btn--sm btn--icon" title="전체화면" aria-label="전체화면">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
-      </button>
-      <button class="btn btn--ghost btn--sm" onclick="logout()">로그아웃</button>
-    </div>
+    <div class="topbar__brand">디턴로그</div>
+    <div class="topbar__right"></div>
   </header>
 
   <main class="container home-wide">
     <div class="pager" id="pager">
     <section class="page">
     <div class="home-main">
+
+    <!-- 모바일 전용: 공부 스톱워치 (다크 홈 히어로) -->
+    <section class="mtimer">
+      <div class="mtimer__head">
+        <span class="mtimer__dday" id="mtimer-dday">D-—</span>
+        <span class="mtimer__date" id="mtimer-date">오늘</span>
+      </div>
+      <p class="mtimer__time" id="mtimer-time">0:00:00</p>
+      <button type="button" class="mtimer__btn" id="mtimer-btn" aria-label="공부 타이머 시작/정지">
+        <svg class="mtimer__ic-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="mtimer__ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <p class="mtimer__hint">오늘 공부 시간</p>
+    </section>
+
     <!-- 전역 그리드 캔버스: 메인카드(고정) + 달력 + 추가 위젯 (1페이지) -->
     <div class="widget-canvas" id="widget-canvas" data-page="1">
 
@@ -110,15 +120,6 @@
     </div><!-- /widget-canvas -->
 
     <p class="footer-quote">오늘의 계획과 실제 결과를 남기면, 내일의 전략이 달라집니다.</p>
-
-    <!-- 계정 관리: 앱스토어 요건 — 계정 삭제 진입점 + 개인정보처리방침 -->
-    <nav class="account-footer">
-      <a href="/privacy.html">개인정보처리방침</a>
-      <span aria-hidden="true">·</span>
-      <a href="/support.html">문의하기</a>
-      <span aria-hidden="true">·</span>
-      <button type="button" class="account-footer__danger" onclick="deleteMyAccount()">계정 삭제</button>
-    </nav>
     </div><!-- /home-main -->
     </section><!-- /page 1 -->
 
@@ -143,9 +144,25 @@
     </div>
   </main>
 
-  <script src="/js/supabaseClient.js?v=mock8"></script>
+  <nav class="tabbar">
+    <a href="/student.html" class="tabbar__item is-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>홈</span>
+    </a>
+    <a href="/my-history.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>
+      <span>기록</span>
+    </a>
+    <a href="/settings.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+      <span>설정</span>
+    </a>
+  </nav>
+
+  <script src="/js/supabaseClient.js?v=mock9"></script>
   <script src="/js/utils.js?v=14"></script>
   <script src="/js/dashboard.js?v=37"></script>
   <script src="/js/student.js?v=28"></script>
+  <script src="/js/mtimer.js?v=1"></script>
 </body>
 </html>

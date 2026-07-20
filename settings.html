@@ -3,48 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-  <title>내 기록 · 디턴로그</title>
+  <title>설정 · 디턴로그</title>
   <link rel="stylesheet" href="/css/style.css?v=78" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
-    <div class="topbar__brand">내 기록</div>
+    <div class="topbar__brand">설정</div>
     <span></span>
   </header>
 
   <main class="container">
-    <!-- 요약 -->
-    <section class="stat-grid">
-      <div class="card stat">
-        <span class="stat__label">최근 7일 과제 완료율</span>
-        <span class="stat__value" id="stat-rate">—</span>
-      </div>
-      <div class="card stat">
-        <span class="stat__label">최근 7일 완료 과제</span>
-        <span class="stat__value" id="stat-done">—</span>
-      </div>
+    <!-- 프로필 -->
+    <section class="card settings-profile">
+      <span class="settings-profile__name" id="profile-name">—</span>
+      <span class="settings-profile__email" id="profile-email">—</span>
     </section>
 
-    <section class="card">
-      <h2 class="card__title">최근 7일 일자별 완료율</h2>
-      <div id="daily-completion" class="bar-list"><p class="muted">불러오는 중...</p></div>
+    <!-- 일반 메뉴 -->
+    <section class="card settings-menu">
+      <a href="/privacy.html" class="settings-row">
+        개인정보처리방침
+        <span class="settings-row__chevron" aria-hidden="true">›</span>
+      </a>
+      <a href="/support.html" class="settings-row">
+        문의하기
+        <span class="settings-row__chevron" aria-hidden="true">›</span>
+      </a>
+      <button type="button" class="settings-row" onclick="logout()">
+        로그아웃
+        <span class="settings-row__chevron" aria-hidden="true">›</span>
+      </button>
     </section>
 
-    <section class="card">
-      <h2 class="card__title">미완료 사유 TOP 3</h2>
-      <ul id="failure-top" class="rank-list"><li class="muted">불러오는 중...</li></ul>
+    <!-- 위험 영역 -->
+    <section class="card settings-menu">
+      <button type="button" class="settings-row settings-row--danger" onclick="deleteMyAccount()">
+        계정 삭제
+        <span class="settings-row__chevron" aria-hidden="true">›</span>
+      </button>
+      <p class="settings-menu__hint">계정을 삭제하면 모든 공부 기록이 영구히 사라지며 복구할 수 없습니다.</p>
     </section>
 
-    <section class="card">
-      <h2 class="card__title">이번 주 핵심 목표</h2>
-      <div id="weekly-goals"><p class="muted">불러오는 중...</p></div>
-    </section>
-
-    <section class="card">
-      <h2 class="card__title">최근 주간 회고</h2>
-      <div id="recent-review"><p class="muted">불러오는 중...</p></div>
-    </section>
+    <p class="settings-version">디턴로그 v1.0.0</p>
   </main>
 
   <nav class="tabbar">
@@ -52,18 +53,25 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>홈</span>
     </a>
-    <a href="/my-history.html" class="tabbar__item is-active">
+    <a href="/my-history.html" class="tabbar__item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>
       <span>기록</span>
     </a>
-    <a href="/settings.html" class="tabbar__item">
+    <a href="/settings.html" class="tabbar__item is-active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
       <span>설정</span>
     </a>
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock9"></script>
-  <script src="/js/utils.js?v=8"></script>
-  <script src="/js/history.js?v=8"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await requireAuth();
+      if (!user) return;
+      document.getElementById("profile-email").textContent = user.email || "";
+      const profile = await getCurrentProfile();
+      document.getElementById("profile-name").textContent = (profile && profile.name) || "학생";
+    });
+  </script>
 </body>
 </html>

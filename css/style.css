@@ -632,12 +632,52 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 
 .footer-quote { text-align: center; color: var(--muted-soft); font-size: 0.86rem; margin: 40px 0 32px; line-height: 1.65; }
 
-/* 계정 관리 푸터 (개인정보처리방침 · 문의 · 계정 삭제) */
-.account-footer { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 28px; color: var(--muted-soft); font-size: 0.8rem; }
-.account-footer a { color: var(--muted-soft); text-decoration: none; }
-.account-footer a:hover { color: var(--muted); text-decoration: underline; }
-.account-footer__danger { background: none; border: none; padding: 0; font: inherit; color: var(--muted-soft); cursor: pointer; }
-.account-footer__danger:hover { color: #c0392b; text-decoration: underline; }
+/* ---------------- 하단 탭바 (홈 · 기록 · 설정) ---------------- */
+.has-tabbar { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+.tabbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 200;
+  display: flex;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 0 7px;
+  color: var(--muted-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabbar__item svg { width: 23px; height: 23px; }
+.tabbar__item.is-active { color: var(--navy); }
+
+/* ---------------- 설정 페이지 ---------------- */
+.settings-profile { display: flex; flex-direction: column; gap: 3px; padding: 22px 20px; margin-bottom: 14px; }
+.settings-profile__name { font-size: 1.25rem; font-weight: 800; }
+.settings-profile__email { color: var(--muted); font-size: 0.88rem; }
+.settings-menu { padding: 4px 6px; margin-bottom: 14px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 15px 14px;
+  background: none; border: none; cursor: pointer;
+  font: inherit; font-size: 0.95rem; font-weight: 600; color: var(--text);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-row + .settings-row { border-top: 1px solid var(--line); }
+.settings-row__chevron { color: var(--muted-soft); font-size: 1.1rem; }
+.settings-row--danger { color: var(--orange-strong, #d96f1d); }
+.settings-menu__hint { color: var(--muted-soft); font-size: 0.78rem; margin: 0; padding: 0 14px 12px; line-height: 1.6; }
+.settings-version { text-align: center; color: var(--muted-soft); font-size: 0.8rem; margin: 24px 0; }
 
 /* 대시보드 좌측 달력 레이아웃 */
 .container.home-layout { max-width: 980px; }
@@ -1775,4 +1815,112 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
   }
   .toast { bottom: calc(30px + env(safe-area-inset-bottom)); }
   .edit-bar { bottom: calc(22px + env(safe-area-inset-bottom)); }
+}
+
+/* ============================================================
+   모바일 홈 (타이머 중심 레이아웃) — 폰 전용, 라이트 테마
+   태블릿(>480px)은 위젯 대시보드 유지
+   ============================================================ */
+.mtimer { display: none; }
+
+@media (max-width: 480px) {
+  /* 상단바·상태카드 숨김 — D-Day/날짜는 타이머 헤더(mtimer__head)가 표시 */
+  body.mhome .topbar { display: none; }
+  body.mhome .status-card {
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    min-height: 0;
+  }
+  body.mhome .status-card::before,
+  body.mhome .status-card::after { display: none; }
+  body.mhome .status-card__top,
+  body.mhome .status-card__date,
+  body.mhome .daily-quote { display: none; }
+
+  /* 타이머 헤더: D-Day 칩(좌) + 날짜(중앙) */
+  body.mhome .mtimer__head {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    min-height: 38px;
+    margin-bottom: 22px;
+  }
+  body.mhome .mtimer__dday {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 8px 13px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--navy);
+  }
+  body.mhome .mtimer__date {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text);
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+
+  /* 공부 스톱워치 히어로 */
+  body.mhome .mtimer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0 26px;
+  }
+  body.mhome .mtimer__time {
+    font-size: 3.9rem;
+    font-weight: 250;
+    color: var(--navy);
+    margin: 6px 0 0;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  body.mhome .mtimer__btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: #f0913a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(240, 145, 58, 0.4);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.mhome .mtimer__btn svg { width: 26px; height: 26px; }
+  body.mhome .mtimer__ic-pause { display: none; }
+  body.mhome .mtimer__btn.is-running .mtimer__ic-play { display: none; }
+  body.mhome .mtimer__btn.is-running .mtimer__ic-pause { display: block; }
+  body.mhome .mtimer__hint { color: var(--muted); font-size: 0.82rem; margin: 0; }
+
+  /* 모바일에선 위젯 편집/달력/추가 페이지 숨김 (태블릿 전용 기능) */
+  body.mhome .widget--calendar,
+  body.mhome .pager-dots,
+  body.mhome .page:nth-child(n + 2),
+  body.mhome .footer-quote { display: none; }
+  body.mhome .pager { display: block; overflow: visible; }
+
+  /* 플로팅 필(pill) 탭바 — 모바일 공통 */
+  .tabbar {
+    left: 16px;
+    right: 16px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.96);
+    padding-bottom: 0;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  }
+  .tabbar__item { padding: 10px 0 9px; }
+  .has-tabbar { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
 }

@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-  <title>합격로그 · Goal Tracker</title>
-  <link rel="stylesheet" href="/css/style.css?v=76" />
+  <title>디턴로그 · Goal Tracker</title>
+  <link rel="stylesheet" href="/css/style.css?v=78" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="center-screen">
   <div class="splash">
-    <img src="/assets/logo.svg" alt="합격로그" class="splash__logo" onerror="this.style.display='none'" />
-    <h1 class="splash__title">합격로그</h1>
+    <img src="/assets/logo.svg" alt="디턴로그" class="splash__logo" onerror="this.style.display='none'" />
+    <h1 class="splash__title">디턴로그</h1>
     <p class="splash__tagline">출석이 아니라, 목표 대비 성과를 관리합니다.</p>
     <p class="splash__loading">불러오는 중...</p>
   </div>
 
-  <script src="/js/supabaseClient.js?v=mock8"></script>
+  <script src="/js/supabaseClient.js?v=mock9"></script>
   <script>
     // 로그인 여부 / role 에 따라 적절한 페이지로 자동 이동
     (async () => {
       const profile = await getCurrentProfile();
       if (!profile) {
-        window.location.href = "/login.html";
+        window.location.href = "/welcome.html";
         return;
       }
       if (profile.role === "student") window.location.href = "/student.html";

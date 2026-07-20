@@ -14,10 +14,12 @@ const OUT = "www";
 
 const COPY = [
   "index.html",
+  "welcome.html",
   "login.html",
   "signup.html",
   "privacy.html",
   "support.html",
+  "settings.html",
   "demo.html",
   "student.html",
   "checkin.html",

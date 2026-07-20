@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>디턴로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=78" />
+  <style>
+    /* 웰컴(첫 화면) 전용 — 라이트 풀스크린 */
+    body.welcome {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    .welcome__center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 0 30px;
+      text-align: center;
+    }
+    .welcome__logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
+      filter: drop-shadow(0 10px 26px rgba(240, 145, 58, 0.35));
+    }
+    .welcome__tagline {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0;
+    }
+    .welcome__actions {
+      padding: 0 26px calc(26px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .welcome__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .welcome__btn--login { background: var(--bg); color: var(--text); }
+    .welcome__btn--login:active { background: #ececee; }
+    .welcome__btn--start { background: #f0913a; color: #fff; }
+    .welcome__btn--start:active { background: #e08430; }
+    .welcome__brand {
+      text-align: center;
+      color: var(--muted-soft);
+      font-size: 0.85rem;
+      margin: 14px 0 0;
+      letter-spacing: 0.01em;
+    }
+  </style>
+</head>
+<body class="welcome">
+  <main class="welcome__center">
+    <img src="/assets/logo.svg" alt="" class="welcome__logo" onerror="this.style.display='none'" />
+    <p class="welcome__tagline">공부, 계획 없이 하지 말고<br />디턴로그에서 기록하며 하세요!</p>
+  </main>
+
+  <div class="welcome__actions">
+    <a href="/login.html" class="welcome__btn welcome__btn--login">로그인</a>
+    <a href="/signup.html" class="welcome__btn welcome__btn--start">새로 시작하기</a>
+    <p class="welcome__brand">디턴로그</p>
+  </div>
+</body>
+</html>

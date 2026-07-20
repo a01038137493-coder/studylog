@@ -333,10 +333,10 @@ async function requireRole(allowedRoles) {
   return profile;
 }
 
-/* 로그아웃 후 로그인 페이지로 이동 */
+/* 로그아웃 후 웰컴(첫 화면)으로 이동 */
 async function logout() {
   await supabaseClient.auth.signOut();
-  window.location.href = "/login.html";
+  window.location.href = "/welcome.html";
 }
 
 /* ============================================================
@@ -368,7 +368,7 @@ async function deleteMyAccount() {
 
   await supabaseClient.auth.signOut();
   alert("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
-  window.location.replace("/login.html");
+  window.location.replace("/welcome.html");
 }
 
 /* ============================================================
