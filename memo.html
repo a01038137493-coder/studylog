@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=109" />
+  <link rel="stylesheet" href="/css/style.css?v=110" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -124,7 +124,7 @@
 
       /* 좌측 스와이프 — 포인터 이벤트(터치·마우스 공통).
        * 가로 이동은 CSS touch-action: pan-y 가 브라우저 스크롤에서 떼어 준다. */
-      const OPEN_X = -158;
+      const OPEN_X = -150;
       function wireSwipe(row) {
         const card = row.querySelector(".memo-item");
         let sx = 0, sy = 0, dx = 0, dir = null, active = false, moved = false;

@@ -2056,11 +2056,12 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .memo-section { font-size: 0.8rem; font-weight: 800; color: var(--muted); margin: 14px 4px 8px; }
 .memo-section:first-child { margin-top: 2px; }
 .memo-row { position: relative; margin-bottom: 9px; border-radius: var(--radius, 16px); overflow: hidden; }
-.memo-row__actions { position: absolute; inset: 0 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 5px 5px 5px 0; }
-.memo-act { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 62px; align-self: stretch; border: none; border-radius: 15px; font: inherit; font-size: 0.7rem; font-weight: 700; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.memo-row__actions { position: absolute; inset: 0 0 0 auto; display: flex; align-items: stretch; }
+.memo-act { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 75px; border: none; border-radius: 0; font: inherit; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: filter 0.15s ease; }
+.memo-act:active { filter: brightness(0.88); }
 .memo-act svg { width: 20px; height: 20px; }
-.memo-act--pin { background: #f0913a; }
-.memo-act--del { background: #e5484d; }
+.memo-act--pin { background: #ff9f0a; }
+.memo-act--del { background: #ff3b30; }
 /* .card 의 fadeUp 애니메이션(fill: both)이 인라인 transform 을 덮어써서
    스와이프 이동이 화면에 반영되지 않는다 → 이 카드에서는 애니메이션 해제 */
 .memo-row .memo-item { animation: none; position: relative; margin-bottom: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; transition: transform 0.22s cubic-bezier(.22,.61,.36,1); will-change: transform; }
@@ -2138,7 +2139,7 @@ body.is-general .task-subject { display: none; }
 .pickrow__check { color: var(--orange-strong); font-weight: 800; }
 
 /* 스와이프 이동 버튼 · 상단 ＋ 버튼 · 일정 블록 보조 */
-.memo-act--move { background: #7a8699; }
+.memo-act--move { background: #8e8e93; }
 .topbar__plus { font-size: 1.3rem; line-height: 1; padding: 5px 13px; }
 .fcal-ev__sub { color: var(--muted-soft); font-weight: 600; font-size: 0.85em; }
 
@@ -2170,5 +2171,5 @@ body.is-general .task-subject { display: none; }
 .gt-imp.is-on { border-color: var(--orange); color: var(--orange-strong); }
 .gt-imp.is-on .gt-imp__star { color: var(--orange); }
 .gtodo__star { flex: none; color: var(--orange); font-size: 0.95rem; }
-.memo-act--imp { background: #e0a23c; }
+.memo-act--imp { background: #ff9f0a; }
 .gup-date { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--muted); background: var(--bg-soft, #f2f3f6); border-radius: 8px; padding: 4px 8px; }
