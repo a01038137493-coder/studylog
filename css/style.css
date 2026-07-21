@@ -2445,3 +2445,16 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tb-vm:active { transform: scale(0.92); }
 .tb-vm svg { width: 22px; height: 22px; display: block; }
 
+
+/* 타임박스 하루 뷰 — 애플 캘린더 스타일 */
+.tgd { position: relative; margin: 12px 0 4px; }
+.tgd__hour { position: absolute; left: 0; right: 0; display: flex; align-items: center; transform: translateY(-50%); }
+.tgd__hour span { flex: none; width: 58px; padding-right: 9px; text-align: right; font-size: 0.72rem; font-weight: 600; color: var(--muted-soft); white-space: nowrap; }
+.tgd__hour i { flex: 1; height: 1px; background: #e9eaee; }
+.tgd__block { position: absolute; left: 66px; right: 2px; border-left: 3px solid var(--orange); border-radius: 8px; padding: 5px 10px; overflow: hidden; z-index: 2; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+.tgd__block--slim { padding: 2px 10px; }
+.tgd__time { font-size: 0.66rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tgd__label { font-size: 0.86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tgd__now { position: absolute; left: 0; right: 0; display: flex; align-items: center; transform: translateY(-50%); z-index: 3; pointer-events: none; }
+.tgd__now em { flex: none; font-style: normal; background: #f04438; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2.5px 8px; border-radius: 99px; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.tgd__now i { flex: 1; height: 2px; background: #f04438; border-radius: 2px; }
