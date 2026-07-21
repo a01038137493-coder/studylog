@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=112" />
+  <link rel="stylesheet" href="/css/style.css?v=113" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -191,6 +191,10 @@
         viewM += delta;
         if (viewM < 0) { viewM = 11; viewY--; }
         if (viewM > 11) { viewM = 0; viewY++; }
+        const grid = document.getElementById("fcal-grid");
+        grid.classList.remove("anim-left", "anim-right");
+        void grid.offsetWidth;                       // 애니메이션 재시작
+        grid.classList.add(delta > 0 ? "anim-left" : "anim-right");
         renderGrid();
         await loadMonth();
         renderGrid();

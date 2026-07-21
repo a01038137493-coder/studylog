@@ -2180,3 +2180,17 @@ body.is-general .task-subject { display: none; }
 
 /* 할일 행이 스와이프 액션을 덮도록 — 액션은 밀었을 때만 드러남 */
 .gtodo__item { position: relative; }
+
+/* ============================================================
+ * 전역 전환 애니메이션 — 달력 월 넘김 · 바텀시트
+ * ============================================================ */
+@keyframes cal-slide-left { from { transform: translateX(7%); opacity: 0.3; } }
+@keyframes cal-slide-right { from { transform: translateX(-7%); opacity: 0.3; } }
+.fcal__grid.anim-left { animation: cal-slide-left 0.3s cubic-bezier(.22,.61,.36,1); }
+.fcal__grid.anim-right { animation: cal-slide-right 0.3s cubic-bezier(.22,.61,.36,1); }
+
+/* 바텀시트: 열릴 때마다 배경 페이드 + 패널 슬라이드업 */
+@keyframes sheet-fade { from { opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(46px); opacity: 0.5; } }
+.evsheet__backdrop { animation: sheet-fade 0.22s ease; }
+.evsheet__panel { animation: sheet-up 0.32s cubic-bezier(.22,.61,.36,1); }
