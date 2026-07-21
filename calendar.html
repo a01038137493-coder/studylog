@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=123" />
+  <link rel="stylesheet" href="/css/style.css?v=124" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -19,8 +19,14 @@
       <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="is-sat">토</span><span class="is-sun">일</span>
     </div>
 
-    <!-- 날짜 그리드 (화면 채움) -->
-    <div class="fcal__grid" id="fcal-grid"></div>
+    <!-- 날짜 그리드: 이전·현재·다음 달 3패널 캐러셀 (드래그 시 이웃 달이 보임) -->
+    <div class="fcal__carousel">
+      <div class="fcal__track" id="fcal-track">
+        <div class="fcal__grid fcal__grid--side" id="fcal-prev"></div>
+        <div class="fcal__grid" id="fcal-grid"></div>
+        <div class="fcal__grid fcal__grid--side" id="fcal-next"></div>
+      </div>
+    </div>
 
     <!-- 선택한 날 일정 -->
     <div class="fcal__events" id="fcal-events"></div>
@@ -191,10 +197,6 @@
         viewM += delta;
         if (viewM < 0) { viewM = 11; viewY--; }
         if (viewM > 11) { viewM = 0; viewY++; }
-        const grid = document.getElementById("fcal-grid");
-        grid.classList.remove("anim-left", "anim-right");
-        void grid.offsetWidth;                       // 애니메이션 재시작
-        grid.classList.add(delta > 0 ? "anim-left" : "anim-right");
         renderGrid();
         await loadMonth();
         renderGrid();
@@ -223,32 +225,41 @@
         cell.addEventListener("contextmenu", (e) => e.preventDefault());
       }
 
-      function renderGrid() {
-        document.getElementById("fcal-title").textContent = `${viewY}년 ${viewM + 1}월`;
-        // 월요일 시작: 일(0)→6, 월(1)→0 …
-        const firstDow = (new Date(viewY, viewM, 1).getDay() + 6) % 7;
-        const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+      // 월요일 시작: 일(0)→6, 월(1)→0 …
+      function gridHTML(y, m) {
+        const firstDow = (new Date(y, m, 1).getDay() + 6) % 7;
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
         const todayStr = dstr(now.getFullYear(), now.getMonth(), now.getDate());
-
+        const isCur = y === viewY && m === viewM;   // 데이터(점)는 현재 달만 로드돼 있음
         let html = "";
         for (let i = 0; i < firstDow; i++) html += `<div class="fcal__cell fcal__cell--empty"></div>`;
         for (let d = 1; d <= daysInMonth; d++) {
-          const key = dstr(viewY, viewM, d);
+          const key = dstr(y, m, d);
           const cls = [
             "fcal__cell",
             key === todayStr ? "is-today" : "",
-            key === selected ? "is-selected" : "",
+            isCur && key === selected ? "is-selected" : "",
           ].join(" ");
-          const dots =
-            (recorded.has(key) ? `<i class="fcal__dot fcal__dot--rec"></i>` : "") +
-            (events.has(key) ? `<i class="fcal__dot fcal__dot--ev"></i>` : "");
+          const dots = isCur
+            ? (recorded.has(key) ? `<i class="fcal__dot fcal__dot--rec"></i>` : "") +
+              (events.has(key) ? `<i class="fcal__dot fcal__dot--ev"></i>` : "")
+            : "";
           html += `<button type="button" class="${cls}" data-date="${key}">
             <span class="fcal__num">${d}</span>
             <span class="fcal__dots">${dots}</span>
           </button>`;
         }
+        return html;
+      }
+
+      function renderGrid() {
+        document.getElementById("fcal-title").textContent = `${viewY}년 ${viewM + 1}월`;
         const grid = document.getElementById("fcal-grid");
-        grid.innerHTML = html;
+        grid.innerHTML = gridHTML(viewY, viewM);
+        const pm = viewM === 0 ? [viewY - 1, 11] : [viewY, viewM - 1];
+        const nm = viewM === 11 ? [viewY + 1, 0] : [viewY, viewM + 1];
+        document.getElementById("fcal-prev").innerHTML = gridHTML(pm[0], pm[1]);
+        document.getElementById("fcal-next").innerHTML = gridHTML(nm[0], nm[1]);
         grid.querySelectorAll("[data-date]").forEach((cell) => {
           cell.addEventListener("click", () => {
             if (longPressed) { longPressed = false; return; }
@@ -405,45 +416,47 @@
         }
       });
 
-      /* ---------- 좌우 스와이프로 달 이동: 손가락을 따라오는 실시간 드래그 ---------- */
+      /* ---------- 좌우 스와이프: 트랙 드래그 — 이웃 달 숫자가 실시간으로 보임 ---------- */
       (function wireSwipe() {
-        const area = document.getElementById("fcal-grid");
-        let tx = null, ty = null, dragging = false;
-        area.addEventListener("touchstart", (e) => {
+        const wrap = document.querySelector(".fcal__carousel");
+        const track = document.getElementById("fcal-track");
+        const CENTER = "translateX(-33.3333%)";
+        let tx = null, ty = null, dragging = false, busy = false;
+
+        wrap.addEventListener("touchstart", (e) => {
+          if (busy) return;
           tx = e.touches[0].clientX; ty = e.touches[0].clientY; dragging = false;
         }, { passive: true });
-        area.addEventListener("touchmove", (e) => {
-          if (tx === null) return;
+        wrap.addEventListener("touchmove", (e) => {
+          if (tx === null || busy) return;
           const dx = e.touches[0].clientX - tx, dy = e.touches[0].clientY - ty;
           if (!dragging) {
             if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
             dragging = true;
           }
-          area.style.transition = "none";
-          area.style.transform = `translateX(${dx}px)`;
-          area.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx) / (area.clientWidth * 1.3)));
+          track.style.transition = "none";
+          track.style.transform = `translateX(calc(-33.3333% + ${dx}px))`;
         }, { passive: true });
-        area.addEventListener("touchend", (e) => {
-          if (tx === null) return;
+        wrap.addEventListener("touchend", (e) => {
+          if (tx === null || busy) return;
           const dx = e.changedTouches[0].clientX - tx;
           const wasDragging = dragging;
           tx = ty = null; dragging = false;
           if (!wasDragging) return;
-          if (Math.abs(dx) > 55) {
-            const dir = dx < 0 ? 1 : -1;   // 민 방향으로 마저 밀어내고 새 달 슬라이드-인
-            area.style.transition = "transform 0.14s ease-out, opacity 0.14s ease-out";
-            area.style.transform = `translateX(${dir === 1 ? -area.clientWidth * 0.55 : area.clientWidth * 0.55}px)`;
-            area.style.opacity = "0";
+          if (Math.abs(dx) > wrap.clientWidth * 0.18) {
+            const dir = dx < 0 ? 1 : -1;
+            busy = true;
+            track.style.transition = "transform 0.24s cubic-bezier(.22,.61,.36,1)";
+            track.style.transform = dir === 1 ? "translateX(-66.6666%)" : "translateX(0%)";
             setTimeout(() => {
-              area.style.transition = "none";
-              area.style.transform = "";
-              area.style.opacity = "";
+              track.style.transition = "none";
+              track.style.transform = CENTER;
+              busy = false;
               gotoMonth(dir);
-            }, 140);
-          } else {                          // 임계 미달 → 제자리 스프링백
-            area.style.transition = "transform 0.24s cubic-bezier(.22,.61,.36,1), opacity 0.2s ease";
-            area.style.transform = "";
-            area.style.opacity = "";
+            }, 245);
+          } else {
+            track.style.transition = "transform 0.24s cubic-bezier(.22,.61,.36,1)";
+            track.style.transform = CENTER;
           }
         }, { passive: true });
       })();

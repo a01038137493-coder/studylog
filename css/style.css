@@ -2232,3 +2232,14 @@ body.is-general .task-subject { display: none; }
 .catmgr__dot { flex: none; width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65), 0 1px 4px rgba(0, 0, 0, 0.15); }
 body[data-kbresize="none"] .evsheet__panel { transform: translateY(calc(-1 * var(--kb, 0px))); transition: transform 0.25s cubic-bezier(.22,.61,.36,1); }
 html { background: #f4f4f5; }
+
+/* 캘린더: 여백·3패널 캐러셀 */
+.fcal__head { margin-top: 16px; padding-bottom: 14px; }
+.fcal__dows { padding-bottom: 10px; }
+.fcal__carousel { flex: 1; min-height: 0; overflow: hidden; }
+.fcal__track { display: flex; width: 300%; height: 100%; transform: translateX(-33.3333%); will-change: transform; }
+.fcal__track > .fcal__grid { width: 33.3333%; flex: none; }
+.fcal__grid--side { pointer-events: none; opacity: 0.55; }
+
+/* 할일 시트 날짜 입력이 화면 밖으로 넘치지 않게 */
+#gt-date { width: 100%; box-sizing: border-box; min-width: 0; }
