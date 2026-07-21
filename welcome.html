@@ -93,6 +93,13 @@
     .mock__bars i.is-hot { background: var(--orange); }
     .mock__streak { font-size: 0.84rem; font-weight: 800; color: var(--orange-strong); }
 
+    .mock__memo { background: var(--bg); border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; }
+    .mock__memo p { margin: 0 0 2px; font-size: 0.82rem; font-weight: 800; }
+    .mock__memo span { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+    .mock__file { display: flex; align-items: center; gap: 8px; padding: 5px 2px; }
+    .mock__file em { font-style: normal; font-size: 1rem; width: 30px; height: 30px; background: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex: none; }
+    .mock__file p { margin: 0; font-size: 0.78rem; font-weight: 700; }
+    .mock__file span { font-size: 0.66rem; color: var(--muted-soft); font-weight: 600; }
     .mock--tab { width: 300px; border: 7px solid #17171a; border-radius: 20px; padding: 13px 14px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16); }
     .mtab__clock { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; }
     .mtab__clock span { font-size: 0.68rem; color: var(--muted); font-weight: 700; margin-left: 7px; }
@@ -179,6 +186,22 @@
         </div>
         <p class="tour__title">캡처하면 일정이 자동으로</p>
         <p class="tour__desc">카톡 스크린샷을 공유하면 날짜·시간을 읽어 등록해요</p>
+      </section>
+
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock">
+            <div class="mock__head">메모 · 파일</div>
+            <div class="mock__memo">
+              <p>회의 메모</p>
+              <span>다음 분기 목표 정리, 예산안 확인...</span>
+            </div>
+            <div class="mock__file"><em>📕</em><div><p>기획안_최종.pdf</p><span>2.4 MB · 오늘</span></div></div>
+            <div class="mock__file"><em>🖼️</em><div><p>레퍼런스.jpg</p><span>1.1 MB · 어제</span></div></div>
+          </div>
+        </div>
+        <p class="tour__title">메모와 파일도 한곳에</p>
+        <p class="tour__desc">메모장처럼 쓰고, 문서·이미지는 폴더로 정리해요</p>
       </section>
 
       <section class="tour__slide">
