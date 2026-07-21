@@ -505,8 +505,15 @@ function dtSkeleton(el, rows) {
     style.textContent =
       "body { animation: dt-page-in 0.16s ease both; }" +
       "@keyframes dt-page-in { from { opacity: 0; } }" +
+      "@keyframes dt-page-up { from { transform: translateY(10%); opacity: 0; } }" +
       "body.dt-leaving { opacity: 0; transition: opacity 0.11s ease; animation: none; }";
     document.head.appendChild(style);
+
+    // 플로팅 + 버튼으로 진입한 화면은 아래에서 위로 열리는 전환
+    if (sessionStorage.getItem("dt_nav_up")) {
+      sessionStorage.removeItem("dt_nav_up");
+      document.body.style.animation = "dt-page-up 0.28s cubic-bezier(.22,.61,.36,1) both";
+    }
 
     document.addEventListener("click", (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
@@ -516,6 +523,7 @@ function dtSkeleton(el, rows) {
           href.indexOf("javascript:") === 0 || a.target === "_blank") return;
       if (e.metaKey || e.ctrlKey || e.defaultPrevented) return;
       e.preventDefault();
+      if (a.classList.contains("fab")) sessionStorage.setItem("dt_nav_up", "1");
       document.body.classList.add("dt-leaving");
       setTimeout(() => { window.location.href = href; }, 110);
     }, true);
