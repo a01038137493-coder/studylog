@@ -515,6 +515,11 @@ function dtSkeleton(el, rows) {
       document.body.style.animation = "dt-page-up 0.28s cubic-bezier(.22,.61,.36,1) both";
     }
 
+    // 뒤로가기(bfcache) 복원 시 떠날 때의 투명 상태 해제 — 흰 화면 방지
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("dt-leaving");
+    });
+
     document.addEventListener("click", (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
       if (!a) return;
