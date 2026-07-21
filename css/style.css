@@ -2428,3 +2428,8 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tbs__dayswrap { padding: 12px 2px 4px; }
 .tbs__dayswrap > span { display: block; font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
 .tbs__dayswrap .tbe__days { margin: 0; }
+
+/* 타임박스 색상 스와치 */
+.tbs__colors { display: flex; gap: 8px; flex-wrap: wrap; }
+.tbs__c { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tbs__c.is-on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--text); }
