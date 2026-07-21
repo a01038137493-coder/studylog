@@ -30,6 +30,7 @@ const COPY = [
   "general-m.html",
   "general.html",
   "guide.html",
+  "timebox.html",
   "calendar.html",
   "checkin.html",
   "checkout.html",

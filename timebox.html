@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>타임박스 · 핀로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=146" />
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/student.html" class="topbar__back" aria-label="뒤로 가기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="topbar__brand">타임박스</div>
+    <span></span>
+  </header>
+
+  <main class="container">
+    <p class="tbe__hint">매일 반복되는 나의 시간표예요. 홈에서 블록별로 체크할 수 있습니다.</p>
+    <section class="card">
+      <div id="tbe-list"><p class="muted">불러오는 중...</p></div>
+      <button type="button" class="gtodo__addbtn" id="tbe-add">＋ 블록 추가</button>
+    </section>
+  </main>
+
+  <script src="/js/vendor/supabase.js"></script>
+  <script src="/js/supabaseClient.js?v=mock12"></script>
+  <script src="/js/utils.js?v=29"></script>
+  <script>
+    /* 타임박스 편집 — 즉시 저장 (추가/시간·이름 수정/삭제) */
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = await requireRole(["student"]);
+      if (!profile) return;
+
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const listEl = document.getElementById("tbe-list");
+      let boxes = [];
+
+      async function load() {
+        const { data } = await supabaseClient.from("timeboxes")
+          .select("*").eq("student_id", profile.id).order("start_time");
+        boxes = data || [];
+        render();
+      }
+
+      function render() {
+        if (!boxes.length) {
+          listEl.innerHTML = `<p class="muted" style="text-align:center;margin:14px 0;">아직 블록이 없어요.<br/>＋ 블록 추가로 시간표를 만들어보세요.</p>`;
+          return;
+        }
+        listEl.innerHTML = boxes.map((b) => `
+          <div class="tbe__row" data-id="${b.id}">
+            <input type="time" class="field__input tbe__start" value="${b.start_time.slice(0, 5)}" />
+            <input type="time" class="field__input tbe__end" value="${b.end_time.slice(0, 5)}" />
+            <input type="text" class="field__input tbe__label" value="${esc(b.label)}" maxlength="30" placeholder="할 일" />
+            <button type="button" class="tbe__del" aria-label="삭제">✕</button>
+          </div>`).join("");
+
+        listEl.querySelectorAll(".tbe__row").forEach((row) => {
+          const id = row.dataset.id;
+          const commit = async () => {
+            const start = row.querySelector(".tbe__start").value || "09:00";
+            const end = row.querySelector(".tbe__end").value || "10:00";
+            const label = row.querySelector(".tbe__label").value.trim() || "공부";
+            await supabaseClient.from("timeboxes")
+              .update({ start_time: start, end_time: end, label }).eq("id", id);
+            const b = boxes.find((x) => x.id === id);
+            if (b) { b.start_time = start; b.end_time = end; b.label = label; }
+          };
+          row.querySelectorAll("input").forEach((inp) => {
+            inp.addEventListener("change", commit);
+            inp.addEventListener("blur", commit);
+          });
+          row.querySelector(".tbe__label").addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); e.target.blur(); }
+          });
+          row.querySelector(".tbe__del").addEventListener("click", async () => {
+            await supabaseClient.from("timeboxes").delete().eq("id", id);
+            boxes = boxes.filter((x) => x.id !== id);
+            render();
+          });
+        });
+      }
+
+      document.getElementById("tbe-add").addEventListener("click", async () => {
+        // 마지막 블록 종료 시각에 이어서 1시간 블록 생성
+        const last = boxes[boxes.length - 1];
+        const start = last ? last.end_time.slice(0, 5) : "09:00";
+        const [h, m] = start.split(":").map(Number);
+        const end = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        const { data } = await supabaseClient.from("timeboxes")
+          .insert({ student_id: profile.id, label: "공부", start_time: start, end_time: end, sort: boxes.length })
+          .select().single();
+        if (data) { boxes.push(data); boxes.sort((a, b) => a.start_time.localeCompare(b.start_time)); render(); }
+      });
+
+      await load();
+    });
+  </script>
+</body>
+</html>

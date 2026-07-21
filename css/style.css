@@ -2324,3 +2324,24 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .guide__sec p:last-child { margin-bottom: 0; }
 .guide__sec b { font-weight: 800; }
 .guide__tip { color: var(--muted); background: var(--bg); border-radius: 10px; padding: 9px 12px; }
+
+/* 타임박스 (수험생 홈 카드 + 편집) */
+.tbox { padding: 16px 16px 8px; margin-bottom: 14px; }
+.tbox__head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 1.02rem; margin-bottom: 4px; }
+.tbox__head a { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.tbox__row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 8px; background: none; border: none; border-bottom: 1px solid var(--line); font: inherit; text-align: left; cursor: pointer; border-radius: 10px; -webkit-tap-highlight-color: transparent; }
+.tbox__row:last-child { border-bottom: none; }
+.tbox__time { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tbox__label { font-size: 0.92rem; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbox__row.is-now { background: var(--orange-bg); }
+.tbox__row.is-now .tbox__time { color: var(--orange-strong); }
+.tbox__check { flex: none; width: 21px; height: 21px; border-radius: 50%; border: 1.8px solid var(--line-strong); color: #fff; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.tbox__row.is-done .tbox__check { background: var(--orange); border-color: var(--orange); }
+.tbox__row.is-done .tbox__label { color: var(--muted-soft); text-decoration: line-through; }
+.tbe__hint { font-size: 0.88rem; font-weight: 600; color: var(--muted); margin: 14px 2px 12px; }
+.tbe__row { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+.tbe__row input[type="time"] { width: 88px; box-sizing: border-box; min-width: 0; padding-left: 8px; padding-right: 8px; }
+.tbe__label { flex: 1; min-width: 0; }
+.tbe__del { flex: none; background: none; border: none; color: var(--muted-soft); font-size: 1rem; padding: 6px; cursor: pointer; }
+.gm__time { flex: none; font-size: 0.72rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gm__row.now { background: var(--orange-bg); border-radius: 8px; }

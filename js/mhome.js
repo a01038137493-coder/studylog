@@ -197,5 +197,45 @@
 
     /* ---------- 일정 블록: 오늘 + 다가오는 7일 ---------- */
     renderHomeSchedule(document.getElementById("mevents"), document.getElementById("mevents-list"));
+
+    /* ---------- 타임박스: 매일 반복 시간표, 오늘 체크 + 현재 블록 강조 ---------- */
+    (async function renderTimeboxes() {
+      const card = document.getElementById("tbox");
+      const tlist = document.getElementById("tbox-list");
+      if (!card || !tlist) return;
+      const tbToday = getTodayString();
+      const { data: boxes } = await supabaseClient.from("timeboxes")
+        .select("*").eq("student_id", profile.id).order("start_time");
+      if (!boxes || !boxes.length) return;
+      const { data: checks } = await supabaseClient.from("timebox_checks")
+        .select("box_id, done").eq("student_id", profile.id).eq("date", tbToday);
+      const doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+      tlist.innerHTML = boxes.map((b) => {
+        const cur = nowMin >= toMin(b.start_time) && nowMin < toMin(b.end_time);
+        const on = doneSet.has(b.id);
+        return `
+        <button type="button" class="tbox__row${cur ? " is-now" : ""}${on ? " is-done" : ""}" data-box="${b.id}">
+          <span class="tbox__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>
+          <span class="tbox__label">${esc(b.label)}</span>
+          <span class="tbox__check">${on ? "✓" : ""}</span>
+        </button>`;
+      }).join("");
+      card.hidden = false;
+      tlist.querySelectorAll("[data-box]").forEach((row) => {
+        row.addEventListener("click", async () => {
+          const id = row.dataset.box;
+          const next = !doneSet.has(id);
+          if (next) doneSet.add(id); else doneSet.delete(id);
+          row.classList.toggle("is-done", next);
+          row.querySelector(".tbox__check").textContent = next ? "✓" : "";
+          await supabaseClient.from("timebox_checks").upsert({
+            student_id: profile.id, box_id: id, date: tbToday, done: next,
+          });
+        });
+      });
+    })();
   });
 })();

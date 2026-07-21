@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>사용법 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=145" />
+  <link rel="stylesheet" href="/css/style.css?v=146" />
   <style>
     /* 사용법 전용 목업 (웰컴 둘러보기와 동일한 그림 언어) */
     .guide { padding-top: 16px; padding-bottom: 40px; }
@@ -76,6 +76,18 @@
       </div>
     </section>
 
+    <section class="card guide__sec" data-mode="exam" hidden>
+      <h2 class="guide__title">⏱ 타임박스</h2>
+      <p class="guide__desc">매일 반복되는 시간표 — 현재 블록이 강조돼요</p>
+      <div class="guide__art">
+        <div class="gm">
+          <div class="gm__row is-on"><i>✓</i><span class="gm__time">09:00–12:00</span>수학</div>
+          <div class="gm__row now"><i></i><span class="gm__time">13:00–15:00</span>국어</div>
+          <div class="gm__row"><i></i><span class="gm__time">15:30–18:00</span>영어</div>
+        </div>
+      </div>
+    </section>
+
     <section class="card guide__sec" data-mode="general" hidden>
       <h2 class="guide__title">🏠 오늘 할 일</h2>
       <p class="guide__desc">＋로 추가하고, 탭해서 완료 · ★는 맨 위 고정</p>
@@ -89,14 +101,27 @@
       </div>
     </section>
 
-    <section class="card guide__sec">
+    <section class="card guide__sec" data-mode="exam" hidden>
+      <h2 class="guide__title">👈 왼쪽으로 밀기</h2>
+      <p class="guide__desc">과제·메모·파일 모두 밀면 버튼이 나와요</p>
+      <div class="guide__art">
+        <div class="gm">
+          <div class="gm__swipe">
+            <div class="gm__swipe-act"><i style="background:#ff9f0a">★</i><i style="background:#ff3b30">🗑</i></div>
+            <div class="gm__swipe-row">국어 핵심문제</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card guide__sec" data-mode="general" hidden>
       <h2 class="guide__title">👈 왼쪽으로 밀기</h2>
       <p class="guide__desc">할 일·메모·파일 모두 밀면 버튼이 나와요</p>
       <div class="guide__art">
         <div class="gm">
           <div class="gm__swipe">
             <div class="gm__swipe-act"><i style="background:#ff9f0a">★</i><i style="background:#ff3b30">🗑</i></div>
-            <div class="gm__swipe-row">국어 핵심문제</div>
+            <div class="gm__swipe-row">기획안 마감</div>
           </div>
         </div>
       </div>
@@ -111,7 +136,8 @@
             <i></i><i></i><i class="ev"></i><i></i><i class="today"></i><i></i><i></i>
             <i></i><i class="ev"></i><i></i><i></i><i></i><i class="ev"></i><i></i>
           </div>
-          <div class="gm__ev"><span>오후 3:00</span>팀 미팅</div>
+          <div class="gm__ev gm__ev--exam"><span>오전 10:00</span>모의고사</div>
+          <div class="gm__ev gm__ev--general"><span>오후 3:00</span>팀 미팅</div>
         </div>
       </div>
     </section>
@@ -121,14 +147,28 @@
       <p class="guide__desc">카톡 캡처 → 공유 → 핀로그</p>
       <div class="guide__art">
         <div class="gm">
-          <div class="gm__bubble">내일 3시에 성수에서 보자!</div>
+          <div class="gm__bubble gm__ev--exam">내일 2시에 스카에서 같이 하자!</div>
+          <div class="gm__bubble gm__ev--general">내일 3시에 성수에서 보자!</div>
           <div class="gm__arrow">↓</div>
-          <div class="gm__ev"><span>내일 오후 3:00</span>성수 약속<b>자동 등록</b></div>
+          <div class="gm__ev gm__ev--exam"><span>내일 오후 2:00</span>스터디카페<b>자동 등록</b></div>
+          <div class="gm__ev gm__ev--general"><span>내일 오후 3:00</span>성수 약속<b>자동 등록</b></div>
         </div>
       </div>
     </section>
 
-    <section class="card guide__sec">
+    <section class="card guide__sec" data-mode="exam" hidden>
+      <h2 class="guide__title">📁 PDF 교재 보관함</h2>
+      <p class="guide__desc">교재·프린트를 폴더로 정리하고, 탭하면 바로 열려요</p>
+      <div class="guide__art">
+        <div class="gm">
+          <div class="gm__head"><span class="gm__dot" style="background:#f04438"></span>수학 교재</div>
+          <div class="gm__file"><em>📕</em><div><p>수학 기출 2026.pdf</p><span>8.2 MB · 오늘</span></div></div>
+          <div class="gm__file"><em>📄</em><div><p>오답노트 정리.pdf</p><span>1.4 MB · 어제</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card guide__sec" data-mode="general" hidden>
       <h2 class="guide__title">📁 파일도 공유로 저장</h2>
       <p class="guide__desc">카톡 파일 → 공유 → 핀로그, 탭하면 미리보기</p>
       <div class="guide__art">
@@ -183,6 +223,8 @@
         document.querySelectorAll("[data-mode]").forEach((el) => {
           el.hidden = el.dataset.mode !== mode;
         });
+        document.querySelectorAll(".gm__ev--exam, .gm__bubble.gm__ev--exam").forEach((el) => { el.style.display = mode === "exam" ? "" : "none"; });
+        document.querySelectorAll(".gm__ev--general, .gm__bubble.gm__ev--general").forEach((el) => { el.style.display = mode === "general" ? "" : "none"; });
       }
       tabs.forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
       let mode = "general";
