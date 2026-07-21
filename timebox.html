@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=158" />
+  <link rel="stylesheet" href="/css/style.css?v=159" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -47,6 +47,10 @@
       <div class="tbs__dayswrap">
         <span>요일</span>
         <div class="tbe__days" id="tbs-days"></div>
+      </div>
+      <div class="tbs__dayswrap">
+        <span>색상</span>
+        <div class="tbs__colors" id="tbs-colors"></div>
       </div>
       <button type="button" class="evsheet__delete" id="tbs-del" hidden>블록 삭제</button>
     </div>
@@ -94,17 +98,11 @@
       const modeBtn = document.getElementById("tb-mode");
       const listEl = document.getElementById("tbe-list");
       let boxes = [];
-      let doneSet = new Set();
 
       async function loadBoxes() {
-        const [{ data: bs }, { data: checks }] = await Promise.all([
-          supabaseClient.from("timeboxes").select("*")
-            .eq("student_id", profile.id).order("start_time"),
-          supabaseClient.from("timebox_checks").select("box_id, done")
-            .eq("student_id", profile.id).eq("date", today),
-        ]);
+        const { data: bs } = await supabaseClient.from("timeboxes")
+          .select("*").eq("student_id", profile.id).order("start_time");
         boxes = bs || [];
-        doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       }
 
       /* ---------- 보기: 일주일 / 하루 (홈 그리드와 같은 디자인 언어) ---------- */
@@ -112,13 +110,14 @@
       const todayDow = (new Date().getDay() + 6) % 7;   // 월=0
       let selDow = todayDow;
       let viewMode = "week";
-      const daysOf = (b) => Array.isArray(b.days) && b.days.length ? b.days : [0, 1, 2, 3, 4, 5, 6];
+      const daysOf = (b) => Array.isArray(b.days) ? b.days : [0, 1, 2, 3, 4, 5, 6];
       const TB_COLORS = ["#ef767a", "#f5a25d", "#d9b23c", "#64ba7b", "#45c4b6", "#6096f0", "#7d80da", "#a06ee1", "#ea7fb1"];
       const colorOf = (label) => {
         let h = 0;
         for (const ch of String(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
         return TB_COLORS[h % TB_COLORS.length];
       };
+      const boxColor = (b) => b.color || colorOf(b.label);
       const segHtml = () => `
         <div class="period tbv__seg">
           <button type="button" class="period__btn${viewMode === "week" ? " is-active" : ""}" data-vm="week">일주일</button>
@@ -133,17 +132,6 @@
         });
         gridEl.querySelectorAll("[data-dow]").forEach((chip) => {
           chip.addEventListener("click", () => { selDow = Number(chip.dataset.dow); renderView(); });
-        });
-        gridEl.querySelectorAll("[data-box]").forEach((el) => {
-          el.addEventListener("click", async () => {
-            const id = el.dataset.box;
-            const next = !doneSet.has(id);
-            if (next) doneSet.add(id); else doneSet.delete(id);
-            renderView();
-            await supabaseClient.from("timebox_checks").upsert({
-              student_id: profile.id, box_id: id, date: today, done: next,
-            });
-          });
         });
       }
 
@@ -171,14 +159,10 @@
           const isT = i === todayDow;
           const blks = boxes.filter((b) => daysOf(b).includes(i)).map((b) => {
             const s = toMin(b.start_time), e = toMin(b.end_time);
-            const on = isT && doneSet.has(b.id);
-            const cur = isT && nowMin >= s && nowMin < e;
             return `
-            <button type="button" class="wk__blk${on ? " is-done" : ""}${cur ? " is-now" : ""}"
-                    ${isT ? `data-box="${b.id}"` : ""}
-                    style="top:${y(s) + 0.5}px; height:${Math.max(14, y(e) - y(s) - 1)}px; background:${colorOf(b.label)}">
-              <span>${on ? "✓ " : ""}${esc(b.label)}</span>
-            </button>`;
+            <div class="wk__blk" style="top:${y(s) + 0.5}px; height:${Math.max(14, y(e) - y(s) - 1)}px; background:${boxColor(b)}">
+              <span>${esc(b.label)}</span>
+            </div>`;
           }).join("");
           return `<div class="wk__col${isT ? " is-today" : ""}" style="height:${H}px">${cells}${blks}</div>`;
         }).join("");
@@ -187,8 +171,7 @@
           <div class="wk">
             <div class="wk__head">${head}</div>
             <div class="wk__body"><div class="wk__gutcol" style="height:${H}px">${gut}</div>${cols}</div>
-          </div>
-          <p class="wtb__hint">오늘(${DOWS[todayDow]}) 블록을 탭하면 완료 체크돼요</p>`;
+          </div>`;
         wireCommon();
       }
 
@@ -216,15 +199,18 @@
         html += dayBoxes.map((b) => {
           const s = toMin(b.start_time), e = toMin(b.end_time);
           const cur = isToday && nowMin >= s && nowMin < e;
-          const on = isToday && doneSet.has(b.id);
           const h = Math.max(22, y(e) - y(s) - 2);
           const slim = h < 40;
+          const bc = boxColor(b);
+          const bg = cur
+            ? `repeating-linear-gradient(45deg, ${bc}4d 0 7px, ${bc}1f 7px 14px)`
+            : `${bc}21`;
           return `
-          <button type="button" class="tgrid__block${cur ? " is-now" : ""}${on ? " is-done" : ""}${slim ? " tgrid__block--slim" : ""}"
-                  ${isToday ? `data-box="${b.id}"` : ""} style="top:${y(s) + 1}px; height:${h}px">
+          <div class="tgrid__block${slim ? " tgrid__block--slim" : ""}"
+               style="top:${y(s) + 1}px; height:${h}px; background:${bg}; border-left-color:${bc}">
             ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
-            <span class="tgrid__label">${on ? "✓ " : ""}${esc(b.label)}</span>
-          </button>`;
+            <span class="tgrid__label">${esc(b.label)}</span>
+          </div>`;
         }).join("");
         if (isToday && nowMin >= gs && nowMin <= ge) {
           html += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
@@ -232,8 +218,7 @@
         gridEl.innerHTML = segHtml() + chips +
           `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>` +
           (dayBoxes.length === 0
-            ? `<p class="wtb__hint">${DOWS[selDow]}요일엔 블록이 없어요 — 오른쪽 위 편집에서 추가해보세요</p>`
-            : isToday ? `<p class="wtb__hint">블록을 탭하면 오늘 완료 체크돼요</p>` : `<p class="wtb__hint">${DOWS[selDow]}요일 시간표 미리보기</p>`);
+            ? `<p class="wtb__hint">${DOWS[selDow]}요일엔 블록이 없어요 — 오른쪽 위 편집에서 추가해보세요</p>` : "");
         wireCommon();
       }
 
@@ -253,7 +238,7 @@
         }
         listEl.innerHTML = boxes.map((b) => `
           <button type="button" class="tbr" data-id="${b.id}">
-            <span class="tbr__dot" style="background:${colorOf(b.label)}"></span>
+            <span class="tbr__dot" style="background:${boxColor(b)}"></span>
             <span class="tbr__mid">
               <b>${esc(b.label)}</b>
               <span>${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)} · ${dayText(b)}</span>
@@ -274,6 +259,18 @@
       const sDays = document.getElementById("tbs-days");
       const sDel = document.getElementById("tbs-del");
       let editingBox = null;
+
+      function renderSheetColors(sel) {
+        const wrap = document.getElementById("tbs-colors");
+        wrap.innerHTML = TB_COLORS.map((cc) =>
+          `<button type="button" class="tbs__c${cc === sel ? " is-on" : ""}" data-c="${cc}" style="background:${cc}"></button>`).join("");
+        wrap.querySelectorAll(".tbs__c").forEach((sw) => {
+          sw.addEventListener("click", () => {
+            wrap.querySelectorAll(".tbs__c").forEach((x) => x.classList.remove("is-on"));
+            sw.classList.add("is-on");
+          });
+        });
+      }
 
       function renderSheetDays(active) {
         sDays.innerHTML = DOWS.map((d, i) =>
@@ -296,7 +293,8 @@
           sStart.value = st;
           sEnd.value = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
         }
-        renderSheetDays(box ? daysOf(box) : [0, 1, 2, 3, 4, 5, 6]);
+        renderSheetDays(box ? daysOf(box) : []);
+        renderSheetColors(box ? boxColor(box) : TB_COLORS[boxes.length % TB_COLORS.length]);
         sDel.hidden = !box;
         sheet.hidden = false;
         if (!box) setTimeout(() => sLabel.focus({ preventScroll: true }), 60);
@@ -313,12 +311,15 @@
           endT = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
         }
         const days = [...sDays.querySelectorAll(".tbe__day.is-on")].map((c) => Number(c.dataset.day));
+        if (!days.length) { alert("요일을 하나 이상 선택해주세요."); return; }
+        const colorEl = document.querySelector("#tbs-colors .tbs__c.is-on");
+        const color = colorEl ? colorEl.dataset.c : null;
         if (editingBox) {
           await supabaseClient.from("timeboxes")
-            .update({ label, start_time: startT, end_time: endT, days }).eq("id", editingBox.id);
+            .update({ label, start_time: startT, end_time: endT, days, color }).eq("id", editingBox.id);
         } else {
           await supabaseClient.from("timeboxes")
-            .insert({ student_id: profile.id, label, start_time: startT, end_time: endT, days, sort: boxes.length });
+            .insert({ student_id: profile.id, label, start_time: startT, end_time: endT, days, color, sort: boxes.length });
         }
         closeSheet();
         await loadBoxes();

@@ -209,9 +209,6 @@
       const todays = boxes.filter((b) =>
         !Array.isArray(b.days) || !b.days.length || b.days.includes(dow));
       if (!todays.length) return;
-      const { data: checks } = await supabaseClient.from("timebox_checks")
-        .select("box_id, done").eq("student_id", profile.id).eq("date", tbToday);
-      const doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       const now = new Date();
       const nowMin = now.getHours() * 60 + now.getMinutes();
       const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
@@ -228,36 +225,34 @@
         ghtml += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
         if (m < ge) ghtml += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
       }
+      const HB_COLORS = ["#ef767a", "#f5a25d", "#d9b23c", "#64ba7b", "#45c4b6", "#6096f0", "#7d80da", "#a06ee1", "#ea7fb1"];
+      const hbColor = (b) => {
+        if (b.color) return b.color;
+        let hsh = 0;
+        for (const ch of String(b.label)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+        return HB_COLORS[hsh % HB_COLORS.length];
+      };
       ghtml += todays.map((b) => {
         const s = toMin(b.start_time), e = toMin(b.end_time);
         const cur = nowMin >= s && nowMin < e;
-        const on = doneSet.has(b.id);
         const h = Math.max(20, y(e) - y(s) - 2);
         const slim = h < 36;
+        const bc = hbColor(b);
+        const bg = cur
+          ? `repeating-linear-gradient(45deg, ${bc}4d 0 7px, ${bc}1f 7px 14px)`
+          : `${bc}21`;
         return `
-        <button type="button" class="tgrid__block${cur ? " is-now" : ""}${on ? " is-done" : ""}${slim ? " tgrid__block--slim" : ""}"
-                data-box="${b.id}" style="top:${y(s) + 1}px; height:${h}px">
+        <div class="tgrid__block${slim ? " tgrid__block--slim" : ""}"
+             style="top:${y(s) + 1}px; height:${h}px; background:${bg}; border-left-color:${bc}">
           ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
-          <span class="tgrid__label">${on ? "✓ " : ""}${esc(b.label)}</span>
-        </button>`;
+          <span class="tgrid__label">${esc(b.label)}</span>
+        </div>`;
       }).join("");
       if (nowMin >= gs && nowMin <= ge) {
         ghtml += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
       }
       tlist.innerHTML = `<div class="tgrid" style="height:${H + 14}px">${ghtml}</div>`;
       card.hidden = false;
-      tlist.querySelectorAll("[data-box]").forEach((row) => {
-        row.addEventListener("click", async () => {
-          const id = row.dataset.box;
-          const next = !doneSet.has(id);
-          if (next) doneSet.add(id); else doneSet.delete(id);
-          row.classList.toggle("is-done", next);
-          row.querySelector(".tbox__check").textContent = next ? "✓" : "";
-          await supabaseClient.from("timebox_checks").upsert({
-            student_id: profile.id, box_id: id, date: tbToday, done: next,
-          });
-        });
-      });
     })();
   });
 })();

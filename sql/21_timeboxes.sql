@@ -28,3 +28,4 @@ drop policy if exists "timebox_checks_all_own" on timebox_checks;
 create policy "timebox_checks_all_own" on timebox_checks for all
   using (student_id = auth.uid()) with check (student_id = auth.uid());
 alter table timeboxes add column if not exists days jsonb;  -- 요일(월=0..일=6), null/[]=매일
+alter table timeboxes add column if not exists color text;  -- 블록 색상(미지정 시 자동)
