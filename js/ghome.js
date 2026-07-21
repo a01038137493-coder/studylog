@@ -56,7 +56,7 @@
       listEl.innerHTML = todos.map((t) => `
         <div class="gtodo__row memo-row" data-id="${t.id}">
           <div class="memo-row__actions">
-            <button type="button" class="memo-act memo-act--del" data-act="del">삭제</button>
+            <button type="button" class="memo-act memo-act--del" data-act="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg><span>삭제</span></button>
           </div>
           <button type="button" class="gtodo__item${t.done ? " is-done" : ""}">
             <span class="gtodo__check">${t.done ? "✓" : ""}</span>
