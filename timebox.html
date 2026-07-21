@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=155" />
+  <link rel="stylesheet" href="/css/style.css?v=156" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -138,7 +138,8 @@
         const head = DOWS.map((d, i) =>
           `<div class="wk__day${i === todayDow ? " is-today" : ""}">${d}</div>`).join("");
         const cols = DOWS.map((d, i) => {
-          const cells = "";               // 시간 눈금·가로줄 없이 깔끔하게
+          let cells = "";
+          for (let m = gs; m <= ge; m += 60) cells += `<i style="top:${y(m)}px"></i>`;
           const isT = i === todayDow;
           const blks = boxes.filter((b) => daysOf(b).includes(i)).map((b) => {
             const s = toMin(b.start_time), e = toMin(b.end_time);
@@ -151,9 +152,7 @@
               <span>${on ? "✓ " : ""}${esc(b.label)}</span>
             </button>`;
           }).join("");
-          const nowLine = isT && nowMin >= gs && nowMin <= ge
-            ? `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>` : "";
-          return `<div class="wk__col${isT ? " is-today" : ""}" style="height:${H}px">${cells}${blks}${nowLine}</div>`;
+          return `<div class="wk__col${isT ? " is-today" : ""}" style="height:${H}px">${cells}${blks}</div>`;
         }).join("");
 
         gridEl.innerHTML = segHtml() + `
