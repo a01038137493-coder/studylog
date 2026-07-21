@@ -2315,3 +2315,12 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .mtoday__subrow.is-done .mtoday__subcheck { background: var(--orange); border-color: var(--orange); }
 .mtoday__sub-text { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
 .mtoday__subrow.is-done .mtoday__sub-text { text-decoration: line-through; color: var(--muted-soft); }
+
+/* 사용법 페이지 */
+.guide { padding-top: 16px; padding-bottom: 40px; }
+.guide__sec { margin-bottom: 12px; }
+.guide__title { font-size: 1rem; font-weight: 800; margin: 0 0 8px; }
+.guide__sec p { font-size: 0.9rem; line-height: 1.65; color: var(--text); margin: 0 0 8px; }
+.guide__sec p:last-child { margin-bottom: 0; }
+.guide__sec b { font-weight: 800; }
+.guide__tip { color: var(--muted); background: var(--bg); border-radius: 10px; padding: 9px 12px; }
