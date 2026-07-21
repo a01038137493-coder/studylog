@@ -2177,3 +2177,6 @@ body.is-general .task-subject { display: none; }
 /* 스와이프 액션: 아이콘만 (라벨 숨김) */
 .memo-act span { display: none; }
 .memo-act svg { width: 22px; height: 22px; }
+
+/* 할일 행이 스와이프 액션을 덮도록 — 액션은 밀었을 때만 드러남 */
+.gtodo__item { position: relative; }
