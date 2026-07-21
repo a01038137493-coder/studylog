@@ -4,15 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=163" />
+  <link rel="stylesheet" href="/css/style.css?v=164" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
     <div class="topbar__brand">타임박스</div>
     <div class="topbar__right">
-      <button type="button" class="btn btn--ghost btn--sm tb-vm" id="tb-vm" aria-label="하루 보기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/></svg>
-      </button>
+      <button type="button" class="tb-vm" id="tb-vm" aria-label="하루 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><rect x="10.7" y="12.8" width="2.6" height="2.6" rx="0.6" fill="currentColor" stroke="none"/></svg></button>
     </div>
   </header>
 
@@ -131,8 +129,8 @@
 
       const vmBtn = document.getElementById("tb-vm");
       const VM_ICONS = {
-        day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/></svg>',
-        week: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="9.5" y="4" width="5" height="16" rx="1.5"/><rect x="16" y="4" width="5" height="16" rx="1.5"/></svg>',
+        day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><rect x="10.7" y="12.8" width="2.6" height="2.6" rx="0.6" fill="currentColor" stroke="none"/></svg>',
+        week: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M9.3 10v10M14.7 10v10"/></svg>',
       };
       vmBtn.addEventListener("click", () => {
         viewMode = viewMode === "week" ? "day" : "week";

@@ -2441,5 +2441,6 @@ body.kb-up .tabbar { transform: translateY(150%); }
 
 .fab svg { width: 24px; height: 24px; }
 
-.tb-vm { display: flex; align-items: center; justify-content: center; padding: 7px 9px; }
-.tb-vm svg { width: 19px; height: 19px; display: block; }
+.tb-vm { display: flex; align-items: center; justify-content: center; background: none; border: none; color: #fff; padding: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tb-vm:active { transform: scale(0.92); }
+.tb-vm svg { width: 22px; height: 22px; display: block; }
