@@ -529,3 +529,22 @@ function dtSkeleton(el, rows) {
     }, true);
   } catch (e) {}
 })();
+
+/* 왼쪽 가장자리에서 오른쪽 스와이프 → 뒤로가기 (뒤로가기 버튼이 있는 화면) — dt-edge-back */
+(function () {
+  const backEl = document.querySelector(".topbar__back, .auth-back");
+  if (!backEl) return;
+  let sx = null, sy = 0;
+  document.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    sx = t.clientX <= 30 ? t.clientX : null;
+    sy = t.clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", (e) => {
+    if (sx === null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx, dy = Math.abs(t.clientY - sy);
+    sx = null;
+    if (dx > 70 && dx > dy * 1.5) backEl.click();
+  }, { passive: true });
+})();

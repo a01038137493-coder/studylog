@@ -2280,8 +2280,8 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .mtoday__edit { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-left: 10px; margin-right: auto; }
 
 /* 상단바 원형 뒤로가기 — 로그인·지원 페이지 버튼과 통일 */
-.topbar__back { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.92); color: #17171a; flex: none; }
-.topbar__back svg { width: 19px; height: 19px; }
+.topbar__back { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: none; color: #fff; flex: none; }
+.topbar__back svg { width: 22px; height: 22px; }
 .topbar__back:active { transform: scale(0.94); }
 .topbar:has(> .topbar__back) > .topbar__back { justify-self: start; }
 
