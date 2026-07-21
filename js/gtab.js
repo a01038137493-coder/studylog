@@ -214,7 +214,7 @@
       document.querySelectorAll("#gt-when .gt-chip").forEach((c) =>
         c.classList.toggle("is-active", c.dataset.when === "today"));
       sheet.hidden = false;
-      setTimeout(() => sheetInput.focus(), 60);
+      setTimeout(() => sheetInput.focus({ preventScroll: true }), 60);
     }
     function closeSheet() { sheet.hidden = true; sheetInput.blur(); }
 

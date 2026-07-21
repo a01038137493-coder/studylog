@@ -420,12 +420,35 @@ async function renderHomeSchedule(sectionEl, listEl) {
     if (!K || !K.setResizeMode) return;
     const mode = (document.body && document.body.dataset.kbresize) || "native";
     K.setResizeMode({ mode });
-    if (mode === "none") {
-      K.addListener("keyboardWillShow", (e) =>
-        document.documentElement.style.setProperty("--kb", ((e && e.keyboardHeight) || 0) + "px"));
-      K.addListener("keyboardWillHide", () =>
-        document.documentElement.style.setProperty("--kb", "0px"));
-    }
+    if (mode !== "none") return;
+
+    const setKb = (h) => document.documentElement.style.setProperty("--kb", h + "px");
+
+    // 브리지 이벤트는 한 박자 늦게 온다 → 입력칸을 탭하는 "즉시" 직전 키보드
+    // 높이로 시트를 선반응시키고, 실제 이벤트가 오면 정확값으로 보정한다.
+    const cachedH = () => Number(localStorage.getItem("dt_kb_h")) || 300;
+    document.addEventListener("focusin", (e) => {
+      if (!e.target.closest || !e.target.closest(".evsheet__panel")) return;
+      document.body.classList.add("kb-open");        // 배경 스크롤 잠금
+      setKb(cachedH());
+    });
+    document.addEventListener("focusout", () => {
+      setTimeout(() => {                              // 시트 내 다른 입력으로 이동하면 유지
+        if (document.activeElement && document.activeElement.closest &&
+            document.activeElement.closest(".evsheet__panel")) return;
+        document.body.classList.remove("kb-open");
+        setKb(0);
+      }, 60);
+    });
+    K.addListener("keyboardWillShow", (e) => {
+      const h = (e && e.keyboardHeight) || 0;
+      if (h) localStorage.setItem("dt_kb_h", String(h));
+      setKb(h);
+    });
+    K.addListener("keyboardWillHide", () => {
+      document.body.classList.remove("kb-open");
+      setKb(0);
+    });
   } catch (e) {}
 })();
 
