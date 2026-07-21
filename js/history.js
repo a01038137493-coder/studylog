@@ -218,7 +218,7 @@ function dayDetailHtml(c, cin) {
   }
   const meta = [];
   if (cin && toNumber(cin.condition_score) > 0) meta.push(`컨디션 ${cin.condition_score}/10`);
-  if (toNumber(c.self_score) > 0) meta.push(`자기평가 ${c.self_score}/5`);
+  if (toNumber(c.self_score) > 0) meta.push(`자기평가 ${c.self_score}/10`);
   const risks = cin && Array.isArray(cin.risk_factors) && cin.risk_factors.length
     ? `<span class="dayx__risk">⚠ ${cin.risk_factors.map(escapeHtml).join(" · ")}</span>` : "";
   return `
