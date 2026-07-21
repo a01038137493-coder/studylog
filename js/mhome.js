@@ -128,6 +128,7 @@
       box.innerHTML = `
         <div class="mtoday__head">
           <span class="mtoday__title">오늘</span>
+          <a href="/checkin.html" class="mtoday__edit">플랜 수정</a>
           <span class="mtoday__count">${done}/${n} 완료</span>
         </div>
         <div class="mtoday__bar"><div class="mtoday__fill" style="width:${pct}%"></div></div>

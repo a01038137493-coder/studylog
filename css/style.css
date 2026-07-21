@@ -2275,3 +2275,6 @@ body.support-page { align-items: center; padding-top: 24px; }
 /* 키보드 표시 중 탭바 숨김 */
 .tabbar { transition: transform 0.2s ease; }
 body.kb-up .tabbar { transform: translateY(150%); }
+
+/* 오늘 카드: 플랜 수정 링크 */
+.mtoday__edit { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-left: 10px; margin-right: auto; }
