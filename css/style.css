@@ -2173,3 +2173,7 @@ body.is-general .task-subject { display: none; }
 .gtodo__star { flex: none; color: var(--orange); font-size: 0.95rem; }
 .memo-act--imp { background: #ff9f0a; }
 .gup-date { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--muted); background: var(--bg-soft, #f2f3f6); border-radius: 8px; padding: 4px 8px; }
+
+/* 스와이프 액션: 아이콘만 (라벨 숨김) */
+.memo-act span { display: none; }
+.memo-act svg { width: 22px; height: 22px; }
