@@ -1,6 +1,6 @@
 {
 	"appId": "com.studylog.app",
-	"appName": "데이로그",
+	"appName": "핀로그",
 	"webDir": "www",
 	"ios": {
 		"contentInset": "never"
