@@ -57,7 +57,12 @@
   </header>
 
   <main class="container guide">
-    <section class="card guide__sec" data-mode="exam">
+    <div class="period" id="guide-tabs">
+      <button type="button" class="period__btn" data-tab="general">일반 사용자</button>
+      <button type="button" class="period__btn" data-tab="exam">수험생</button>
+    </div>
+
+    <section class="card guide__sec" data-mode="exam" hidden>
       <h2 class="guide__title">🏠 플랜 → 체크 → 성과 기록</h2>
       <p class="guide__desc">아침에 플랜을 세우고, 홈에서 체크하고, 밤에 기록해요</p>
       <div class="guide__art">
@@ -71,7 +76,7 @@
       </div>
     </section>
 
-    <section class="card guide__sec" data-mode="general">
+    <section class="card guide__sec" data-mode="general" hidden>
       <h2 class="guide__title">🏠 오늘 할 일</h2>
       <p class="guide__desc">＋로 추가하고, 탭해서 완료 · ★는 맨 위 고정</p>
       <div class="guide__art">
@@ -135,7 +140,7 @@
       </div>
     </section>
 
-    <section class="card guide__sec" data-mode="exam">
+    <section class="card guide__sec" data-mode="exam" hidden>
       <h2 class="guide__title">📊 내 기록</h2>
       <p class="guide__desc">막대를 탭하면 그날 상세가 펼쳐져요</p>
       <div class="guide__art">
@@ -146,7 +151,7 @@
       </div>
     </section>
 
-    <section class="card guide__sec" data-mode="general">
+    <section class="card guide__sec" data-mode="general" hidden>
       <h2 class="guide__title">🖥 태블릿 상시 모드</h2>
       <p class="guide__desc">아이패드는 화면이 꺼지지 않는 책상 대시보드</p>
       <div class="guide__art">
@@ -170,16 +175,22 @@
   <script src="/js/supabaseClient.js?v=mock12"></script>
   <script src="/js/utils.js?v=29"></script>
   <script>
-    /* 사용 유형에 맞는 섹션만 표시 (비로그인 시 전부 표시) */
+    /* 상단 탭으로 일반/수험생 가이드 전환 — 기본은 내 사용 유형 */
     document.addEventListener("DOMContentLoaded", async () => {
+      const tabs = document.querySelectorAll("#guide-tabs .period__btn");
+      function show(mode) {
+        tabs.forEach((b) => b.classList.toggle("is-active", b.dataset.tab === mode));
+        document.querySelectorAll("[data-mode]").forEach((el) => {
+          el.hidden = el.dataset.mode !== mode;
+        });
+      }
+      tabs.forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
+      let mode = "general";
       try {
         const profile = await getCurrentProfile();
-        if (!profile) return;
-        const mode = isGeneral(profile) ? "general" : "exam";
-        document.querySelectorAll("[data-mode]").forEach((el) => {
-          if (el.dataset.mode !== mode) el.remove();
-        });
+        if (profile && !isGeneral(profile)) mode = "exam";
       } catch (e) {}
+      show(mode);
     });
   </script>
 </body>
