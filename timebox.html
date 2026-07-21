@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=156" />
+  <link rel="stylesheet" href="/css/style.css?v=157" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -135,8 +135,12 @@
         const y = (min) => ((min - gs) / 60) * PX;
         const H = ((ge - gs) / 60) * PX;
 
-        const head = DOWS.map((d, i) =>
+        const head = `<div class="wk__gut"></div>` + DOWS.map((d, i) =>
           `<div class="wk__day${i === todayDow ? " is-today" : ""}">${d}</div>`).join("");
+        let gut = "";
+        for (let m = gs; m <= ge; m += 120) {
+          gut += `<span style="top:${y(m)}px">${m / 60}</span>`;
+        }
         const cols = DOWS.map((d, i) => {
           let cells = "";
           for (let m = gs; m <= ge; m += 60) cells += `<i style="top:${y(m)}px"></i>`;
@@ -158,7 +162,7 @@
         gridEl.innerHTML = segHtml() + `
           <div class="wk">
             <div class="wk__head">${head}</div>
-            <div class="wk__body">${cols}</div>
+            <div class="wk__body"><div class="wk__gutcol" style="height:${H}px">${gut}</div>${cols}</div>
           </div>
           <p class="wtb__hint">오늘(${DOWS[todayDow]}) 블록을 탭하면 완료 체크돼요</p>`;
         wireCommon();
