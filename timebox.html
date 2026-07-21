@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=172" />
+  <link rel="stylesheet" href="/css/style.css?v=173" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -16,6 +16,13 @@
   </header>
 
   <main class="container">
+    <!-- 태블릿 전용 좌측 패널: 지금/다음 · 주간 배분 · 블록 목록 -->
+    <aside class="tbside">
+      <section class="tbside__card" id="tbside-now"></section>
+      <section class="tbside__card" id="tbside-week"></section>
+      <section class="tbside__card" id="tbside-list"></section>
+    </aside>
+
     <!-- 보기: 오늘의 세로 시간축 그리드 (블록 탭 = 완료 체크) -->
     <section class="card" id="tb-view">
       <div id="tb-grid"><p class="muted" style="text-align:center;margin:16px 0;">불러오는 중...</p></div>
@@ -332,7 +339,7 @@
         }
         closeSheet();
         await loadBoxes();
-        renderEditor();
+        refresh();
       }
       document.getElementById("tbs-save").addEventListener("click", saveSheet);
       sLabel.addEventListener("keydown", (e) => {
@@ -343,10 +350,66 @@
         await supabaseClient.from("timeboxes").delete().eq("id", editingBox.id);
         closeSheet();
         await loadBoxes();
-        renderEditor();
+        refresh();
       });
 
       document.getElementById("tbe-add").addEventListener("click", () => openSheet(null));
+
+      /* ---------- 태블릿 좌측 패널: 지금/다음 · 주간 배분 · 블록 목록 ---------- */
+      const sideNow = document.getElementById("tbside-now");
+      const sideWeek = document.getElementById("tbside-week");
+      const sideList = document.getElementById("tbside-list");
+      function renderSide() {
+        const nowD = new Date();
+        const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
+        const todays = boxes.filter((b) => daysOf(b).includes(todayDow))
+          .slice().sort((a, z) => toMin(a.start_time) - toMin(z.start_time));
+        const cur = todays.find((b) => toMin(b.start_time) <= nowMin && nowMin < toMin(b.end_time));
+        const nxt = todays.find((b) => toMin(b.start_time) > nowMin);
+        const left = (m) => (m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ""}` : `${m}분`);
+
+        let nowHtml = `<h3 class="tbside__h">지금</h3>`;
+        if (cur) {
+          nowHtml += `
+            <div class="tbside__big"><i style="background:${boxColor(cur)}"></i>${esc(cur.label)}</div>
+            <p class="tbside__sub">${t12(cur.end_time)}까지 · ${left(toMin(cur.end_time) - nowMin)} 남음</p>`;
+        } else {
+          nowHtml += `<div class="tbside__big tbside__big--free">빈 시간</div>`;
+        }
+        if (nxt) nowHtml += `<p class="tbside__next">다음 · ${esc(nxt.label)} · ${t12(nxt.start_time)} (${left(toMin(nxt.start_time) - nowMin)} 후)</p>`;
+        else if (!cur) nowHtml += `<p class="tbside__next">오늘 남은 블록이 없어요</p>`;
+        sideNow.innerHTML = nowHtml;
+
+        const agg = new Map();
+        boxes.forEach((b) => {
+          const mins = (toMin(b.end_time) - toMin(b.start_time)) * daysOf(b).length;
+          const a = agg.get(b.label) || { mins: 0, color: boxColor(b) };
+          a.mins += mins;
+          agg.set(b.label, a);
+        });
+        const hrs = (m) => { const h = m / 60; return Number.isInteger(h) ? `${h}시간` : `${h.toFixed(1)}시간`; };
+        const rows = [...agg.entries()].sort((a, z) => z[1].mins - a[1].mins);
+        sideWeek.innerHTML = `<h3 class="tbside__h">주간 배분</h3>` + (rows.length
+          ? rows.map(([label, v]) =>
+            `<div class="tbside__row"><i style="background:${v.color}"></i><span>${esc(label)}</span><b>${hrs(v.mins)}</b></div>`).join("")
+          : `<p class="tbside__sub">블록을 추가하면 과목별 시간이 보여요</p>`);
+
+        sideList.innerHTML = `<h3 class="tbside__h">블록</h3>` + (boxes.length
+          ? boxes.map((b) => `
+            <button type="button" class="tbside__blk" data-id="${b.id}">
+              <i style="background:${boxColor(b)}"></i>
+              <span><b>${esc(b.label)}</b><em>${t12(b.start_time)}–${t12(b.end_time)} · ${dayText(b)}</em></span>
+            </button>`).join("")
+          : `<p class="tbside__sub">아직 블록이 없어요</p>`);
+        sideList.querySelectorAll(".tbside__blk").forEach((row) =>
+          row.addEventListener("click", () => openSheet(boxes.find((x) => x.id === row.dataset.id) || null)));
+      }
+
+      /* 데이터 변경 후 현재 모드 화면 + 좌측 패널 갱신 */
+      function refresh() {
+        if (editing) renderEditor(); else renderView();
+        renderSide();
+      }
 
       /* ---------- 보기/편집 전환 ---------- */
       let editing = false;
@@ -368,6 +431,8 @@
       await loadBoxes();
       if (!boxes.length) setMode(true);   // 처음이면 바로 편집으로
       else renderView();
+      renderSide();
+      setInterval(renderSide, 60000);     // 남은 시간 카운트다운 갱신
     });
   </script>
 </body>
