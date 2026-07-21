@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 final class ShareViewController: UIViewController {
 
-    private let appGroupID = "group.com.studylog.app"
+    private let appGroupID = "group.com.pinlog.app"
     private let openURL = URL(string: "dittonlog://shared-screenshot")!
 
     private let statusLabel = UILabel()

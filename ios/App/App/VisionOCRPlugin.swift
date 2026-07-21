@@ -24,7 +24,7 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise)
     ]
 
-    private static let appGroupID = "group.com.studylog.app"
+    private static let appGroupID = "group.com.pinlog.app"
 
     /// Share Extension 이 App Group 에 남긴 스크린샷을 꺼내온다 (꺼내면서 삭제).
     /// JS: VisionOCR.takeSharedScreenshot() → { base64: string | null }

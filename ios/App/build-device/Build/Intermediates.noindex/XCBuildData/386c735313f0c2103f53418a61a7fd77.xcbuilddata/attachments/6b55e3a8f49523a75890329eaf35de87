@@ -1,0 +1,49 @@
+{
+  "" : {
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-primary.dia",
+    "emit-module-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-primary-emit-module.dia",
+    "pch" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-primary.swiftdeps"
+  },
+  "/Users/roy/studylog/ios/App/App/AppDelegate.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.dia",
+    "index-unit-output-path" : "/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppDelegate~partial.swiftmodule"
+  },
+  "/Users/roy/studylog/ios/App/App/AppViewController.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.dia",
+    "index-unit-output-path" : "/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/AppViewController~partial.swiftmodule"
+  },
+  "/Users/roy/studylog/ios/App/App/VisionOCRPlugin.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.dia",
+    "index-unit-output-path" : "/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/VisionOCRPlugin~partial.swiftmodule"
+  },
+  "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

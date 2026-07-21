@@ -1,0 +1,29 @@
+{
+  "" : {
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary.dia",
+    "emit-module-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-emit-module.dia",
+    "pch" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin-primary.swiftdeps"
+  },
+  "/Users/roy/studylog/node_modules/@capacitor/browser/ios/Sources/BrowserPlugin/Browser.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.dia",
+    "index-unit-output-path" : "/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/Browser~partial.swiftmodule"
+  },
+  "/Users/roy/studylog/node_modules/@capacitor/browser/ios/Sources/BrowserPlugin/BrowserPlugin.swift" : {
+    "const-values" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.swiftconstvalues",
+    "dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.d",
+    "diagnostics" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.dia",
+    "index-unit-output-path" : "/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.o",
+    "llvm-bc" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.bc",
+    "object" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.o",
+    "swift-dependencies" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin.swiftdeps",
+    "swiftmodule" : "/Users/roy/studylog/ios/App/build-device/Build/Intermediates.noindex/CapacitorBrowser.build/Debug-iphoneos/BrowserPlugin.build/Objects-normal/arm64/BrowserPlugin~partial.swiftmodule"
+  }
+}
