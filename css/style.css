@@ -2345,3 +2345,10 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tbe__del { flex: none; background: none; border: none; color: var(--muted-soft); font-size: 1rem; padding: 6px; cursor: pointer; }
 .gm__time { flex: none; font-size: 0.72rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
 .gm__row.now { background: var(--orange-bg); border-radius: 8px; }
+
+/* 타임박스 요일 선택 */
+.tbe__item { padding-bottom: 6px; border-bottom: 1px solid var(--bg); margin-bottom: 10px; }
+.tbe__item:last-of-type { border-bottom: none; }
+.tbe__days { display: flex; gap: 6px; margin: 7px 0 3px 2px; }
+.tbe__day { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font: inherit; font-size: 0.74rem; font-weight: 700; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tbe__day.is-on { background: var(--orange); border-color: var(--orange); color: #fff; }

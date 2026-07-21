@@ -207,13 +207,17 @@
       const { data: boxes } = await supabaseClient.from("timeboxes")
         .select("*").eq("student_id", profile.id).order("start_time");
       if (!boxes || !boxes.length) return;
+      const dow = (new Date().getDay() + 6) % 7;   // 월=0
+      const todays = boxes.filter((b) =>
+        !Array.isArray(b.days) || !b.days.length || b.days.includes(dow));
+      if (!todays.length) return;
       const { data: checks } = await supabaseClient.from("timebox_checks")
         .select("box_id, done").eq("student_id", profile.id).eq("date", tbToday);
       const doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       const now = new Date();
       const nowMin = now.getHours() * 60 + now.getMinutes();
       const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-      tlist.innerHTML = boxes.map((b) => {
+      tlist.innerHTML = todays.map((b) => {
         const cur = nowMin >= toMin(b.start_time) && nowMin < toMin(b.end_time);
         const on = doneSet.has(b.id);
         return `
