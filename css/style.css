@@ -31,12 +31,12 @@
   --line-strong: #d6d6d6;
 
   /* 상태(의미) 컬러 — 완료/경고 구분용으로만 사용 */
-  --orange: #ef8e3c;       /* 경고 */
-  --orange-strong: #d96f1d; /* 강한 경고 */
+  --orange: #f04438;       /* 경고 */
+  --orange-strong: #d92d20; /* 강한 경고 */
   --green: #2aa56e;        /* 성공 */
   --green-strong: #1f8d5d;
   --green-bg: #edf6f1;
-  --orange-bg: #fbf1e7;
+  --orange-bg: #fdecea;
   --blue-bg: #f0f0f0;
 
   --radius: 20px;
