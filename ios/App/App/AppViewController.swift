@@ -15,4 +15,12 @@ class AppViewController: CAPBridgeViewController {
     override open func capacitorDidLoad() {
         bridge?.registerPluginInstance(VisionOCRPlugin())
     }
+
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        // 태블릿은 책상 위 상시 디스플레이로 쓰므로 앱이 떠 있는 동안 화면이 꺼지지 않게 한다
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+    }
 }

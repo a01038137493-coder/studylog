@@ -2152,3 +2152,7 @@ body.is-general .task-subject { display: none; }
 .gtodo--tab > #g-list { flex: 1; }
 .gtab-events { padding: 16px 16px 12px; }
 .gtab-events .fcal-ev { background: var(--bg-soft, #f6f7f9); border: none; }
+
+/* 상시 디스플레이 시계 (일반 태블릿 홈) */
+.gtab-head { align-items: flex-start; }
+.gtab-clock { font-size: 2.9rem; font-weight: 800; letter-spacing: -1px; line-height: 1.05; margin-bottom: 3px; font-variant-numeric: tabular-nums; }

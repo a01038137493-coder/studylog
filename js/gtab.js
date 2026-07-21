@@ -14,7 +14,14 @@
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   document.addEventListener("DOMContentLoaded", async () => {
-    document.getElementById("g-date").textContent = formatKoreanDate();
+    /* ---------- 상시 시계 (인증을 기다리지 않고 즉시 시작) ---------- */
+    const clockEl = document.getElementById("g-clock");
+    function tickClock() {
+      clockEl.textContent = fmtTime12(new Date());
+      document.getElementById("g-date").textContent = formatKoreanDate();
+    }
+    tickClock();
+    setInterval(tickClock, 5000);
 
     const profile = await requireRole(["student"]);
     if (!profile) return;
@@ -186,6 +193,22 @@
     if (window.hideAppLoader) hideAppLoader();
 
     /* ---------- 일정 블록: 오늘 + 다가오는 7일 (없으면 안내 문구 유지) ---------- */
-    renderHomeSchedule(document.getElementById("g-events"), document.getElementById("g-events-list"));
+    const renderEvents = () => renderHomeSchedule(
+      document.getElementById("g-events"), document.getElementById("g-events-list"));
+    renderEvents();
+
+    /* ---------- 상시 디스플레이: 자동 새로고침 ----------
+     * 켜놓는 화면이라 데이터가 오래 묵는다.
+     * - 날짜가 바뀌면(자정) 전체 리로드
+     * - 5분마다 + 화면에 다시 보일 때 할일·일정 갱신 */
+    async function refreshAll() {
+      if (getTodayString() !== today) { window.location.reload(); return; }
+      await load();
+      renderEvents();
+    }
+    setInterval(refreshAll, 5 * 60 * 1000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshAll();
+    });
   });
 })();

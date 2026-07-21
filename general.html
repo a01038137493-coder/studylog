@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=107" />
+  <link rel="stylesheet" href="/css/style.css?v=108" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -23,9 +23,12 @@
   </div>
 
   <main class="container home-wide">
-    <!-- 헤더: 날짜(좌) + 목표 D-Day(우, 설정 시에만) -->
+    <!-- 헤더: 상시 시계 + 날짜(좌), 목표 D-Day(우, 설정 시에만) -->
     <div class="mhead gtab-head">
-      <span class="mhead__date" id="g-date">오늘</span>
+      <div>
+        <div class="gtab-clock" id="g-clock">--:--</div>
+        <span class="mhead__date" id="g-date">오늘</span>
+      </div>
       <span class="mhead__dday" id="g-dday" hidden></span>
     </div>
 
@@ -85,6 +88,6 @@
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
   <script src="/js/utils.js?v=18"></script>
-  <script src="/js/gtab.js?v=1"></script>
+  <script src="/js/gtab.js?v=2"></script>
 </body>
 </html>
