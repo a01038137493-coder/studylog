@@ -422,32 +422,38 @@ async function renderHomeSchedule(sectionEl, listEl) {
     K.setResizeMode({ mode });
     if (mode !== "none") return;
 
-    const setKb = (h) => document.documentElement.style.setProperty("--kb", h + "px");
-
-    // 브리지 이벤트는 한 박자 늦게 온다 → 입력칸을 탭하는 "즉시" 직전 키보드
-    // 높이로 시트를 선반응시키고, 실제 이벤트가 오면 정확값으로 보정한다.
-    const cachedH = () => Number(localStorage.getItem("dt_kb_h")) || 300;
+    // 시트 들어올림 = 실제 가려진 높이(visualViewport 기준)를 프레임 단위로 추적.
+    // 추정치가 아니라 실측이라, 웹뷰가 어떻게 동작하든 키보드 윗선에 정확히 붙는다.
+    const root = document.documentElement;
+    let raf = null;
+    function track(ms) {
+      cancelAnimationFrame(raf);
+      const t0 = performance.now();
+      const step = () => {
+        const vv = window.visualViewport;
+        const lift = vv ? Math.max(0, root.clientHeight - vv.height - vv.offsetTop) : 0;
+        root.style.setProperty("--kb", lift + "px");
+        if (performance.now() - t0 < ms) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    }
     document.addEventListener("focusin", (e) => {
       if (!e.target.closest || !e.target.closest(".evsheet__panel")) return;
       document.body.classList.add("kb-open");        // 배경 스크롤 잠금
-      setKb(cachedH());
+      track(800);
     });
     document.addEventListener("focusout", () => {
-      setTimeout(() => {                              // 시트 내 다른 입력으로 이동하면 유지
+      setTimeout(() => {
         if (document.activeElement && document.activeElement.closest &&
             document.activeElement.closest(".evsheet__panel")) return;
         document.body.classList.remove("kb-open");
-        setKb(0);
+        track(500);
       }, 60);
     });
-    K.addListener("keyboardWillShow", (e) => {
-      const h = (e && e.keyboardHeight) || 0;
-      if (h) localStorage.setItem("dt_kb_h", String(h));
-      setKb(h);
-    });
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", () => track(400));
     K.addListener("keyboardWillHide", () => {
       document.body.classList.remove("kb-open");
-      setKb(0);
+      track(500);
     });
   } catch (e) {}
 })();
