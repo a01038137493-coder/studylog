@@ -488,3 +488,31 @@ function dtSkeleton(el, rows) {
   }, 250);
   return function () { clearTimeout(t); };
 }
+
+/* ============================================================
+ * 페이지 전환 페이드 — 깜빡임을 애니메이션으로 감춘다.
+ * 나갈 때: 링크 이동을 가로채 0.11초 페이드아웃 후 이동
+ * 들어올 때: body 가 0.16초 페이드인
+ * ============================================================ */
+(function () {
+  try {
+    const style = document.createElement("style");
+    style.textContent =
+      "body { animation: dt-page-in 0.16s ease both; }" +
+      "@keyframes dt-page-in { from { opacity: 0; } }" +
+      "body.dt-leaving { opacity: 0; transition: opacity 0.11s ease; animation: none; }";
+    document.head.appendChild(style);
+
+    document.addEventListener("click", (e) => {
+      const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || href.charAt(0) === "#" || href.indexOf("http") === 0 ||
+          href.indexOf("javascript:") === 0 || a.target === "_blank") return;
+      if (e.metaKey || e.ctrlKey || e.defaultPrevented) return;
+      e.preventDefault();
+      document.body.classList.add("dt-leaving");
+      setTimeout(() => { window.location.href = href; }, 110);
+    }, true);
+  } catch (e) {}
+})();
