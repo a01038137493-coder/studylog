@@ -2136,3 +2136,8 @@ body.is-general .task-subject { display: none; }
 .pickrow { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 6px; background: none; border: none; border-bottom: 1px solid var(--line); font: inherit; font-size: 0.95rem; font-weight: 600; color: var(--text); cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; }
 .pickrow.is-on { font-weight: 800; }
 .pickrow__check { color: var(--orange-strong); font-weight: 800; }
+
+/* 스와이프 이동 버튼 · 상단 ＋ 버튼 · 일정 블록 보조 */
+.memo-act--move { background: #7a8699; }
+.topbar__plus { font-size: 1.3rem; line-height: 1; padding: 5px 13px; }
+.fcal-ev__sub { color: var(--muted-soft); font-weight: 600; font-size: 0.85em; }

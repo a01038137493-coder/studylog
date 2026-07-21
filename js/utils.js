@@ -354,3 +354,58 @@ document.addEventListener("visibilitychange", () => {
 });
 if (document.readyState !== "loading") checkSharedScreenshot();
 else document.addEventListener("DOMContentLoaded", checkSharedScreenshot);
+
+/* ============================================================
+ * 홈 일정 블록: 오늘 일정 + 다가오는 일정(7일) — Apple 캘린더(앱 전용)
+ * ============================================================ */
+async function renderHomeSchedule(sectionEl, listEl) {
+  try {
+    const calPlugin = window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.CapacitorCalendar : null;
+    if (!calPlugin || !sectionEl || !listEl) return;
+    const { result: perm } = await calPlugin.requestFullCalendarAccess();
+    if (perm !== "granted") return;
+
+    const now = new Date();
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const rangeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59);
+    const { result } = await calPlugin.listEventsInRange({
+      from: dayStart.getTime(), to: rangeEnd.getTime(),
+    });
+    const events = (result || []).sort((a, b) => a.startDate - b.startDate);
+    if (!events.length) return;
+
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const dows = ["일", "월", "화", "수", "목", "금", "토"];
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime();
+
+    const dateLabel = (ev) => {
+      const d = new Date(ev.startDate);
+      const diff = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - dayStart) / 86400000);
+      if (diff === 1) return "내일";
+      return `${d.getMonth() + 1}/${d.getDate()} (${dows[d.getDay()]})`;
+    };
+    const timeText = (ev) => ev.isAllDay ? "종일" : fmtTime12(new Date(ev.startDate));
+
+    const todays = events.filter((ev) => ev.startDate <= todayEnd);
+    const upcoming = events.filter((ev) => ev.startDate > todayEnd).slice(0, 5);
+
+    let html = "";
+    if (todays.length) {
+      html += `<p class="msection-title">오늘 일정</p>`;
+      html += todays.slice(0, 4).map((ev) =>
+        `<div class="fcal-ev"><span class="fcal-ev__time">${timeText(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`
+      ).join("");
+    }
+    if (upcoming.length) {
+      html += `<p class="msection-title">다가오는 일정</p>`;
+      html += upcoming.map((ev) =>
+        `<div class="fcal-ev"><span class="fcal-ev__time">${dateLabel(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}<span class="fcal-ev__sub"> · ${timeText(ev)}</span></span></div>`
+      ).join("");
+    }
+    html += `<a href="/calendar.html" class="mtoday__more">캘린더에서 전체 보기</a>`;
+    listEl.innerHTML = html;
+    sectionEl.hidden = false;
+  } catch (e) {}
+}

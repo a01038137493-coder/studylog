@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>파일 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=105" />
+  <link rel="stylesheet" href="/css/style.css?v=106" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
     <div class="topbar__brand">파일</div>
     <div class="topbar__right">
-      <button type="button" class="btn btn--ghost btn--sm" id="file-add">＋ 올리기</button>
+      <button type="button" class="btn btn--ghost btn--sm topbar__plus" id="file-add" aria-label="파일 올리기">＋</button>
     </div>
   </header>
 
@@ -20,9 +20,44 @@
 
   <main class="container">
     <input type="search" id="file-search" class="field__input memo-search" placeholder="파일 검색" autocomplete="off" />
+    <div class="memo-cats" id="fcats"></div>
     <p class="file-status" id="file-status" hidden></p>
     <div id="file-list"><p class="muted">불러오는 중...</p></div>
   </main>
+
+  <!-- 폴더 관리 시트 -->
+  <div class="evsheet" id="fcat-sheet" hidden>
+    <div class="evsheet__backdrop" data-fcat-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">폴더 관리</span>
+        <button type="button" class="evsheet__save" data-fcat-close>완료</button>
+      </div>
+      <div class="catmgr__addrow">
+        <input type="text" id="fcat-new-input" class="field__input" placeholder="새 폴더 이름" maxlength="20" autocomplete="off" />
+        <button type="button" class="catmgr__addbtn" id="fcat-new-btn">추가</button>
+      </div>
+      <div id="fcat-mgr-list"></div>
+    </div>
+  </div>
+
+  <!-- 폴더 이동 시트 -->
+  <div class="evsheet" id="fpick-sheet" hidden>
+    <div class="evsheet__backdrop" data-fpick-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">폴더로 이동</span>
+        <button type="button" class="evsheet__cancel" data-fpick-close>닫기</button>
+      </div>
+      <div id="fpick-list"></div>
+      <div class="catmgr__addrow">
+        <input type="text" id="fpick-new-input" class="field__input" placeholder="새 폴더 만들기" maxlength="20" autocomplete="off" />
+        <button type="button" class="catmgr__addbtn" id="fpick-new-btn">추가</button>
+      </div>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/student.html" class="tabbar__item">
@@ -48,11 +83,10 @@
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
-  <script src="/js/utils.js?v=17"></script>
+  <script src="/js/utils.js?v=18"></script>
   <script>
-    /* 파일 보관함 — Supabase Storage(비공개 버킷 memo-files) + files 테이블
-     * 업로드: 사진/PDF/문서 (파일당 25MB) · 열기: 만료되는 서명 URL
-     * 삭제: 카드를 왼쪽으로 밀기 */
+    /* 파일 보관함 — Supabase Storage + files 테이블 + 폴더(file_categories)
+     * 업로드: 보고 있는 폴더로 / 탭: 열기 / 스와이프: 이동·삭제 */
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await requireRole(["student"]);
       if (!profile) return;
@@ -66,9 +100,15 @@
       const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+      const MOVE_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
+      const DEL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg>`;
+
       let files = [];
+      let categories = [];
+      let activeCat = "all";
+      let moveTargetId = null;
       let openRow = null;
-      const thumbs = new Map();      // path → 서명 URL (이미지 미리보기 캐시)
+      const thumbs = new Map();
 
       const isImage = (m) => String(m || "").startsWith("image/");
       const sizeText = (n) => {
@@ -80,7 +120,6 @@
       const when = (iso) => {
         const d = new Date(iso);
         const now = new Date();
-        const p = (n) => String(n).padStart(2, "0");
         return d.toDateString() === now.toDateString()
           ? `오늘 ${fmtTime12(d)}`
           : `${d.getMonth() + 1}월 ${d.getDate()}일`;
@@ -93,7 +132,6 @@
         if (["ppt", "pptx"].includes(ext)) return "📽";
         return "📁";
       };
-
       const status = (msg) => {
         if (!msg) { statusEl.hidden = true; return; }
         statusEl.textContent = msg;
@@ -105,19 +143,166 @@
         return data ? data.signedUrl : null;
       }
 
-      /* ---------- 업로드 ---------- */
+      /* ---------- 폴더 칩 ---------- */
+      function renderCats() {
+        const el = document.getElementById("fcats");
+        const uncategorized = files.filter((f) => !f.category_id).length;
+        let html = `<button type="button" class="memo-cat${activeCat === "all" ? " is-active" : ""}" data-cat="all">전체 ${files.length}</button>`;
+        html += categories.map((c) => {
+          const n = files.filter((f) => f.category_id === c.id).length;
+          return `<button type="button" class="memo-cat${activeCat === c.id ? " is-active" : ""}" data-cat="${c.id}">${esc(c.name)} ${n}</button>`;
+        }).join("");
+        if (uncategorized && categories.length) {
+          html += `<button type="button" class="memo-cat${activeCat === "none" ? " is-active" : ""}" data-cat="none">미분류 ${uncategorized}</button>`;
+        }
+        html += `<button type="button" class="memo-cat memo-cat--add" data-cat="__manage">폴더 관리</button>`;
+        el.innerHTML = html;
+
+        el.querySelectorAll("[data-cat]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.cat;
+            if (id === "__manage") { openCatSheet(); return; }
+            activeCat = id;
+            renderCats();
+            render();
+          });
+        });
+      }
+
+      /* ---------- 폴더 관리 시트 ---------- */
+      const catSheet = document.getElementById("fcat-sheet");
+      const catInput = document.getElementById("fcat-new-input");
+
+      function openCatSheet() {
+        renderCatManager();
+        catInput.value = "";
+        catSheet.hidden = false;
+      }
+      catSheet.querySelectorAll("[data-fcat-close]").forEach((el2) =>
+        el2.addEventListener("click", () => {
+          catSheet.hidden = true;
+          renderCats();
+          render();
+        }));
+
+      function renderCatManager() {
+        const box = document.getElementById("fcat-mgr-list");
+        if (!categories.length) {
+          box.innerHTML = `<p class="catmgr__empty">아직 폴더가 없어요.<br/>위에서 첫 폴더를 만들어보세요.</p>`;
+          return;
+        }
+        box.innerHTML = categories.map((c) => `
+          <div class="catmgr__row" data-id="${c.id}">
+            <input type="text" class="catmgr__name" value="${esc(c.name)}" maxlength="20" />
+            <span class="catmgr__count">${files.filter((f) => f.category_id === c.id).length}</span>
+            <button type="button" class="catmgr__del">삭제</button>
+          </div>`).join("");
+
+        box.querySelectorAll(".catmgr__row").forEach((row) => {
+          const cid = row.dataset.id;
+          const nameEl = row.querySelector(".catmgr__name");
+          const commit = async () => {
+            const cat = categories.find((c) => c.id === cid);
+            const name = nameEl.value.trim();
+            if (!cat || !name || name === cat.name) { nameEl.value = cat ? cat.name : ""; return; }
+            const { error } = await supabaseClient.from("file_categories")
+              .update({ name }).eq("id", cid);
+            if (!error) cat.name = name; else nameEl.value = cat.name;
+          };
+          nameEl.addEventListener("blur", commit);
+          nameEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); nameEl.blur(); }
+          });
+          row.querySelector(".catmgr__del").addEventListener("click", async () => {
+            const cat = categories.find((c) => c.id === cid);
+            if (!cat) return;
+            const n = files.filter((f) => f.category_id === cid).length;
+            if (!confirm(n ? `'${cat.name}' 폴더를 삭제할까요?\n파일 ${n}개는 미분류로 이동합니다.` : `'${cat.name}' 폴더를 삭제할까요?`)) return;
+            const { error } = await supabaseClient.from("file_categories").delete().eq("id", cid);
+            if (!error) {
+              categories = categories.filter((c) => c.id !== cid);
+              files.forEach((f) => { if (f.category_id === cid) f.category_id = null; });
+              if (activeCat === cid) activeCat = "all";
+              renderCatManager();
+            }
+          });
+        });
+      }
+
+      async function createCategory(name) {
+        const text = name.trim();
+        if (!text) return null;
+        const { data, error } = await supabaseClient.from("file_categories")
+          .insert({ student_id: profile.id, name: text, sort: categories.length })
+          .select().single();
+        if (!error && data) { categories.push(data); return data; }
+        return null;
+      }
+      document.getElementById("fcat-new-btn").addEventListener("click", async () => {
+        if (await createCategory(catInput.value)) { catInput.value = ""; renderCatManager(); }
+      });
+      catInput.addEventListener("keydown", async (e) => {
+        if (e.key !== "Enter" || e.isComposing) return;
+        e.preventDefault();
+        if (await createCategory(catInput.value)) { catInput.value = ""; renderCatManager(); }
+      });
+
+      /* ---------- 폴더 이동 시트 ---------- */
+      const pickSheet = document.getElementById("fpick-sheet");
+      pickSheet.querySelectorAll("[data-fpick-close]").forEach((el2) =>
+        el2.addEventListener("click", () => { pickSheet.hidden = true; moveTargetId = null; }));
+
+      function openPickSheet(fileId) {
+        moveTargetId = fileId;
+        renderPicker();
+        pickSheet.hidden = false;
+      }
+      function renderPicker() {
+        const file = files.find((f) => f.id === moveTargetId);
+        const cur = file ? (file.category_id || null) : null;
+        const rows = [{ id: null, name: "미분류" }].concat(categories);
+        document.getElementById("fpick-list").innerHTML = rows.map((c) => {
+          const on = (c.id || null) === cur;
+          return `<button type="button" class="pickrow${on ? " is-on" : ""}" data-fpick="${c.id || ""}">
+            <span>${esc(c.name)}</span>${on ? '<span class="pickrow__check">✓</span>' : ""}
+          </button>`;
+        }).join("");
+        document.querySelectorAll("#fpick-list [data-fpick]").forEach((b) =>
+          b.addEventListener("click", () => applyMove(b.dataset.fpick || null)));
+      }
+      async function applyMove(cid) {
+        const file = files.find((f) => f.id === moveTargetId);
+        pickSheet.hidden = true;
+        if (!file) return;
+        const { error } = await supabaseClient.from("files")
+          .update({ category_id: cid }).eq("id", file.id);
+        if (!error) file.category_id = cid;
+        moveTargetId = null;
+        openRow = null;
+        renderCats();
+        render();
+      }
+      async function createAndMove() {
+        const inputEl = document.getElementById("fpick-new-input");
+        const made = await createCategory(inputEl.value);
+        if (made) { inputEl.value = ""; applyMove(made.id); }
+      }
+      document.getElementById("fpick-new-btn").addEventListener("click", createAndMove);
+      document.getElementById("fpick-new-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); createAndMove(); }
+      });
+
+      /* ---------- 업로드 (보고 있는 폴더로) ---------- */
       document.getElementById("file-add").addEventListener("click", () => input.click());
       input.addEventListener("change", async () => {
         const picked = [...input.files];
         input.value = "";
         if (!picked.length) return;
+        const targetCat = activeCat !== "all" && activeCat !== "none" ? activeCat : null;
 
         let done = 0;
         for (const f of picked) {
-          if (f.size > MAX_SIZE) {
-            status(`${f.name} — 25MB를 넘어 건너뜁니다`);
-            continue;
-          }
+          if (f.size > MAX_SIZE) { status(`${f.name} — 25MB를 넘어 건너뜁니다`); continue; }
           status(`올리는 중… ${++done}/${picked.length}`);
           const safe = f.name.replace(/[^\w.\-가-힣 ]/g, "_");
           const path = `${profile.id}/${Date.now()}-${safe}`;
@@ -128,9 +313,10 @@
           if (up.error) { status(`${f.name} 업로드 실패`); continue; }
           const ins = await supabaseClient.from("files").insert({
             student_id: profile.id, name: f.name, path, mime: f.type, size: f.size,
+            category_id: targetCat,
           });
           if (ins.error) {
-            await supabaseClient.storage.from(BUCKET).remove([path]);   // 메타 실패 시 파일도 정리
+            await supabaseClient.storage.from(BUCKET).remove([path]);
             status(`${f.name} 저장 실패`);
           }
         }
@@ -144,9 +330,10 @@
           ? `<img class="file-item__thumb" src="${thumbs.get(f.path)}" alt="" loading="lazy" />`
           : `<span class="file-item__icon">${icon(f.mime, f.name)}</span>`;
         return `
-          <div class="memo-row file-row" data-id="${f.id}" data-path="${esc(f.path)}">
+          <div class="memo-row file-row" data-id="${f.id}">
             <div class="memo-row__actions">
-              <button type="button" class="memo-act memo-act--del" data-act="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg><span>삭제</span></button>
+              <button type="button" class="memo-act memo-act--move" data-act="move">${MOVE_SVG}<span>이동</span></button>
+              <button type="button" class="memo-act memo-act--del" data-act="del">${DEL_SVG}<span>삭제</span></button>
             </div>
             <button type="button" class="card memo-item file-item" data-open="${esc(f.path)}">
               ${thumb}
@@ -166,7 +353,7 @@
         openRow = null;
       }
 
-      const OPEN_X = -92;
+      const OPEN_X = -150;
       function wireRow(row) {
         const card = row.querySelector(".memo-item");
         let sx = 0, sy = 0, dx = 0, dir = null, active = false, moved = false;
@@ -203,7 +390,6 @@
         card.addEventListener("pointerup", finish);
         card.addEventListener("pointercancel", finish);
 
-        /* 탭 → 파일 열기 (서명 URL) */
         card.addEventListener("click", async () => {
           if (moved) { moved = false; return; }
           if (row.classList.contains("is-open")) { closeOpen(); return; }
@@ -215,7 +401,10 @@
           if (!w) window.location.href = url;
         });
 
-        row.querySelector("[data-act]").addEventListener("click", async () => {
+        row.querySelector("[data-act=move]").addEventListener("click", () => {
+          openPickSheet(row.dataset.id);
+        });
+        row.querySelector("[data-act=del]").addEventListener("click", async () => {
           const f = files.find((x) => x.id === row.dataset.id);
           if (!f || !confirm(`'${f.name}' 을(를) 삭제할까요?`)) { closeOpen(); return; }
           const { error: se } = await supabaseClient.storage.from(BUCKET).remove([f.path]);
@@ -223,13 +412,16 @@
           if (se || de) { status("삭제 실패"); return; }
           files = files.filter((x) => x.id !== f.id);
           openRow = null;
+          renderCats();
           render();
         });
       }
 
       function render() {
         const q = searchEl.value.trim().toLowerCase();
-        const rows = q ? files.filter((f) => f.name.toLowerCase().includes(q)) : files;
+        let rows = q ? files.filter((f) => f.name.toLowerCase().includes(q)) : files;
+        if (activeCat === "none") rows = rows.filter((f) => !f.category_id);
+        else if (activeCat !== "all") rows = rows.filter((f) => f.category_id === activeCat);
 
         if (!files.length) {
           listEl.innerHTML = `
@@ -241,7 +433,7 @@
           document.getElementById("file-first").addEventListener("click", () => input.click());
           return;
         }
-        if (!rows.length) { listEl.innerHTML = `<p class="muted">검색 결과가 없습니다.</p>`; return; }
+        if (!rows.length) { listEl.innerHTML = `<p class="muted">해당하는 파일이 없습니다.</p>`; return; }
 
         listEl.innerHTML = rows.map(rowHtml).join("");
         listEl.querySelectorAll(".file-row").forEach(wireRow);
@@ -257,12 +449,16 @@
       }
 
       async function load() {
-        const { data, error } = await supabaseClient
-          .from("files").select("*")
-          .eq("student_id", profile.id)
-          .order("created_at", { ascending: false });
-        if (error) { listEl.innerHTML = `<p class="muted">파일을 불러오지 못했습니다.</p>`; return; }
-        files = data || [];
+        const [filesRes, catsRes] = await Promise.all([
+          supabaseClient.from("files").select("*")
+            .eq("student_id", profile.id).order("created_at", { ascending: false }),
+          supabaseClient.from("file_categories").select("*")
+            .eq("student_id", profile.id).order("sort").order("created_at"),
+        ]);
+        if (filesRes.error) { listEl.innerHTML = `<p class="muted">파일을 불러오지 못했습니다.</p>`; return; }
+        files = filesRes.data || [];
+        categories = catsRes.data || [];
+        renderCats();
         render();
         loadThumbs();
       }

@@ -174,32 +174,7 @@
       }
     } catch (e) {}
 
-    /* ---------- 오늘 일정 (Apple 캘린더) ---------- */
-    try {
-      const calPlugin = window.Capacitor && window.Capacitor.Plugins
-        ? window.Capacitor.Plugins.CapacitorCalendar : null;
-      if (calPlugin) {
-        const { result: perm } = await calPlugin.requestFullCalendarAccess();
-        if (perm === "granted") {
-          const [y, m, d] = today.split("-").map(Number);
-          const { result } = await calPlugin.listEventsInRange({
-            from: new Date(y, m - 1, d).getTime(),
-            to: new Date(y, m - 1, d, 23, 59, 59).getTime(),
-          });
-          if (result && result.length) {
-            result.sort((a, b) => a.startDate - b.startDate);
-            const MAXEV = 3;
-            document.getElementById("mevents-list").innerHTML =
-              result.slice(0, MAXEV).map((ev) => {
-                const t = new Date(ev.startDate);
-                const time = ev.isAllDay ? "종일" : fmtTime12(t);
-                return `<div class="fcal-ev"><span class="fcal-ev__time">${time}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`;
-              }).join("") +
-              (result.length > MAXEV ? `<a href="/calendar.html" class="mtoday__more">+ ${result.length - MAXEV}개 더 보기</a>` : "");
-            document.getElementById("mevents").hidden = false;
-          }
-        }
-      }
-    } catch (e) {}
+    /* ---------- 일정 블록: 오늘 + 다가오는 7일 ---------- */
+    renderHomeSchedule(document.getElementById("mevents"), document.getElementById("mevents-list"));
   });
 })();
