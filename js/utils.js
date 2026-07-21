@@ -475,3 +475,16 @@ async function renderHomeSchedule(sectionEl, listEl) {
 
 /* 폴더(카테고리) 색상 팔레트 — 탭할 때마다 순환 */
 const CAT_COLORS = ["#8e8e93", "#f04438", "#ff9f0a", "#f5c518", "#12b76a", "#2e90fa", "#7a5af8", "#ee46bc"];
+
+/* 데이터 로딩이 250ms 이상 걸리고 목록이 아직 비어있을 때만 스켈레톤 표시.
+ * 반환된 함수를 데이터 도착 시 호출해 취소한다. */
+function dtSkeleton(el, rows) {
+  if (!el) return function () {};
+  const t = setTimeout(function () {
+    if (el.querySelector(".memo-row, .gtodo__row, .fcal-ev")) return;  // 이미 내용 있으면 유지
+    let html = "";
+    for (let i = 0; i < (rows || 3); i++) html += '<div class="skel"></div>';
+    el.innerHTML = html;
+  }, 250);
+  return function () { clearTimeout(t); };
+}

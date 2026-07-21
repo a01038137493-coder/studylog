@@ -248,6 +248,7 @@
 
     /* ---------- 로드 + 어제 이월 ---------- */
     async function load() {
+      const stopSkel = dtSkeleton(listEl, 2);
       const [{ data: cur }, { data: up }, { data: prev }] = await Promise.all([
         supabaseClient.from("todos")
           .select("*").eq("student_id", profile.id).eq("date", today)
@@ -258,6 +259,7 @@
         supabaseClient.from("todos")
           .select("*").eq("student_id", profile.id).eq("date", yesterday).eq("done", false),
       ]);
+      stopSkel();
       todos = cur || [];
       upcoming = up || [];
       renderAll();

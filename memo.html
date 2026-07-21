@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=134" />
+  <link rel="stylesheet" href="/css/style.css?v=135" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -16,7 +16,7 @@
   <main class="container">
     <input type="search" id="memo-search" class="field__input memo-search" placeholder="메모 검색" autocomplete="off" />
     <div class="memo-cats" id="memo-cats"></div>
-    <div id="memo-list"><p class="muted">불러오는 중...</p></div>
+    <div id="memo-list"></div>
   </main>
 
   <!-- 폴더 관리 시트 -->
@@ -63,7 +63,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock12"></script>
-  <script src="/js/utils.js?v=23"></script>
+  <script src="/js/utils.js?v=24"></script>
   <script src="/js/memofmt.js?v=1"></script>
   <script>
     /* 메모 목록 — 아이폰 메모장식: 검색 + 좌측 스와이프로 고정/삭제 */
@@ -355,12 +355,14 @@
         window.location.href = "/memo-edit.html" + cat;
       });
 
+      const stopSkel = dtSkeleton(listEl, 4);
       const [memosRes, catsRes] = await Promise.all([
         supabaseClient.from("memos").select("*")
           .eq("student_id", profile.id).order("updated_at", { ascending: false }),
         supabaseClient.from("memo_categories").select("*")
           .eq("student_id", profile.id).order("sort").order("created_at"),
       ]);
+      stopSkel();
       if (memosRes.error) { listEl.innerHTML = `<p class="muted">메모를 불러오지 못했습니다.</p>`; return; }
       memos = memosRes.data || [];
       categories = catsRes.data || [];
