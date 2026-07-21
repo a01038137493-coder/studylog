@@ -2433,3 +2433,8 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tbs__colors { display: flex; gap: 8px; flex-wrap: wrap; }
 .tbs__c { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .tbs__c.is-on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--text); }
+
+/* 타임박스 상단바 뷰 전환 세그먼트 */
+.tb-seg { display: flex; background: rgba(255, 255, 255, 0.16); border-radius: 9px; padding: 2px; }
+.tb-seg button { border: none; background: none; color: #fff; opacity: 0.75; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 5px 10px; border-radius: 7px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tb-seg button.is-active { background: #fff; color: #17171a; opacity: 1; }

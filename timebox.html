@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=160" />
+  <link rel="stylesheet" href="/css/style.css?v=161" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
     <div class="topbar__brand">타임박스</div>
     <div class="topbar__right">
+      <div class="tb-seg" id="tb-seg">
+        <button type="button" data-vm="week" class="is-active">일주일</button>
+        <button type="button" data-vm="day">하루</button>
+      </div>
       <button type="button" class="btn btn--ghost btn--sm" id="tb-mode">편집</button>
     </div>
   </header>
@@ -123,18 +127,16 @@
         const [h, m] = t.split(":").map(Number);
         return `${h < 12 ? "오전" : "오후"} ${h12(h)}:${String(m).padStart(2, "0")}`;
       };
-      const segHtml = () => `
-        <div class="period tbv__seg">
-          <button type="button" class="period__btn${viewMode === "week" ? " is-active" : ""}" data-vm="week">일주일</button>
-          <button type="button" class="period__btn${viewMode === "day" ? " is-active" : ""}" data-vm="day">하루</button>
-        </div>`;
-
       function renderView() { viewMode === "week" ? renderWeek() : renderDay(); }
 
+      const segBtns = document.querySelectorAll("#tb-seg button");
+      segBtns.forEach((b) => b.addEventListener("click", () => {
+        viewMode = b.dataset.vm;
+        segBtns.forEach((x) => x.classList.toggle("is-active", x === b));
+        renderView();
+      }));
+
       function wireCommon() {
-        gridEl.querySelectorAll("[data-vm]").forEach((b) => {
-          b.addEventListener("click", () => { viewMode = b.dataset.vm; renderView(); });
-        });
         gridEl.querySelectorAll("[data-dow]").forEach((chip) => {
           chip.addEventListener("click", () => { selDow = Number(chip.dataset.dow); renderView(); });
         });
@@ -172,7 +174,7 @@
           return `<div class="wk__col${isT ? " is-today" : ""}" style="height:${H}px">${cells}${blks}</div>`;
         }).join("");
 
-        gridEl.innerHTML = segHtml() + `
+        gridEl.innerHTML = `
           <div class="wk">
             <div class="wk__head">${head}</div>
             <div class="wk__body"><div class="wk__gutcol" style="height:${H}px">${gut}</div>${cols}</div>
@@ -220,7 +222,7 @@
         if (isToday && nowMin >= gs && nowMin <= ge) {
           html += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
         }
-        gridEl.innerHTML = segHtml() + chips +
+        gridEl.innerHTML = chips +
           `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>` +
           (dayBoxes.length === 0
             ? `<p class="wtb__hint">${DOWS[selDow]}요일엔 블록이 없어요 — 오른쪽 위 편집에서 추가해보세요</p>` : "");
@@ -351,6 +353,7 @@
         viewEl.hidden = edit;
         editorEl.hidden = !edit;
         modeBtn.textContent = edit ? "완료" : "편집";
+        document.getElementById("tb-seg").style.visibility = edit ? "hidden" : "";
         if (edit) renderEditor(); else renderView();
       }
       modeBtn.addEventListener("click", () => setMode(!editing));
