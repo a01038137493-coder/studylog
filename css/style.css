@@ -2440,3 +2440,6 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tb-seg button.is-active { background: #fff; color: #17171a; opacity: 1; }
 
 .fab svg { width: 24px; height: 24px; }
+
+.tb-vm { display: flex; align-items: center; justify-content: center; padding: 7px 9px; }
+.tb-vm svg { width: 19px; height: 19px; display: block; }

@@ -4,13 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=162" />
+  <link rel="stylesheet" href="/css/style.css?v=163" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
     <div class="topbar__brand">타임박스</div>
     <div class="topbar__right">
-      <button type="button" class="btn btn--ghost btn--sm" id="tb-vm">하루</button>
+      <button type="button" class="btn btn--ghost btn--sm tb-vm" id="tb-vm" aria-label="하루 보기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/></svg>
+      </button>
     </div>
   </header>
 
@@ -128,9 +130,14 @@
       function renderView() { viewMode === "week" ? renderWeek() : renderDay(); }
 
       const vmBtn = document.getElementById("tb-vm");
+      const VM_ICONS = {
+        day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/></svg>',
+        week: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="9.5" y="4" width="5" height="16" rx="1.5"/><rect x="16" y="4" width="5" height="16" rx="1.5"/></svg>',
+      };
       vmBtn.addEventListener("click", () => {
         viewMode = viewMode === "week" ? "day" : "week";
-        vmBtn.textContent = viewMode === "week" ? "하루" : "일주일";   // 누르면 바뀔 모드 표시
+        vmBtn.innerHTML = viewMode === "week" ? VM_ICONS.day : VM_ICONS.week;   // 누르면 바뀔 모드 아이콘
+        vmBtn.setAttribute("aria-label", viewMode === "week" ? "하루 보기" : "일주일 보기");
         renderView();
       });
 
