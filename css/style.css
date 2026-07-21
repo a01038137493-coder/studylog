@@ -2234,9 +2234,9 @@ body[data-kbresize="none"] .evsheet__panel { transform: translateY(calc(-1 * var
 html { background: #f4f4f5; }
 
 /* 캘린더: 여백·3패널 캐러셀 */
-.fcal__head { margin-top: 24px; padding-bottom: 28px; }
+.fcal__head { padding-bottom: 26px; }
 .fcal__dows { padding-bottom: 10px; }
-.fcal__carousel { flex: 1; min-height: 0; overflow: hidden; }
+.fcal__carousel { flex: 0 0 auto; height: 46vh; overflow: hidden; }
 .fcal__track { display: flex; width: 300%; height: 100%; transform: translateX(-33.3333%); will-change: transform; }
 .fcal__track > .fcal__grid { width: 33.3333%; flex: none; }
 .fcal__grid--side { pointer-events: none; opacity: 0.55; }
@@ -2255,3 +2255,9 @@ html { background: #f4f4f5; }
 @keyframes vt-fade-out { to { opacity: 0; } }
 @keyframes vt-fade-in { from { opacity: 0; } }
 .tabbar { view-transition-name: dt-tabbar; }
+
+/* 캘린더 세로 중앙 배치 + 플로팅 일정 추가 버튼 */
+.fcal { justify-content: center; padding-bottom: 88px; }
+.fcal__events { flex: 0 0 auto; }
+.fab { position: fixed; right: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 88px); z-index: 90; width: 56px; height: 56px; border-radius: 50%; border: none; background: var(--orange); color: #fff; font-size: 1.9rem; font-weight: 500; line-height: 1; box-shadow: 0 8px 20px rgba(240, 68, 56, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+.fab:active { transform: scale(0.93); }
