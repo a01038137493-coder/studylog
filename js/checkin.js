@@ -408,7 +408,7 @@ function computePlanQuality(tasks, cond, risk) {
 
 function buildAdvice(cond) {
   if (cond <= LOW_CONDITION_MAX) return "오늘은 컨디션이 낮습니다. 핵심 과제 완료를 우선하세요.";
-  return "오늘 플랜이 정리됐어요. 퇴실 전 성과 기록을 잊지 마세요.";
+  return "오늘 플랜이 정리됐어요. 하루를 마칠 때 성과 기록을 잊지 마세요.";
 }
 
 /* ============================================================
