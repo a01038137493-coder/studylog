@@ -1,4 +1,0 @@
-module CapacitorCalendarPlugin {
-header "CapacitorCalendarPlugin-Swift.h"
-export *
-}
