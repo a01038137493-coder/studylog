@@ -2,8 +2,9 @@
 //  ShareViewController.swift
 //  핀로그 ShareExtension
 //
-//  공유 시트에서 스크린샷을 받아 App Group 에 저장하고 본앱을 연다.
-//  OCR·일정 분석은 본앱(JS 파서)이 이어서 수행한다 — 파서 로직을 한 곳에 유지.
+//  공유 시트에서 받은 항목을 App Group 에 저장하고 본앱을 연다.
+//  - 이미지(스크린샷): OCR → 일정 자동 등록 흐름 (본앱 캘린더)
+//  - 일반 파일(PDF·문서 등): 파일 보관함 자동 저장 흐름 (본앱 파일 페이지)
 //
 
 import UIKit
@@ -12,10 +13,11 @@ import UniformTypeIdentifiers
 final class ShareViewController: UIViewController {
 
     private let appGroupID = "group.com.pinlog.app"
-    private let openURL = URL(string: "dittonlog://shared-screenshot")!
+    private let maxFileSize = 25 * 1024 * 1024
 
     private let statusLabel = UILabel()
     private let openButton = UIButton(type: .system)
+    private var openURLTarget = URL(string: "dittonlog://shared-screenshot")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,12 +27,12 @@ final class ShareViewController: UIViewController {
     }
 
     private func buildUI() {
-        statusLabel.text = "스크린샷을 준비하는 중…"
+        statusLabel.text = "준비하는 중…"
         statusLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         statusLabel.textAlignment = .center
         statusLabel.numberOfLines = 0
 
-        openButton.setTitle("핀로그에서 일정 등록", for: .normal)
+        openButton.setTitle("핀로그에서 계속하기", for: .normal)
         openButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         openButton.backgroundColor = .black
         openButton.setTitleColor(.white, for: .normal)
@@ -55,18 +57,28 @@ final class ShareViewController: UIViewController {
         ])
     }
 
-    // MARK: - 이미지 수신 → App Group 저장
+    // MARK: - 수신 항목 분기
 
     private func loadAndStash() {
         let providers = (extensionContext?.inputItems as? [NSExtensionItem])?
-            .flatMap { $0.attachments ?? [] }
-            .filter { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) } ?? []
+            .flatMap { $0.attachments ?? [] } ?? []
 
-        guard let provider = providers.first else {
-            showError("이미지를 찾지 못했습니다.\n스크린샷을 공유해주세요.")
-            return
+        if let imageProv = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }) {
+            stashImage(imageProv)
+        } else if let fileProv = providers.first(where: {
+            $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) ||
+            $0.hasItemConformingToTypeIdentifier(UTType.data.identifier)
+        }) {
+            stashFile(fileProv)
+        } else {
+            showError("공유할 수 있는 항목을 찾지 못했습니다.")
         }
+    }
 
+    // MARK: - 이미지(스크린샷) → 일정 인식 흐름
+
+    private func stashImage(_ provider: NSItemProvider) {
+        statusLabel.text = "스크린샷을 준비하는 중…"
         provider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] item, _ in
             var image: UIImage?
             switch item {
@@ -80,14 +92,58 @@ final class ShareViewController: UIViewController {
                     self?.showError("이미지를 처리하지 못했습니다.")
                     return
                 }
-                guard self?.writeToAppGroup(jpeg) == true else {
+                guard self?.writeToAppGroup(jpeg, path: "pending-screenshot.jpg") == true else {
                     self?.showError("저장하지 못했습니다.\n앱을 업데이트한 뒤 다시 시도해주세요.")
                     return
                 }
+                self?.openURLTarget = URL(string: "dittonlog://shared-screenshot")!
                 self?.statusLabel.text = "스크린샷 준비 완료!\n핀로그에서 일정 등록을 이어가세요."
+                self?.openButton.setTitle("핀로그에서 일정 등록", for: .normal)
                 self?.openButton.isHidden = false
-                // 자동으로 본앱 열기 시도 (실패해도 버튼으로 열 수 있음)
                 self?.openApp()
+            }
+        }
+    }
+
+    // MARK: - 일반 파일 → 파일 보관함 자동 저장 흐름
+
+    private func stashFile(_ provider: NSItemProvider) {
+        statusLabel.text = "파일을 준비하는 중…"
+        let handle: (Data?, String?) -> Void = { [weak self] data, name in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                guard let data else { self.showError("파일을 읽지 못했습니다."); return }
+                guard data.count <= self.maxFileSize else {
+                    self.showError("25MB 이하 파일만 저장할 수 있어요.")
+                    return
+                }
+                let safeName = (name?.isEmpty == false ? name! : "공유 파일")
+                guard self.writeToAppGroup(data, path: "pending-file/\(safeName)", resetDir: "pending-file") else {
+                    self.showError("저장하지 못했습니다.\n앱을 업데이트한 뒤 다시 시도해주세요.")
+                    return
+                }
+                self.openURLTarget = URL(string: "dittonlog://shared-file")!
+                self.statusLabel.text = "파일 준비 완료!\n핀로그 파일함에 자동으로 저장됩니다."
+                self.openButton.setTitle("핀로그에 파일 저장", for: .normal)
+                self.openButton.isHidden = false
+                self.openApp()
+            }
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                if let url = item as? URL {
+                    handle(try? Data(contentsOf: url), url.lastPathComponent)
+                } else { handle(nil, nil) }
+            }
+        } else {
+            let suggested = provider.suggestedName
+            provider.loadItem(forTypeIdentifier: UTType.data.identifier, options: nil) { item, _ in
+                switch item {
+                case let url as URL: handle(try? Data(contentsOf: url), url.lastPathComponent)
+                case let data as Data: handle(data, suggested)
+                default: handle(nil, nil)
+                }
             }
         }
     }
@@ -106,10 +162,16 @@ final class ShareViewController: UIViewController {
         return drawn.jpegData(compressionQuality: 0.9)
     }
 
-    private func writeToAppGroup(_ data: Data) -> Bool {
+    @discardableResult
+    private func writeToAppGroup(_ data: Data, path: String, resetDir: String? = nil) -> Bool {
         guard let container = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else { return false }
-        let url = container.appendingPathComponent("pending-screenshot.jpg")
+        if let resetDir {
+            let dir = container.appendingPathComponent(resetDir, isDirectory: true)
+            try? FileManager.default.removeItem(at: dir)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        let url = container.appendingPathComponent(path)
         return (try? data.write(to: url, options: .atomic)) != nil
     }
 
@@ -119,17 +181,15 @@ final class ShareViewController: UIViewController {
         var responder: UIResponder? = self
         while let r = responder {
             if let app = r as? UIApplication {
-                app.open(openURL, options: [:], completionHandler: nil)
+                app.open(openURLTarget, options: [:], completionHandler: nil)
                 break
             }
-            // selector 기반 폴백 (일부 iOS 버전)
             if r.responds(to: NSSelectorFromString("openURL:")) {
-                r.perform(NSSelectorFromString("openURL:"), with: openURL)
+                r.perform(NSSelectorFromString("openURL:"), with: openURLTarget)
                 break
             }
             responder = r.next
         }
-        // 앱 열기 시도 후 시트 종료
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
             self?.extensionContext?.completeRequest(returningItems: nil)
         }

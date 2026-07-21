@@ -349,11 +349,28 @@ async function checkSharedScreenshot() {
     }
   } catch (e) {}
 }
+/* 공유 시트로 받은 일반 파일 → 파일 페이지에서 자동 저장 */
+async function checkSharedFile() {
+  try {
+    const viz = window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.VisionOCR : null;
+    if (!viz || !viz.hasSharedFile) return;
+    const { pending } = await viz.hasSharedFile();
+    if (!pending) return;
+    if (location.pathname !== "/files.html") {
+      window.location.href = "/files.html";
+    } else if (window.__dtHandleSharedFile) {
+      window.__dtHandleSharedFile();
+    }
+  } catch (e) {}
+}
+
+function dtCheckShared() { checkSharedScreenshot(); checkSharedFile(); }
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) checkSharedScreenshot();
+  if (!document.hidden) dtCheckShared();
 });
-if (document.readyState !== "loading") checkSharedScreenshot();
-else document.addEventListener("DOMContentLoaded", checkSharedScreenshot);
+if (document.readyState !== "loading") dtCheckShared();
+else document.addEventListener("DOMContentLoaded", dtCheckShared);
 
 /* ============================================================
  * 홈 일정 블록: 오늘 일정 + 다가오는 일정(7일) — Apple 캘린더(앱 전용)

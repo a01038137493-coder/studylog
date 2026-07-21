@@ -84,7 +84,7 @@
   </nav>
 
   <script src="/js/supabaseClient.js?v=mock12"></script>
-  <script src="/js/utils.js?v=22"></script>
+  <script src="/js/utils.js?v=23"></script>
   <script>
     /* 파일 보관함 — Supabase Storage + files 테이블 + 폴더(file_categories)
      * 업로드: 보고 있는 폴더로 / 탭: 열기 / 스와이프: 이동·삭제 */
@@ -308,6 +308,10 @@
       input.addEventListener("change", async () => {
         const picked = [...input.files];
         input.value = "";
+        await uploadPicked(picked);
+      });
+
+      async function uploadPicked(picked) {
         if (!picked.length) return;
         const targetCat = activeCat !== "all" && activeCat !== "none" ? activeCat : null;
 
@@ -333,7 +337,28 @@
         }
         status("");
         await load();
-      });
+      }
+
+      /* ---------- 공유 시트로 받은 파일 자동 저장 ---------- */
+      const EXT_MIME = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif", heic: "image/heic", txt: "text/plain", csv: "text/csv", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", xls: "application/vnd.ms-excel", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ppt: "application/vnd.ms-powerpoint", pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", hwp: "application/x-hwp", hwpx: "application/x-hwpx", zip: "application/zip", mp4: "video/mp4", mp3: "audio/mpeg", m4a: "audio/mp4" };
+      window.__dtHandleSharedFile = async () => {
+        try {
+          const viz = window.Capacitor && window.Capacitor.Plugins
+            ? window.Capacitor.Plugins.VisionOCR : null;
+          if (!viz || !viz.takeSharedFile) return;
+          const res = await viz.takeSharedFile();
+          if (!res || !res.base64) return;
+          status("공유받은 파일 저장 중…");
+          const bin = atob(res.base64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          const name = res.name || "공유 파일";
+          const ext = (name.split(".").pop() || "").toLowerCase();
+          const file = new File([bytes], name, { type: EXT_MIME[ext] || "application/octet-stream" });
+          await uploadPicked([file]);
+        } catch (e) { status(""); }
+      };
+      window.__dtHandleSharedFile();   // 페이지 진입 시 대기 파일 처리
 
       /* ---------- 목록 ---------- */
       function rowHtml(f) {

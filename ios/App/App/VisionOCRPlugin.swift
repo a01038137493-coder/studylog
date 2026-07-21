@@ -21,7 +21,9 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "VisionOCR"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "recognize", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hasSharedFile", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takeSharedFile", returnType: CAPPluginReturnPromise)
     ]
 
     private static let appGroupID = "group.com.pinlog.app"
@@ -41,6 +43,28 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         try? FileManager.default.removeItem(at: url)
         call.resolve(["base64": data.base64EncodedString()])
+    }
+
+    /* 공유 시트로 받은 일반 파일 (App Group pending-file/) */
+    private func pendingSharedFileURL() -> URL? {
+        guard let container = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupID) else { return nil }
+        let dir = container.appendingPathComponent("pending-file", isDirectory: true)
+        let items = (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? []
+        return items.first
+    }
+
+    @objc func hasSharedFile(_ call: CAPPluginCall) {
+        call.resolve(["pending": pendingSharedFileURL() != nil])
+    }
+
+    @objc func takeSharedFile(_ call: CAPPluginCall) {
+        guard let url = pendingSharedFileURL(), let data = try? Data(contentsOf: url) else {
+            call.resolve(["base64": NSNull()])
+            return
+        }
+        try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
+        call.resolve(["base64": data.base64EncodedString(), "name": url.lastPathComponent])
     }
 
     @objc func recognize(_ call: CAPPluginCall) {
