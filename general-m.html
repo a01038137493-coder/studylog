@@ -36,10 +36,7 @@
         <span class="gtodo__count" id="g-count" hidden>0/0 완료</span>
       </div>
       <div id="g-list"></div>
-      <div class="gtodo__addrow">
-        <input type="text" id="g-input" class="gtodo__input" placeholder="＋ 할 일 추가"
-               maxlength="200" autocomplete="off" enterkeyhint="done" />
-      </div>
+      <button type="button" class="gtodo__addbtn" id="g-add-row">＋ 할 일 추가</button>
     </section>
 
     <!-- 어제 미완료 이월 안내 -->
@@ -48,11 +45,40 @@
       <button type="button" class="gcarry__btn" id="g-carry-btn">가져오기</button>
     </div>
 
+    <!-- 예정: 오늘 이후 날짜의 할 일 -->
+    <section class="card gtodo" id="g-upcoming" hidden>
+      <div class="gtodo__head">
+        <span class="gtodo__title">예정</span>
+      </div>
+      <div id="g-upcoming-list"></div>
+    </section>
+
     <!-- 오늘 일정 (Apple 캘린더) -->
     <section class="mevents" id="g-events" hidden>
       <div id="g-events-list"></div>
     </section>
   </main>
+
+  <!-- 할 일 작성 시트 -->
+  <div class="evsheet" id="gt-sheet" hidden>
+    <div class="evsheet__backdrop" data-gt-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <button type="button" class="evsheet__cancel" data-gt-close>취소</button>
+        <span class="evsheet__title">새 할 일</span>
+        <button type="button" class="evsheet__save" id="gt-save">추가</button>
+      </div>
+      <input type="text" id="gt-input" class="field__input gt-input" placeholder="무엇을 해야 하나요?"
+             maxlength="200" autocomplete="off" enterkeyhint="done" />
+      <div class="gt-chips" id="gt-when">
+        <button type="button" class="gt-chip is-active" data-when="today">오늘</button>
+        <button type="button" class="gt-chip" data-when="tomorrow">내일</button>
+        <button type="button" class="gt-chip" data-when="pick">날짜 선택</button>
+      </div>
+      <input type="date" id="gt-date" class="field__input" hidden />
+      <button type="button" class="gt-imp" id="gt-imp"><span class="gt-imp__star">★</span> 중요한 할 일</button>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/general-m.html" class="tabbar__item is-active">
@@ -79,6 +105,6 @@
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
   <script src="/js/utils.js?v=18"></script>
-  <script src="/js/ghome.js?v=4"></script>
+  <script src="/js/ghome.js?v=5"></script>
 </body>
 </html>
