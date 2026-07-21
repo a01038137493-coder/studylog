@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/style.css?v=127" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
-<body class="app-bg has-tabbar fcal-page">
+<body class="app-bg has-tabbar fcal-page" data-kbresize="none">
   <main class="fcal">
     <!-- 월 헤더: 제목만 (달 이동은 좌우 스와이프) -->
     <div class="fcal__head">
@@ -54,14 +54,6 @@
         <div class="evsheet__dt">
           <input type="date" id="ev-start-date" class="field__input" />
           <input type="time" id="ev-start-time" class="field__input" />
-        </div>
-      </div>
-
-      <div class="evsheet__row evsheet__row--col">
-        <span>종료</span>
-        <div class="evsheet__dt">
-          <input type="date" id="ev-end-date" class="field__input" />
-          <input type="time" id="ev-end-time" class="field__input" />
         </div>
       </div>
 
@@ -307,15 +299,14 @@
       const sheet = document.getElementById("evsheet");
       const evErr = document.getElementById("ev-error");
       let editingId = null;   // null = 새 일정, 값 있으면 해당 일정 수정
+      let durationMs = 3600000;  // 종료는 입력받지 않고 시작 + 지속시간으로 자동 계산 (기본 1시간)
 
-      function fillSheet({ title, allday, sd, st, ed, et, repeat, alert5 }) {
+      function fillSheet({ title, allday, sd, st, repeat, alert5 }) {
         evErr.textContent = "";
         document.getElementById("ev-title").value = title;
         document.getElementById("ev-allday").checked = allday;
         document.getElementById("ev-start-date").value = sd;
         document.getElementById("ev-start-time").value = st;
-        document.getElementById("ev-end-date").value = ed;
-        document.getElementById("ev-end-time").value = et;
         document.getElementById("ev-repeat").value = repeat;
         document.getElementById("ev-alert").value = alert5;
         syncAllday();
@@ -325,9 +316,10 @@
       function openSheet(dateKey) {
         if (!calPlugin) { alert("일정 등록은 앱에서 사용할 수 있어요."); return; }
         editingId = null;
+        durationMs = 3600000;
         document.querySelector(".evsheet__title").textContent = "새 일정";
         document.getElementById("ev-delete").hidden = true;
-        fillSheet({ title: "", allday: false, sd: dateKey, st: "09:00", ed: dateKey, et: "10:00", repeat: "", alert5: "-5" });
+        fillSheet({ title: "", allday: false, sd: dateKey, st: "09:00", repeat: "", alert5: "-5" });
         setTimeout(() => document.getElementById("ev-title").focus(), 50);
       }
 
@@ -337,6 +329,7 @@
         document.getElementById("ev-delete").hidden = false;
         const s = new Date(ev.startDate);
         const e = new Date(ev.endDate || ev.startDate);
+        durationMs = Math.max(0, e.getTime() - s.getTime()) || 3600000;  // 수정 시 원래 길이 유지
         // 알림: 기존 값이 선택지에 있으면 채우고, 없으면 '없음'
         const known = ["0", "-5", "-10", "-15", "-30", "-60", "-120", "-1440", "-2880", "-10080"];
         const a = Array.isArray(ev.alerts) && ev.alerts.length ? String(ev.alerts[0]) : "";
@@ -345,8 +338,6 @@
           allday: !!ev.isAllDay,
           sd: dstr(s.getFullYear(), s.getMonth(), s.getDate()),
           st: `${pad(s.getHours())}:${pad(s.getMinutes())}`,
-          ed: dstr(e.getFullYear(), e.getMonth(), e.getDate()),
-          et: `${pad(e.getHours())}:${pad(e.getMinutes())}`,
           repeat: "",                       // 반복은 조회가 안 돼 기본값 — 바꾸면 새 반복으로 덮어씀
           alert5: known.includes(a) ? a : "",
         });
@@ -357,7 +348,6 @@
       function syncAllday() {
         const allday = document.getElementById("ev-allday").checked;
         document.getElementById("ev-start-time").style.display = allday ? "none" : "";
-        document.getElementById("ev-end-time").style.display = allday ? "none" : "";
       }
       document.getElementById("ev-allday").addEventListener("change", syncAllday);
       sheet.querySelectorAll("[data-ev-close]").forEach((el) => el.addEventListener("click", closeSheet));
@@ -368,12 +358,11 @@
 
         const allday = document.getElementById("ev-allday").checked;
         const sd = document.getElementById("ev-start-date").value;
-        const ed = document.getElementById("ev-end-date").value || sd;
         const st = allday ? "00:00" : (document.getElementById("ev-start-time").value || "09:00");
-        const et = allday ? "23:59" : (document.getElementById("ev-end-time").value || "10:00");
         const startDate = new Date(`${sd}T${st}:00`).getTime();
-        const endDate = new Date(`${ed}T${et}:00`).getTime();
-        if (!(endDate >= startDate)) { evErr.textContent = "종료가 시작보다 빠릅니다."; return; }
+        const endDate = allday
+          ? new Date(`${sd}T23:59:00`).getTime()
+          : startDate + durationMs;   // 종료는 시작 + 지속시간(새 일정 1시간, 수정은 원래 길이)
 
         const opts = { title, startDate, endDate, isAllDay: allday };
         const rep = document.getElementById("ev-repeat").value;
@@ -500,9 +489,6 @@
         document.getElementById("ev-title").value = c.title || "";
         if (c.hasTime) {
           document.getElementById("ev-start-time").value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-          const end = new Date(d.getTime() + 3600000);
-          document.getElementById("ev-end-date").value = dstr(end.getFullYear(), end.getMonth(), end.getDate());
-          document.getElementById("ev-end-time").value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
         }
         const info = [];
         if (c.source) info.push(`“${c.source}”`);
