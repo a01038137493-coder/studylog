@@ -2194,3 +2194,24 @@ body.is-general .task-subject { display: none; }
 @keyframes sheet-up { from { transform: translateY(46px); opacity: 0.5; } }
 .evsheet__backdrop { animation: sheet-fade 0.22s ease; }
 .evsheet__panel { animation: sheet-up 0.32s cubic-bezier(.22,.61,.36,1); }
+
+/* ---------------- 태블릿/PC 로그인·가입: 2단 파티션 ---------------- */
+.auth-split { display: contents; }         /* 모바일: 래퍼 없이 기존 레이아웃 */
+.auth-brand { display: none; }
+@media (min-width: 601px) {
+  .center-screen:has(.auth-split) { padding: 0; }
+  .auth-split { display: flex; width: 100%; min-height: 100dvh; }
+  .auth-brand { position: relative; overflow: hidden; display: flex; flex: 1.08; align-items: center; justify-content: center; background: var(--navy); color: #fff; }
+  .auth-brand::before, .auth-brand::after { content: ""; position: absolute; border-radius: 50%; border: 54px solid rgba(255, 255, 255, 0.05); }
+  .auth-brand::before { width: 560px; height: 560px; right: -160px; bottom: -160px; }
+  .auth-brand::after { width: 250px; height: 250px; border-width: 34px; left: -70px; top: -70px; }
+  .auth-brand__inner { position: relative; max-width: 400px; padding: 48px; }
+  .auth-brand__logo { width: 92px; height: 92px; border-radius: 24px; margin-bottom: 26px; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35)); }
+  .auth-brand__title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 14px; }
+  .auth-brand__subtitle { font-size: 1.05rem; line-height: 1.7; color: rgba(255, 255, 255, 0.72); margin: 0; }
+  .auth-split .auth-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: none; border: none; border-radius: 0; box-shadow: none; padding: 48px 40px; min-height: 100dvh; box-sizing: border-box; animation: none; }
+  .auth-split .auth-card > * { width: 100%; max-width: 400px; }
+  .auth-split .auth-card__logo { display: none; }
+  .auth-split .auth-card--brandled .auth-card__title,
+  .auth-split .auth-card--brandled .auth-card__subtitle { display: none; }
+}
