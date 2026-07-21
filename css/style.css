@@ -2306,3 +2306,5 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .dayx__meta { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-top: 7px; }
 .dayx__risk { color: var(--orange-strong); }
 .dayx__note { font-size: 0.85rem; color: var(--muted); margin: 7px 0 0; line-height: 1.5; }
+
+.dayx__sub { font-size: 0.82rem; font-weight: 600; color: var(--muted); padding: 1px 0 1px 24px; }

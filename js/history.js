@@ -195,9 +195,21 @@ function dayDetailHtml(c, cin) {
   const badge = (s, done) =>
     (s === "completed" || s === "done" || done) ? "✅" : (s === "partial" ? "🔶" : "⬜️");
   let tasks = "";
+  const plans = cin && Array.isArray(cin.tasks) ? cin.tasks : [];
+  const subsOf = (i) => {
+    const subs = plans[i] && Array.isArray(plans[i].subtasks) ? plans[i].subtasks : [];
+    return subs.map((s) => {
+      const t = typeof s === "string" ? s : (s && s.text) || "";
+      const done = s && typeof s === "object" && s.done;
+      return `<div class="dayx__sub">↳ ${done ? "✅ " : ""}${escapeHtml(t)}</div>`;
+    }).join("");
+  };
   if (Array.isArray(c.task_results) && c.task_results.length) {
-    tasks = c.task_results.map((r) =>
-      `<div class="dayx__task">${badge(r.status)} ${escapeHtml(r.text || "")}</div>`).join("");
+    tasks = c.task_results.map((r, i) =>
+      `<div class="dayx__task">${badge(r.status)} ${escapeHtml(r.text || "")}</div>${subsOf(i)}`).join("");
+  } else if (plans.length) {
+    tasks = plans.map((p, i) =>
+      `<div class="dayx__task">${badge(null)} ${escapeHtml(p.text || "")}</div>${subsOf(i)}`).join("");
   } else {
     tasks = [1, 2, 3]
       .filter((n) => cin && cin["task_" + n] || c["task_" + n + "_status"] != null || c["task_" + n + "_done"] != null)
