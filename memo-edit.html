@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=100" />
+  <link rel="stylesheet" href="/css/style.css?v=101" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg memoedit-page">
@@ -17,9 +17,24 @@
   </header>
 
   <div class="memoedit__catbar">
-    <select id="me-cat" class="memoedit__cat" aria-label="폴더 선택">
-      <option value="">미분류</option>
-    </select>
+    <button type="button" id="me-cat-btn" class="memoedit__cat">📁 미분류</button>
+  </div>
+
+  <!-- 폴더 선택 시트 -->
+  <div class="evsheet" id="pick-sheet" hidden>
+    <div class="evsheet__backdrop" data-pick-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">폴더 선택</span>
+        <button type="button" class="evsheet__cancel" data-pick-close>닫기</button>
+      </div>
+      <div id="pick-list"></div>
+      <div class="catmgr__addrow">
+        <input type="text" id="pick-new-input" class="field__input" placeholder="새 폴더 만들기" maxlength="20" autocomplete="off" />
+        <button type="button" class="catmgr__addbtn" id="pick-new-btn">추가</button>
+      </div>
+    </div>
   </div>
 
   <main class="memoedit">

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 디턴로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=100" />
+  <link rel="stylesheet" href="/css/style.css?v=101" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
@@ -20,6 +20,23 @@
     <div class="memo-cats" id="memo-cats"></div>
     <div id="memo-list"><p class="muted">불러오는 중...</p></div>
   </main>
+
+  <!-- 폴더 관리 시트 -->
+  <div class="evsheet" id="cat-sheet" hidden>
+    <div class="evsheet__backdrop" data-cat-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">폴더 관리</span>
+        <button type="button" class="evsheet__save" data-cat-close>완료</button>
+      </div>
+      <div class="catmgr__addrow">
+        <input type="text" id="cat-new-input" class="field__input" placeholder="새 폴더 이름" maxlength="20" autocomplete="off" />
+        <button type="button" class="catmgr__addbtn" id="cat-new-btn">추가</button>
+      </div>
+      <div id="cat-mgr-list"></div>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/student.html" class="tabbar__item">
@@ -198,62 +215,102 @@
         if (uncategorized && categories.length) {
           html += `<button type="button" class="memo-cat${activeCat === "none" ? " is-active" : ""}" data-cat="none">미분류 ${uncategorized}</button>`;
         }
-        html += `<button type="button" class="memo-cat memo-cat--add" data-cat="__add">＋ 폴더</button>`;
+        html += `<button type="button" class="memo-cat memo-cat--add" data-cat="__manage">폴더 관리</button>`;
         el.innerHTML = html;
 
         el.querySelectorAll("[data-cat]").forEach((btn) => {
-          const id = btn.dataset.cat;
-
-          btn.addEventListener("click", async () => {
-            if (id === "__add") {
-              const name = (window.prompt("새 폴더 이름") || "").trim();
-              if (!name) return;
-              const { data, error } = await supabaseClient.from("memo_categories")
-                .insert({ student_id: profile.id, name, sort: categories.length })
-                .select().single();
-              if (!error && data) { categories.push(data); activeCat = data.id; renderCats(); renderList(); }
-              return;
-            }
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.cat;
+            if (id === "__manage") { openCatSheet(); return; }
             activeCat = id;
             renderCats();
             renderList();
           });
-
-          // 폴더 칩 길게 누르면 이름 변경 / 삭제
-          if (id !== "all" && id !== "none" && id !== "__add") {
-            let timer = null;
-            btn.addEventListener("pointerdown", () => {
-              timer = setTimeout(async () => {
-                timer = null;
-                const cat = categories.find((c) => c.id === id);
-                if (!cat) return;
-                const input = window.prompt("폴더 이름 변경 (비우고 확인하면 삭제)", cat.name);
-                if (input === null) return;
-                const name = input.trim();
-                if (!name) {
-                  if (!window.confirm(`'${cat.name}' 폴더를 삭제할까요?\n메모는 미분류로 이동합니다.`)) return;
-                  const { error } = await supabaseClient.from("memo_categories").delete().eq("id", id);
-                  if (!error) {
-                    categories = categories.filter((c) => c.id !== id);
-                    memos.forEach((m) => { if (m.category_id === id) m.category_id = null; });
-                    if (activeCat === id) activeCat = "all";
-                  }
-                } else if (name !== cat.name) {
-                  const { error } = await supabaseClient.from("memo_categories")
-                    .update({ name }).eq("id", id);
-                  if (!error) cat.name = name;
-                }
-                renderCats();
-                renderList();
-              }, 550);
-            });
-            const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
-            btn.addEventListener("pointerup", cancel);
-            btn.addEventListener("pointerleave", cancel);
-            btn.addEventListener("contextmenu", (e) => e.preventDefault());
-          }
         });
       }
+
+      /* 폴더 관리 시트: 추가 · 이름 인라인 수정 · 삭제 */
+      const catSheet = document.getElementById("cat-sheet");
+      const catInput = document.getElementById("cat-new-input");
+
+      function openCatSheet() {
+        renderCatManager();
+        catInput.value = "";
+        catSheet.hidden = false;
+      }
+      catSheet.querySelectorAll("[data-cat-close]").forEach((el2) =>
+        el2.addEventListener("click", () => {
+          catSheet.hidden = true;
+          renderCats();
+          renderList();
+        }));
+
+      function renderCatManager() {
+        const listBox = document.getElementById("cat-mgr-list");
+        if (!categories.length) {
+          listBox.innerHTML = `<p class="catmgr__empty">아직 폴더가 없어요.<br/>위에서 첫 폴더를 만들어보세요.</p>`;
+          return;
+        }
+        listBox.innerHTML = categories.map((c) => `
+          <div class="catmgr__row" data-id="${c.id}">
+            <input type="text" class="catmgr__name" value="${esc(c.name)}" maxlength="20" />
+            <span class="catmgr__count">${memos.filter((m) => m.category_id === c.id).length}</span>
+            <button type="button" class="catmgr__del" aria-label="삭제">삭제</button>
+          </div>`).join("");
+
+        listBox.querySelectorAll(".catmgr__row").forEach((row) => {
+          const cid = row.dataset.id;
+          const nameEl = row.querySelector(".catmgr__name");
+
+          // 이름 인라인 수정 (블러/Enter 시 저장)
+          const commit = async () => {
+            const cat = categories.find((c) => c.id === cid);
+            const name = nameEl.value.trim();
+            if (!cat || !name || name === cat.name) { nameEl.value = cat ? cat.name : ""; return; }
+            const { error } = await supabaseClient.from("memo_categories")
+              .update({ name }).eq("id", cid);
+            if (!error) cat.name = name; else nameEl.value = cat.name;
+          };
+          nameEl.addEventListener("blur", commit);
+          nameEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); nameEl.blur(); }
+          });
+
+          row.querySelector(".catmgr__del").addEventListener("click", async () => {
+            const cat = categories.find((c) => c.id === cid);
+            if (!cat) return;
+            const n = memos.filter((m) => m.category_id === cid).length;
+            if (!confirm(n ? `'${cat.name}' 폴더를 삭제할까요?\n메모 ${n}개는 미분류로 이동합니다.` : `'${cat.name}' 폴더를 삭제할까요?`)) return;
+            const { error } = await supabaseClient.from("memo_categories").delete().eq("id", cid);
+            if (!error) {
+              categories = categories.filter((c) => c.id !== cid);
+              memos.forEach((m) => { if (m.category_id === cid) m.category_id = null; });
+              if (activeCat === cid) activeCat = "all";
+              renderCatManager();
+            }
+          });
+        });
+      }
+
+      async function createCategory(name) {
+        const text = name.trim();
+        if (!text) return null;
+        const { data, error } = await supabaseClient.from("memo_categories")
+          .insert({ student_id: profile.id, name: text, sort: categories.length })
+          .select().single();
+        if (!error && data) { categories.push(data); return data; }
+        return null;
+      }
+      document.getElementById("cat-new-btn").addEventListener("click", async () => {
+        const made = await createCategory(catInput.value);
+        if (made) { catInput.value = ""; renderCatManager(); }
+      });
+      catInput.addEventListener("keydown", async (e) => {
+        if (e.key !== "Enter" || e.isComposing) return;
+        e.preventDefault();
+        const made = await createCategory(catInput.value);
+        if (made) { catInput.value = ""; renderCatManager(); }
+      });
 
       function renderList() {
         const q = searchEl.value.trim().toLowerCase();
