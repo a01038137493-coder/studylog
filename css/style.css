@@ -2475,3 +2475,53 @@ input[type="month"].field__input {
 }
 .evsheet__dt { min-width: 0; }
 .evsheet__dt .field__input { flex: 1; }
+
+/* ============================================================
+   태블릿 레이어 — 노션풍 좌측 내비게이션 + 콘텐츠 배치
+   (하단 탭바 마크업을 CSS만으로 좌측 사이드바로 변환.
+    아이폰 가로모드는 제외: min-height 500px 조건)
+   ============================================================ */
+@media (min-width: 768px) and (min-height: 500px) {
+  .tabbar {
+    top: 0; bottom: 0; right: auto; left: 0;
+    width: 212px; box-sizing: border-box;
+    flex-direction: column; justify-content: flex-start; gap: 2px;
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 12px 20px calc(12px + env(safe-area-inset-left, 0px));
+    background: #efeff1;
+    border-top: none; border-right: 1px solid var(--line);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .tabbar::before {
+    content: "핀로그";
+    display: block;
+    padding: 4px 10px 18px;
+    font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
+    color: var(--navy);
+  }
+  .tabbar__item {
+    flex: 0 0 auto;
+    flex-direction: row; justify-content: flex-start; gap: 11px;
+    padding: 10px; border-radius: 9px;
+    font-size: 0.93rem; font-weight: 600; color: var(--muted);
+  }
+  .tabbar__item svg { width: 20px; height: 20px; }
+  .tabbar__item:active { background: rgba(15, 23, 42, 0.1); }
+  .tabbar__item.is-active { background: rgba(15, 23, 42, 0.08); color: var(--navy); font-weight: 700; }
+  body.has-tabbar { padding-left: 212px; padding-bottom: 0; }
+  body.kb-up .tabbar { transform: none; }        /* 사이드바는 키보드가 떠도 유지 */
+
+  /* 오버레이 모달은 사이드바를 뺀 콘텐츠 영역 기준 중앙 */
+  .evsheet, .catalog-modal { left: 212px; }
+
+  /* 내 기록 요약 4지표: 한 줄 4칸 */
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* 메모·파일 목록: 2열 */
+  #memo-list, #file-list { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-items: start; }
+  #memo-list > *, #file-list > * { margin-bottom: 0; }
+  #memo-list .memo-empty, #file-list .memo-empty,
+  #memo-list .dt-skel, #file-list .dt-skel { grid-column: 1 / -1; }
+}
+@media (min-width: 768px) and (min-height: 500px) and (hover: hover) {
+  .tabbar__item:not(.is-active):hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
+}
