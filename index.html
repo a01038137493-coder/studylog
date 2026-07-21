@@ -8,11 +8,12 @@
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="center-screen">
-  <div class="splash">
-    <img src="/assets/logo.svg" alt="핀로그" class="splash__logo" onerror="this.style.display='none'" />
-    <h1 class="splash__title">핀로그</h1>
-    <p class="splash__tagline">출석이 아니라, 목표 대비 성과를 관리합니다.</p>
-    <p class="splash__loading">불러오는 중...</p>
+  <!-- 앱 로더와 동일한 미니멀 스플래시 (라우팅 판단 동안만 잠깐 표시) -->
+  <div class="app-loader" style="position: fixed; inset: 0;">
+    <div class="app-loader__inner">
+      <div class="app-loader__brand">핀로그</div>
+      <div class="app-loader__spinner"></div>
+    </div>
   </div>
 
   <script src="/js/supabaseClient.js?v=mock11"></script>
