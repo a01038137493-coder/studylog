@@ -437,6 +437,11 @@ async function renderHomeSchedule(sectionEl, listEl) {
     if (!K || !K.setResizeMode) return;
     const mode = (document.body && document.body.dataset.kbresize) || "native";
     K.setResizeMode({ mode });
+
+    // 키보드가 떠 있는 동안 하단 탭바 숨김 (키보드 위에 떠 보이는 것 방지)
+    K.addListener("keyboardWillShow", () => document.body.classList.add("kb-up"));
+    K.addListener("keyboardWillHide", () => document.body.classList.remove("kb-up"));
+
     if (mode !== "none") return;
 
     // 들어올림 = 네이티브 키보드 이벤트의 실제 높이.
