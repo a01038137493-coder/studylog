@@ -36,7 +36,9 @@ const DT_MOCK = (function () {
 window.DT_MOCK = DT_MOCK;
 
 // 클라이언트 생성: 목업 모드면 가짜 클라이언트, 아니면 실제 Supabase
-const supabaseClient = DT_MOCK ? createDtMockClient() : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = DT_MOCK ? createDtMockClient() : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { flowType: "pkce", detectSessionInUrl: true },
+});
 
 /* 목업 모드 표시 배지 (오른쪽 아래) + 데모 안내 */
 if (DT_MOCK) {
@@ -395,18 +397,52 @@ async function signInWithProvider(provider) {
   const box =
     document.getElementById("login-error") ||
     document.getElementById("signup-error");
+  const fail = (e) => {
+    if (!box) return;
+    const msg = String((e && e.message) || "");
+    box.textContent = /not enabled|unsupported provider/i.test(msg)
+      ? "아직 준비 중인 로그인 방식이에요. 조금만 기다려주세요."
+      : "소셜 로그인을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.";
+  };
 
   if (window.DT_MOCK) {
     if (box) box.textContent = "데모 모드에서는 소셜 로그인이 지원되지 않습니다.";
     return;
   }
 
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo: window.location.origin + "/index.html" },
-  });
-
-  if (error && box) {
-    box.textContent = "소셜 로그인을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.";
-  }
+  const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+  try {
+    if (isNative) {
+      // 앱: 임베디드 웹뷰 OAuth 는 구글이 차단 → 시스템 브라우저에서 진행 후
+      //     dittonlog://auth-callback 딥링크로 복귀 (아래 appUrlOpen 리스너)
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: "dittonlog://auth-callback", skipBrowserRedirect: true },
+      });
+      if (error) throw error;
+      await window.Capacitor.Plugins.Browser.open({ url: data.url });
+    } else {
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: window.location.origin + "/index.html" },
+      });
+      if (error) throw error;
+    }
+  } catch (e) { fail(e); }
 }
+
+/* 딥링크 복귀: dittonlog://auth-callback?code=... → 세션 교환 → 홈 분기 */
+(function wireOAuthDeepLink() {
+  if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+  const AppPlugin = window.Capacitor.Plugins.App;
+  if (!AppPlugin) return;
+  AppPlugin.addListener("appUrlOpen", async ({ url }) => {
+    if (!url || !url.startsWith("dittonlog://auth-callback")) return;
+    try { await window.Capacitor.Plugins.Browser.close(); } catch (e) {}
+    let code = null;
+    try { code = new URL(url.replace("dittonlog://", "https://dt/")).searchParams.get("code"); } catch (e) {}
+    if (!code) return;
+    const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+    if (!error) window.location.href = "/index.html";
+  });
+})();
