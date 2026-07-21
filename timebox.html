@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=173" />
+  <link rel="stylesheet" href="/css/style.css?v=174" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -19,6 +19,7 @@
     <!-- 태블릿 전용 좌측 패널: 지금/다음 · 주간 배분 · 블록 목록 -->
     <aside class="tbside">
       <section class="tbside__card" id="tbside-now"></section>
+      <section class="tbside__card" id="tbside-wx" hidden></section>
       <section class="tbside__card" id="tbside-week"></section>
       <section class="tbside__card" id="tbside-list"></section>
     </aside>
@@ -411,6 +412,61 @@
         renderSide();
       }
 
+      /* ---------- 날씨 (현재 위치: GPS → IP 폴백) ---------- */
+      const WX_TEXT = [
+        [0, "맑음", "☀️"], [1, "대체로 맑음", "🌤️"], [2, "구름 조금", "⛅"], [3, "흐림", "☁️"],
+        [48, "안개", "🌫️"], [57, "이슬비", "🌦️"], [67, "비", "🌧️"], [77, "눈", "🌨️"],
+        [82, "소나기", "🌦️"], [86, "소낙눈", "🌨️"], [99, "뇌우", "⛈️"],
+      ];
+      const wxOf = (code) => WX_TEXT.find(([max]) => code <= max) || [0, "—", "🌡️"];
+
+      async function ipPos() {
+        const g = await fetch("https://get.geojs.io/v1/ip/geo.json").then((r) => r.json());
+        return { lat: +g.latitude, lon: +g.longitude, label: g.city || "" };
+      }
+      function getPos() {
+        return new Promise((resolve, reject) => {
+          let done = false;
+          const finish = (v) => { if (!done) { done = true; resolve(v); } };
+          const fallback = () => ipPos().then(finish).catch((e) => { if (!done) { done = true; reject(e); } });
+          if (!navigator.geolocation) return fallback();
+          navigator.geolocation.getCurrentPosition(
+            (p) => finish({ lat: p.coords.latitude, lon: p.coords.longitude }),
+            fallback,
+            { timeout: 4000, maximumAge: 600000 }
+          );
+          setTimeout(() => { if (!done) fallback(); }, 5000);   // 권한 프롬프트 방치 대비
+        });
+      }
+      async function renderWeather() {
+        const el = document.getElementById("tbside-wx");
+        if (!el) return;
+        try {
+          const pos = await getPos();
+          const wx = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${pos.lat}&longitude=${pos.lon}` +
+            `&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max` +
+            `&timezone=auto&forecast_days=1`).then((r) => r.json());
+          let label = pos.label;
+          if (!label) {
+            try {
+              const geo = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=ko`).then((r) => r.json());
+              label = geo.city || geo.locality || "";
+            } catch (e) { /* 지역명 없이 표시 */ }
+          }
+          const [, txt, icon] = wxOf(wx.current.weather_code);
+          const d = wx.daily;
+          el.innerHTML = `
+            <h3 class="tbside__h">날씨${label ? ` · ${esc(label)}` : ""}</h3>
+            <div class="tbside__wx">
+              <span class="tbside__wxi">${icon}</span>
+              <div class="tbside__wxt"><b>${Math.round(wx.current.temperature_2m)}°</b><em>${txt}</em></div>
+            </div>
+            <p class="tbside__sub">최고 ${Math.round(d.temperature_2m_max[0])}° · 최저 ${Math.round(d.temperature_2m_min[0])}°${d.precipitation_probability_max[0] != null ? ` · 강수 ${d.precipitation_probability_max[0]}%` : ""}</p>`;
+          el.hidden = false;
+        } catch (e) { el.hidden = true; }
+      }
+
       /* ---------- 보기/편집 전환 ---------- */
       let editing = false;
       function setMode(edit) {
@@ -433,6 +489,8 @@
       else renderView();
       renderSide();
       setInterval(renderSide, 60000);     // 남은 시간 카운트다운 갱신
+      renderWeather();
+      setInterval(renderWeather, 30 * 60000);   // 날씨 30분마다 갱신
     });
   </script>
 </body>
