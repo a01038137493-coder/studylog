@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="/css/style.css?v=135" />
 </head>
 <body class="center-screen support-page">
+  <button type="button" class="auth-back" aria-label="뒤로 가기"
+          onclick="if (history.length > 1) history.back(); else location.href='/settings.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
   <main class="auth-card">
     <img src="/assets/logo.png" alt="핀로그" class="auth-card__logo" onerror="this.style.display='none'" />
     <h1 class="auth-card__title">지원 · 문의</h1>
@@ -18,8 +22,7 @@
     <a href="mailto:a01038137493@gmail.com" class="btn btn--primary btn--block btn--lg">이메일로 문의하기</a>
 
     <p class="auth-alt" style="margin-top: 20px;">
-      <a href="/privacy.html">개인정보처리방침</a> ·
-      <a href="javascript:history.back()">돌아가기</a>
+      <a href="/privacy.html">개인정보처리방침</a>
     </p>
   </main>
 </body>
