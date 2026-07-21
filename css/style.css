@@ -966,7 +966,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
   transition: all 0.14s ease;
   font-family: inherit;
 }
-.chip:hover { border-color: var(--primary); color: var(--primary); }
+@media (hover: hover) { .chip:not(.chip--active):hover { border-color: var(--primary); color: var(--primary); } }
 .chip--active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); }
 
 /* 컨디션 메시지 */
@@ -1381,7 +1381,7 @@ body.is-reordering, body.is-reordering * { user-select: none !important; }
 /* 과제별 시간 블록 선택 (오전/점심직후/오후/저녁) */
 .block-chips { display: flex; gap: 6px; margin-top: 10px; }
 .block-chip { flex: 1; padding: 9px 4px; border: 1.5px solid var(--line-strong); border-radius: 9px; background: #fff; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s ease; }
-.block-chip:hover { border-color: var(--primary); color: var(--primary); }
+@media (hover: hover) { .block-chip:not(.block-chip--active):hover { border-color: var(--primary); color: var(--primary); } }
 .block-chip--active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
 /* Step 3 - 컨디션 3단계 */

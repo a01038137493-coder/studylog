@@ -110,9 +110,10 @@ function addTaskRow(task) {
 
 /* 서브 과제 한 줄 추가 (focusNew=true면 새로 만든 입력에 포커스) */
 function addSubtask(subs, text, focusNew) {
-  // 한글(IME) 조합 중에 포커스를 옮기면 조합 중이던 글자가 새 입력칸에
-  // 딸려 들어가는 iOS WebKit 문제 → 먼저 blur 로 조합을 확정한 뒤
-  // 다음 프레임에 새 입력칸으로 포커스를 옮긴다.
+  // 한글(IME) 조합 중에 포커스를 옮기면 조합 중이던 글자(자모열 전체)가
+  // 새 입력칸에 딸려 들어가는 iOS WebKit 문제.
+  // blur 로 조합을 확정해도 커밋이 비동기라 즉시 포커스하면 다시 새는 경우가
+  // 있어, 잠시 기다렸다 포커스하고 그래도 흘러든 글자는 지운다.
   if (focusNew && document.activeElement && document.activeElement.blur) {
     document.activeElement.blur();
   }
@@ -124,7 +125,14 @@ function addSubtask(subs, text, focusNew) {
     <button type="button" class="task-sub__del" aria-label="서브 과제 삭제">✕</button>`;
   sub.querySelector(".task-sub__del").addEventListener("click", () => sub.remove());
   subs.appendChild(sub);
-  if (focusNew) setTimeout(() => sub.querySelector(".task-sub__text").focus(), 0);
+  if (focusNew) {
+    const inp = sub.querySelector(".task-sub__text");
+    setTimeout(() => {
+      inp.focus();
+      requestAnimationFrame(() => { if (inp.value) inp.value = ""; });
+      setTimeout(() => { if (inp.value) inp.value = ""; }, 120);
+    }, 80);
+  }
 }
 
 function renumberTasks() {
