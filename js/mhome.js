@@ -196,8 +196,6 @@
     } catch (e) {}
 
     /* ---------- 일정 블록: 오늘 + 다가오는 7일 ---------- */
-    renderHomeSchedule(document.getElementById("mevents"), document.getElementById("mevents-list"));
-
     /* ---------- 타임박스: 매일 반복 시간표, 오늘 체크 + 현재 블록 강조 ---------- */
     (async function renderTimeboxes() {
       const card = document.getElementById("tbox");
