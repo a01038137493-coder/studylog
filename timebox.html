@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=149" />
+  <link rel="stylesheet" href="/css/style.css?v=150" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -84,7 +84,7 @@
       }
 
       /* ---------- 보기: 주간 시간표 (요일 컬럼 × 시간축) ---------- */
-      const TB_COLORS = ["#ee7d75", "#f2a33c", "#e0b514", "#5bb974", "#3ec6b4", "#5f9df7", "#a874f2", "#f272ba"];
+      const TB_COLORS = ["#ef767a", "#f5a25d", "#d9b23c", "#64ba7b", "#45c4b6", "#6096f0", "#7d80da", "#a06ee1", "#ea7fb1"];
       const colorOf = (label) => {
         let h = 0;
         for (const ch of String(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -104,7 +104,7 @@
         if (!showDays.includes(todayDow)) showDays.push(todayDow);
         showDays.sort((a, b) => a - b);
 
-        const PX = 46;
+        const PX = 52;
         const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
         const gs = Math.floor(Math.min(...boxes.map((b) => toMin(b.start_time))) / 60) * 60;
         const ge = Math.ceil(Math.max(...boxes.map((b) => toMin(b.end_time))) / 60) * 60;
@@ -127,11 +127,12 @@
             const isT = d === todayDow;
             const on = isT && doneSet.has(b.id);
             const cur = isT && nowMin >= s && nowMin < e;
+            const bh = Math.max(20, y(e) - y(s) - 1);
             return `
             <button type="button" class="wtb__blk${on ? " is-done" : ""}${cur ? " is-cur" : ""}"
                     ${isT ? `data-box="${b.id}"` : ""}
-                    style="top:${y(s)}px; height:${Math.max(18, y(e) - y(s) - 2)}px; background:${colorOf(b.label)}">
-              <span>${esc(b.label)}</span>${on ? "<em>✓</em>" : ""}
+                    style="top:${y(s) + 0.5}px; height:${bh}px; background:${colorOf(b.label)}">
+              <span>${esc(b.label)}</span>${bh >= 46 ? `<u>${b.start_time.slice(0, 5)}</u>` : ""}${on ? "<em>✓</em>" : ""}
             </button>`;
           }).join("");
           const nowLine = d === todayDow && nowMin >= gs && nowMin <= ge
