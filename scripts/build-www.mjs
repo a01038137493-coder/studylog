@@ -28,6 +28,7 @@ const COPY = [
   "student.html",
   "student-m.html",
   "general-m.html",
+  "general.html",
   "calendar.html",
   "checkin.html",
   "checkout.html",

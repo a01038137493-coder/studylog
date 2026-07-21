@@ -29,6 +29,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const profile = await requireRole(["student"]);
   if (!profile) return;
 
+  // 일반 사용자는 전용 태블릿 홈으로 (수험생 대시보드와 완전 분리)
+  if (profile.user_type === "general") { window.location.replace("/general.html"); return; }
+
   document.getElementById("student-name").textContent = profile.name + " 님";
 
   const today = getTodayString();

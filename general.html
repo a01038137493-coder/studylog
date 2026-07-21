@@ -8,9 +8,9 @@
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar">
-  <!-- 일반 사용자 전용 모바일 홈 (수험생은 student-m.html) -->
+  <!-- 일반 사용자 전용 태블릿/PC 홈 (모바일은 general-m.html, 수험생은 student.html) -->
   <script>
-    if (window.matchMedia("(min-width: 601px)").matches) window.location.replace("/general.html");
+    if (window.matchMedia("(max-width: 600px)").matches) window.location.replace("/general-m.html");
   </script>
 
   <!-- 로딩 스플래시 -->
@@ -22,40 +22,46 @@
     </div>
   </div>
 
-  <main class="container">
+  <main class="container home-wide">
     <!-- 헤더: 날짜(좌) + 목표 D-Day(우, 설정 시에만) -->
-    <div class="mhead">
+    <div class="mhead gtab-head">
       <span class="mhead__date" id="g-date">오늘</span>
       <span class="mhead__dday" id="g-dday" hidden></span>
     </div>
 
-    <!-- 오늘 할 일 -->
-    <section class="card gtodo">
-      <div class="gtodo__head">
-        <span class="gtodo__title">오늘 할 일</span>
-        <span class="gtodo__count" id="g-count" hidden>0/0 완료</span>
-      </div>
-      <div id="g-list"></div>
-      <div class="gtodo__addrow">
-        <input type="text" id="g-input" class="gtodo__input" placeholder="＋ 할 일 추가"
-               maxlength="200" autocomplete="off" enterkeyhint="done" />
-      </div>
-    </section>
+    <div class="gtab-grid">
+      <!-- 왼쪽: 오늘 할 일 -->
+      <div class="gtab-col">
+        <section class="card gtodo gtodo--tab">
+          <div class="gtodo__head">
+            <span class="gtodo__title">오늘 할 일</span>
+            <span class="gtodo__count" id="g-count" hidden>0/0 완료</span>
+          </div>
+          <div id="g-list"></div>
+          <div class="gtodo__addrow">
+            <input type="text" id="g-input" class="gtodo__input" placeholder="＋ 할 일 추가"
+                   maxlength="200" autocomplete="off" enterkeyhint="done" />
+          </div>
+        </section>
 
-    <!-- 어제 미완료 이월 안내 -->
-    <div class="gcarry" id="g-carry" hidden>
-      <span id="g-carry-text"></span>
-      <button type="button" class="gcarry__btn" id="g-carry-btn">가져오기</button>
+        <!-- 어제 미완료 이월 안내 -->
+        <div class="gcarry" id="g-carry" hidden>
+          <span id="g-carry-text"></span>
+          <button type="button" class="gcarry__btn" id="g-carry-btn">가져오기</button>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 일정 (오늘 + 다가오는 7일, Apple 캘린더) -->
+      <div class="gtab-col">
+        <section class="card gtab-events mevents" id="g-events">
+          <div id="g-events-list"><p class="gtodo__empty">표시할 일정이 없어요</p></div>
+        </section>
+      </div>
     </div>
-
-    <!-- 오늘 일정 (Apple 캘린더) -->
-    <section class="mevents" id="g-events" hidden>
-      <div id="g-events-list"></div>
-    </section>
   </main>
 
   <nav class="tabbar">
-    <a href="/general-m.html" class="tabbar__item is-active">
+    <a href="/general.html" class="tabbar__item is-active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>홈</span>
     </a>
@@ -79,6 +85,6 @@
 
   <script src="/js/supabaseClient.js?v=mock10"></script>
   <script src="/js/utils.js?v=18"></script>
-  <script src="/js/ghome.js?v=4"></script>
+  <script src="/js/gtab.js?v=1"></script>
 </body>
 </html>
