@@ -36,7 +36,7 @@
       padding: 0 26px calc(26px + env(safe-area-inset-bottom, 0px));
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 9px;
       max-width: 480px;
       width: 100%;
       margin: 0 auto;
@@ -46,8 +46,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 58px;
-      border-radius: 14px;
+      min-height: 50px;
+      border-radius: 13px;
       font-size: 1.05rem;
       font-weight: 800;
       -webkit-tap-highlight-color: transparent;
@@ -57,19 +57,20 @@
     .welcome__btn--start { background: var(--orange); color: #fff; }
     .welcome__btn--start:active { background: var(--orange-strong); }
     /* 둘러보기 슬라이드 */
-    .welcome__center { gap: 16px; padding: 0; }
+    .welcome__center { gap: 12px; padding: 0; min-height: 0; }
+    .welcome__actions .btn--lg { min-height: 50px; padding-top: 12px; padding-bottom: 12px; }
     .tour { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .tour::-webkit-scrollbar { display: none; }
-    .tour__slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 34px; box-sizing: border-box; text-align: center; }
-    .tour__art { display: flex; align-items: center; justify-content: center; min-height: 250px; margin-bottom: 26px; }
-    .tour__title { font-size: 1.25rem; font-weight: 800; margin: 0 0 8px; }
+    .tour__slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 12px 34px 0; box-sizing: border-box; text-align: center; }
+    .tour__art { display: flex; align-items: center; justify-content: center; min-height: 0; flex: 1; margin-bottom: 16px; }
+    .tour__title { font-size: 1.15rem; font-weight: 800; margin: 0 0 8px; }
     .tour__desc { font-size: 0.92rem; font-weight: 600; color: var(--muted); margin: 0; line-height: 1.6; }
     .tour__dots { display: flex; gap: 7px; justify-content: center; }
     .tour__dots i { width: 7px; height: 7px; border-radius: 50%; background: #dcdcdf; transition: all 0.25s ease; }
     .tour__dots i.is-on { background: var(--orange); width: 20px; border-radius: 99px; }
 
     /* CSS 목업 */
-    .mock { width: 252px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08); text-align: left; }
+    .mock { width: 236px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08); text-align: left; }
     .mock__head { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.92rem; margin-bottom: 11px; }
     .mock__head span { color: var(--orange-strong); font-size: 0.8rem; }
     .mock__row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--bg); font-size: 0.86rem; font-weight: 600; }
@@ -183,7 +184,6 @@
     <a href="/signup.html" class="welcome__btn welcome__btn--start">이메일로 시작하기</a>
     <p id="login-error" class="form__error" role="alert"></p>
     <p class="auth-alt">이미 계정이 있나요? <a href="/login.html">로그인</a></p>
-    <p class="welcome__brand">핀로그</p>
   </div>
 
   <script src="/js/supabaseClient.js?v=mock11"></script>
