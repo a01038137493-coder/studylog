@@ -6,43 +6,136 @@
   <title>타임박스 · 핀로그</title>
   <link rel="stylesheet" href="/css/style.css?v=148" />
 </head>
-<body class="app-bg">
+<body class="app-bg has-tabbar">
   <header class="topbar">
-    <a href="/student.html" class="topbar__back" aria-label="뒤로 가기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
     <div class="topbar__brand">타임박스</div>
-    <span></span>
+    <div class="topbar__right">
+      <button type="button" class="btn btn--ghost btn--sm" id="tb-mode">편집</button>
+    </div>
   </header>
 
   <main class="container">
-    <p class="tbe__hint">매일 반복되는 나의 시간표예요. 홈에서 블록별로 체크할 수 있습니다.</p>
-    <section class="card">
-      <div id="tbe-list"><p class="muted">불러오는 중...</p></div>
+    <!-- 보기: 오늘의 세로 시간축 그리드 (블록 탭 = 완료 체크) -->
+    <section class="card" id="tb-view">
+      <div id="tb-grid"><p class="muted" style="text-align:center;margin:16px 0;">불러오는 중...</p></div>
+    </section>
+
+    <!-- 편집: 블록 추가/수정/요일 -->
+    <section class="card" id="tb-editor" hidden>
+      <p class="tbe__hint" style="margin-top:2px;">시간·이름·요일을 바꾸면 바로 저장돼요.</p>
+      <div id="tbe-list"></div>
       <button type="button" class="gtodo__addbtn" id="tbe-add">＋ 블록 추가</button>
     </section>
   </main>
 
+  <nav class="tabbar">
+    <a href="/student.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>홈</span>
+    </a>
+    <a href="/calendar.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+      <span>캘린더</span>
+    </a>
+    <a href="/memo.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v6h5M8 13h8M8 17h5"/></svg>
+      <span>메모</span>
+    </a>
+    <a href="/files.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>파일</span>
+    </a>
+    <a href="/settings.html" class="tabbar__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
+      <span>설정</span>
+    </a>
+  </nav>
+
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock12"></script>
-  <script src="/js/utils.js?v=29"></script>
+  <script src="/js/utils.js?v=30"></script>
   <script>
-    /* 타임박스 편집 — 즉시 저장 (추가/시간·이름 수정/삭제) */
+    /* 타임박스 페이지 — 보기(그리드·체크) / 편집(블록·요일) 전환 */
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await requireRole(["student"]);
       if (!profile) return;
 
       const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+      const today = getTodayString();
+      const gridEl = document.getElementById("tb-grid");
+      const viewEl = document.getElementById("tb-view");
+      const editorEl = document.getElementById("tb-editor");
+      const modeBtn = document.getElementById("tb-mode");
       const listEl = document.getElementById("tbe-list");
       let boxes = [];
+      let doneSet = new Set();
 
-      async function load() {
-        const { data } = await supabaseClient.from("timeboxes")
-          .select("*").eq("student_id", profile.id).order("start_time");
-        boxes = data || [];
-        render();
+      async function loadBoxes() {
+        const [{ data: bs }, { data: checks }] = await Promise.all([
+          supabaseClient.from("timeboxes").select("*")
+            .eq("student_id", profile.id).order("start_time"),
+          supabaseClient.from("timebox_checks").select("box_id, done")
+            .eq("student_id", profile.id).eq("date", today),
+        ]);
+        boxes = bs || [];
+        doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       }
 
-      function render() {
+      /* ---------- 보기: 세로 시간축 그리드 ---------- */
+      function renderView() {
+        const dow = (new Date().getDay() + 6) % 7;   // 월=0
+        const todays = boxes.filter((b) =>
+          !Array.isArray(b.days) || !b.days.length || b.days.includes(dow));
+        if (!todays.length) {
+          gridEl.innerHTML = `<p class="muted" style="text-align:center;margin:18px 0;">오늘 표시할 블록이 없어요.<br/>오른쪽 위 편집에서 시간표를 만들어보세요.</p>`;
+          return;
+        }
+        const PX = 56;
+        const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+        const gs = Math.floor(Math.min(...todays.map((b) => toMin(b.start_time))) / 60) * 60;
+        const ge = Math.ceil(Math.max(...todays.map((b) => toMin(b.end_time))) / 60) * 60;
+        const y = (min) => ((min - gs) / 60) * PX;
+
+        let html = "";
+        for (let m = gs; m <= ge; m += 60) {
+          html += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
+          if (m < ge) html += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
+        }
+        html += todays.map((b) => {
+          const s = toMin(b.start_time), e = toMin(b.end_time);
+          const cur = nowMin >= s && nowMin < e;
+          const on = doneSet.has(b.id);
+          const h = Math.max(22, y(e) - y(s) - 2);
+          const slim = h < 40;
+          return `
+          <button type="button" class="tgrid__block${cur ? " is-now" : ""}${on ? " is-done" : ""}${slim ? " tgrid__block--slim" : ""}"
+                  data-box="${b.id}" style="top:${y(s) + 1}px; height:${h}px">
+            ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
+            <span class="tgrid__label">${on ? "✓ " : ""}${esc(b.label)}</span>
+          </button>`;
+        }).join("");
+        if (nowMin >= gs && nowMin <= ge) {
+          html += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
+        }
+        gridEl.innerHTML = `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>`;
+
+        gridEl.querySelectorAll("[data-box]").forEach((el) => {
+          el.addEventListener("click", async () => {
+            const id = el.dataset.box;
+            const next = !doneSet.has(id);
+            if (next) doneSet.add(id); else doneSet.delete(id);
+            renderView();
+            await supabaseClient.from("timebox_checks").upsert({
+              student_id: profile.id, box_id: id, date: today, done: next,
+            });
+          });
+        });
+      }
+
+      /* ---------- 편집 ---------- */
+      function renderEditor() {
         if (!boxes.length) {
           listEl.innerHTML = `<p class="muted" style="text-align:center;margin:14px 0;">아직 블록이 없어요.<br/>＋ 블록 추가로 시간표를 만들어보세요.</p>`;
           return;
@@ -72,16 +165,14 @@
               .update({ start_time: start, end_time: end, label, days }).eq("id", id);
             const b = boxes.find((x) => x.id === id);
             if (b) { b.start_time = start; b.end_time = end; b.label = label; b.days = days; }
+            boxes.sort((a, bb) => a.start_time.localeCompare(bb.start_time));
           };
           row.querySelectorAll("input").forEach((inp) => {
             inp.addEventListener("change", commit);
             inp.addEventListener("blur", commit);
           });
           row.querySelectorAll(".tbe__day").forEach((chip) => {
-            chip.addEventListener("click", () => {
-              chip.classList.toggle("is-on");
-              commit();
-            });
+            chip.addEventListener("click", () => { chip.classList.toggle("is-on"); commit(); });
           });
           row.querySelector(".tbe__label").addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); e.target.blur(); }
@@ -89,13 +180,12 @@
           row.querySelector(".tbe__del").addEventListener("click", async () => {
             await supabaseClient.from("timeboxes").delete().eq("id", id);
             boxes = boxes.filter((x) => x.id !== id);
-            render();
+            renderEditor();
           });
         });
       }
 
       document.getElementById("tbe-add").addEventListener("click", async () => {
-        // 마지막 블록 종료 시각에 이어서 1시간 블록 생성
         const last = boxes[boxes.length - 1];
         const start = last ? last.end_time.slice(0, 5) : "09:00";
         const [h, m] = start.split(":").map(Number);
@@ -103,10 +193,27 @@
         const { data } = await supabaseClient.from("timeboxes")
           .insert({ student_id: profile.id, label: "공부", start_time: start, end_time: end, sort: boxes.length, days: [0, 1, 2, 3, 4, 5, 6] })
           .select().single();
-        if (data) { boxes.push(data); boxes.sort((a, b) => a.start_time.localeCompare(b.start_time)); render(); }
+        if (data) {
+          boxes.push(data);
+          boxes.sort((a, b) => a.start_time.localeCompare(b.start_time));
+          renderEditor();
+        }
       });
 
-      await load();
+      /* ---------- 보기/편집 전환 ---------- */
+      let editing = false;
+      function setMode(edit) {
+        editing = edit;
+        viewEl.hidden = edit;
+        editorEl.hidden = !edit;
+        modeBtn.textContent = edit ? "완료" : "편집";
+        if (edit) renderEditor(); else renderView();
+      }
+      modeBtn.addEventListener("click", () => setMode(!editing));
+
+      await loadBoxes();
+      if (!boxes.length) setMode(true);   // 처음이면 바로 편집으로
+      else renderView();
     });
   </script>
 </body>

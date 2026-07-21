@@ -548,3 +548,19 @@ function dtSkeleton(el, rows) {
     if (dx > 70 && dx > dy * 1.5) backEl.click();
   }, { passive: true });
 })();
+
+/* 수험생 모드: 하단 탭의 캘린더를 타임박스로 교체 — dt-exam-tab */
+(function () {
+  try {
+    const cached = JSON.parse(localStorage.getItem("dt_profile_cache") || "null");
+    if (!cached || cached.user_type !== "exam") return;
+    const a = document.querySelector('.tabbar a[href="/calendar.html"]');
+    if (!a) return;
+    a.setAttribute("href", "/timebox.html");
+    const label = a.querySelector("span");
+    if (label) label.textContent = "타임박스";
+    const svg = a.querySelector("svg");
+    if (svg) svg.innerHTML = '<circle cx="12" cy="13" r="8"/><path d="M12 10v3l2 2"/><path d="M9 2h6"/>';
+    if (location.pathname === "/timebox.html") a.classList.add("is-active");
+  } catch (e) {}
+})();
