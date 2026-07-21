@@ -2308,3 +2308,10 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .dayx__note { font-size: 0.85rem; color: var(--muted); margin: 7px 0 0; line-height: 1.5; }
 
 .dayx__sub { font-size: 0.82rem; font-weight: 600; color: var(--muted); padding: 1px 0 1px 24px; }
+
+/* 홈 오늘 카드: 서브 과제 */
+.mtoday__subrow { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 4px 4px 31px; background: none; border: none; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mtoday__subcheck { flex: none; width: 17px; height: 17px; border-radius: 50%; border: 1.6px solid var(--line-strong); font-size: 0.6rem; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; }
+.mtoday__subrow.is-done .mtoday__subcheck { background: var(--orange); border-color: var(--orange); }
+.mtoday__sub-text { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.mtoday__subrow.is-done .mtoday__sub-text { text-decoration: line-through; color: var(--muted-soft); }

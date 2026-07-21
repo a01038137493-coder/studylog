@@ -118,11 +118,23 @@
       const done = tasks.reduce((a, _, i) => a + (prog.done[i] ? 1 : 0), 0);
       const pct = n ? Math.round((done / n) * 100) : 0;
       const MAX = 4;
-      const rows = tasks.slice(0, MAX).map((t, i) => `
+      const rows = tasks.slice(0, MAX).map((t, i) => {
+        const subs = (Array.isArray(t.subtasks) ? t.subtasks : []).map((s, j) => {
+          const txt = typeof s === "string" ? s : (s && s.text) || "";
+          if (!txt) return "";
+          const on = !!prog.sub[i + "-" + j];
+          return `
+        <button type="button" class="mtoday__subrow${on ? " is-done" : ""}" data-subtask="${i}-${j}">
+          <span class="mtoday__subcheck">${on ? "✓" : ""}</span>
+          <span class="mtoday__sub-text">${esc(txt)}</span>
+        </button>`;
+        }).join("");
+        return `
         <button type="button" class="mtoday__task${prog.done[i] ? " is-done" : ""}" data-task="${i}">
           <span class="mtoday__check">${prog.done[i] ? "✓" : ""}</span>
           <span class="mtoday__task-text">${t.subject ? `<b>[${esc(subjectLabel(t.subject))}]</b> ` : ""}${esc(t.text || "")}</span>
-        </button>`).join("");
+        </button>${subs}`;
+      }).join("");
       const more = n > MAX ? `<a href="/checkin.html" class="mtoday__more">+ ${n - MAX}개 더 보기</a>` : "";
 
       box.innerHTML = `
@@ -140,6 +152,15 @@
           const i = Number(row.dataset.task);
           const p = loadProg();
           p.done[i] = !p.done[i];
+          saveProg(p);
+          renderToday();
+        });
+      });
+      box.querySelectorAll("[data-subtask]").forEach((row) => {
+        row.addEventListener("click", () => {
+          const k = row.dataset.subtask;
+          const p = loadProg();
+          p.sub[k] = !p.sub[k];
           saveProg(p);
           renderToday();
         });
