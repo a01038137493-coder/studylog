@@ -164,11 +164,11 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 
 /* 하위 페이지(← 돌아가기 버튼이 있는 상단바): 제목을 화면 정중앙으로
    1fr · auto · 1fr 그리드 → 좌측 버튼 폭과 무관하게 제목 가운데. (student.html 상단바는 해당 없음) */
-.topbar:has(> a.btn) { display: grid; grid-template-columns: 1fr auto 1fr; }
-.topbar:has(> a.btn) > a.btn { justify-self: start; }
-.topbar:has(> a.btn) .topbar__brand { justify-self: center; }
-.topbar:has(> a.btn) > span { justify-self: end; }
-.topbar:has(> a.btn) > .topbar__right { justify-self: end; }
+.topbar:has(> a.btn), .topbar:has(> .topbar__back) { display: grid; grid-template-columns: 1fr auto 1fr; }
+.topbar:has(> a.btn), .topbar:has(> .topbar__back) > a.btn { justify-self: start; }
+.topbar:has(> a.btn), .topbar:has(> .topbar__back) .topbar__brand { justify-self: center; }
+.topbar:has(> a.btn), .topbar:has(> .topbar__back) > span { justify-self: end; }
+.topbar:has(> a.btn), .topbar:has(> .topbar__back) > .topbar__right { justify-self: end; }
 
 /* 상단바가 있는 화면은 바가 상태표시줄까지 덮도록 (네이티브 앱과 동일).
    body 의 safe-area 패딩을 걷고 바 자체에 얹는다. */
@@ -2278,3 +2278,9 @@ body.kb-up .tabbar { transform: translateY(150%); }
 
 /* 오늘 카드: 플랜 수정 링크 */
 .mtoday__edit { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-left: 10px; margin-right: auto; }
+
+/* 상단바 원형 뒤로가기 — 로그인·지원 페이지 버튼과 통일 */
+.topbar__back { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.92); color: #17171a; flex: none; }
+.topbar__back svg { width: 19px; height: 19px; }
+.topbar__back:active { transform: scale(0.94); }
+.topbar:has(> .topbar__back) > .topbar__back { justify-self: start; }
