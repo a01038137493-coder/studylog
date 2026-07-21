@@ -56,6 +56,42 @@
     .welcome__btn--login:active { background: #ececee; }
     .welcome__btn--start { background: var(--orange); color: #fff; }
     .welcome__btn--start:active { background: var(--orange-strong); }
+    /* 둘러보기 슬라이드 */
+    .welcome__center { gap: 16px; padding: 0; }
+    .tour { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tour::-webkit-scrollbar { display: none; }
+    .tour__slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 34px; box-sizing: border-box; text-align: center; }
+    .tour__art { display: flex; align-items: center; justify-content: center; min-height: 250px; margin-bottom: 26px; }
+    .tour__title { font-size: 1.25rem; font-weight: 800; margin: 0 0 8px; }
+    .tour__desc { font-size: 0.92rem; font-weight: 600; color: var(--muted); margin: 0; line-height: 1.6; }
+    .tour__dots { display: flex; gap: 7px; justify-content: center; }
+    .tour__dots i { width: 7px; height: 7px; border-radius: 50%; background: #dcdcdf; transition: all 0.25s ease; }
+    .tour__dots i.is-on { background: var(--orange); width: 20px; border-radius: 99px; }
+
+    /* CSS 목업 */
+    .mock { width: 252px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08); text-align: left; }
+    .mock__head { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.92rem; margin-bottom: 11px; }
+    .mock__head span { color: var(--orange-strong); font-size: 0.8rem; }
+    .mock__row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--bg); font-size: 0.86rem; font-weight: 600; }
+    .mock__row:last-child { border-bottom: none; }
+    .mock__row i { flex: none; width: 17px; height: 17px; border-radius: 50%; border: 1.6px solid var(--line-strong); font-style: normal; font-size: 0.62rem; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .mock__row.is-done i { background: var(--orange); border-color: var(--orange); }
+    .mock__row.is-done { color: var(--muted-soft); text-decoration: line-through; }
+    .mock__row b { color: var(--orange); font-size: 0.8rem; }
+    .mock__cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-bottom: 11px; }
+    .mock__cal i { height: 22px; border-radius: 7px; background: var(--bg); }
+    .mock__cal i.is-ev { background: var(--orange-bg); }
+    .mock__cal i.is-today { background: var(--orange); }
+    .mock__ev { display: flex; align-items: center; gap: 8px; background: var(--bg); border-radius: 10px; padding: 9px 11px; font-size: 0.83rem; font-weight: 700; }
+    .mock__ev span { color: var(--orange-strong); font-size: 0.76rem; font-weight: 800; flex: none; }
+    .mock__ev b { margin-left: auto; background: var(--orange); color: #fff; font-size: 0.66rem; padding: 3px 7px; border-radius: 99px; flex: none; }
+    .mock__bubble { background: #fee500; border-radius: 14px 14px 14px 4px; padding: 11px 13px; font-size: 0.86rem; font-weight: 700; width: fit-content; margin-bottom: 10px; }
+    .mock__arrow { text-align: center; color: var(--muted-soft); font-weight: 800; margin-bottom: 10px; }
+    .mock__bars { display: flex; align-items: flex-end; gap: 7px; height: 74px; margin-bottom: 11px; }
+    .mock__bars i { flex: 1; border-radius: 6px 6px 3px 3px; background: #f3d4d2; }
+    .mock__bars i.is-hot { background: var(--orange); }
+    .mock__streak { font-size: 0.84rem; font-weight: 800; color: var(--orange-strong); }
+
     .welcome__brand {
       text-align: center;
       color: var(--muted-soft);
@@ -67,7 +103,60 @@
 </head>
 <body class="welcome">
   <main class="welcome__center">
-    <p class="welcome__tagline">계획으로 방향성을 잡고,<br />핀로그에 오늘의 로그를 남기세요!</p>
+    <div class="tour" id="tour">
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock">
+            <div class="mock__head">오늘 할 일 <span>2/3 완료</span></div>
+            <div class="mock__row is-done"><i>✓</i>아침 운동</div>
+            <div class="mock__row is-done"><i>✓</i>보고서 정리</div>
+            <div class="mock__row"><i></i><b>★</b>프로젝트 회의 준비</div>
+          </div>
+        </div>
+        <p class="tour__title">계획으로 방향성을 잡고</p>
+        <p class="tour__desc">오늘 할 일을 몇 초 만에 계획하세요</p>
+      </section>
+
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock">
+            <div class="mock__head">7월 <span>오늘</span></div>
+            <div class="mock__cal">
+              <i></i><i></i><i class="is-ev"></i><i></i><i class="is-today"></i><i></i><i></i>
+              <i></i><i class="is-ev"></i><i></i><i></i><i></i><i class="is-ev"></i><i></i>
+            </div>
+            <div class="mock__ev"><span>오후 3:00</span>성수 사무실 미팅</div>
+          </div>
+        </div>
+        <p class="tour__title">일정은 캘린더에서 한눈에</p>
+        <p class="tour__desc">Apple 캘린더와 연동돼 어디서든 같은 일정</p>
+      </section>
+
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock">
+            <div class="mock__bubble">내일 3시에 성수에서 보자!</div>
+            <div class="mock__arrow">↓</div>
+            <div class="mock__ev"><span>내일 오후 3:00</span>성수 약속<b>자동 등록</b></div>
+          </div>
+        </div>
+        <p class="tour__title">캡처하면 일정이 자동으로</p>
+        <p class="tour__desc">카톡 스크린샷을 공유하면 날짜·시간을 읽어 등록해요</p>
+      </section>
+
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock">
+            <div class="mock__head">이번 주 로그</div>
+            <div class="mock__bars"><i style="height:34%"></i><i style="height:52%"></i><i style="height:40%"></i><i style="height:70%"></i><i style="height:58%"></i><i style="height:88%"></i><i class="is-hot" style="height:100%"></i></div>
+            <div class="mock__streak">🔥 7일 연속 기록 중</div>
+          </div>
+        </div>
+        <p class="tour__title">매일의 로그가 쌓입니다</p>
+        <p class="tour__desc">기록이 모여 나만의 데이터가 돼요</p>
+      </section>
+    </div>
+    <div class="tour__dots" id="tour-dots"></div>
   </main>
 
   <div class="welcome__actions">
@@ -90,5 +179,20 @@
   </div>
 
   <script src="/js/supabaseClient.js?v=mock11"></script>
+  <script>
+    (function () {
+      const tour = document.getElementById("tour");
+      const dotsEl = document.getElementById("tour-dots");
+      const n = tour.children.length;
+      for (let i = 0; i < n; i++) dotsEl.appendChild(document.createElement("i"));
+      const dots = [...dotsEl.children];
+      const sync = () => {
+        const idx = Math.round(tour.scrollLeft / tour.clientWidth);
+        dots.forEach((d, i) => d.classList.toggle("is-on", i === idx));
+      };
+      tour.addEventListener("scroll", sync, { passive: true });
+      sync();
+    })();
+  </script>
 </body>
 </html>
