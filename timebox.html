@@ -138,8 +138,7 @@
         const head = DOWS.map((d, i) =>
           `<div class="wk__day${i === todayDow ? " is-today" : ""}">${d}</div>`).join("");
         const cols = DOWS.map((d, i) => {
-          let cells = "";
-          for (let m = gs; m <= ge; m += 60) cells += `<i style="top:${y(m)}px"></i>`;
+          const cells = "";               // 시간 눈금·가로줄 없이 깔끔하게
           const isT = i === todayDow;
           const blks = boxes.filter((b) => daysOf(b).includes(i)).map((b) => {
             const s = toMin(b.start_time), e = toMin(b.end_time);
