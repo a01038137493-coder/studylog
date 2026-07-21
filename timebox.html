@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=151" />
+  <link rel="stylesheet" href="/css/style.css?v=152" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -83,22 +83,96 @@
         doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       }
 
-      /* ---------- 보기: 요일 선택 + 홈과 동일한 세로 시간축 그리드 ---------- */
+      /* ---------- 보기: 일주일 / 하루 (홈 그리드와 같은 디자인 언어) ---------- */
       const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
       const todayDow = (new Date().getDay() + 6) % 7;   // 월=0
       let selDow = todayDow;
+      let viewMode = "week";
       const daysOf = (b) => Array.isArray(b.days) && b.days.length ? b.days : [0, 1, 2, 3, 4, 5, 6];
+      const segHtml = () => `
+        <div class="period tbv__seg">
+          <button type="button" class="period__btn${viewMode === "week" ? " is-active" : ""}" data-vm="week">일주일</button>
+          <button type="button" class="period__btn${viewMode === "day" ? " is-active" : ""}" data-vm="day">하루</button>
+        </div>`;
 
-      function renderView() {
+      function renderView() { viewMode === "week" ? renderWeek() : renderDay(); }
+
+      function wireCommon() {
+        gridEl.querySelectorAll("[data-vm]").forEach((b) => {
+          b.addEventListener("click", () => { viewMode = b.dataset.vm; renderView(); });
+        });
+        gridEl.querySelectorAll("[data-dow]").forEach((chip) => {
+          chip.addEventListener("click", () => { selDow = Number(chip.dataset.dow); renderView(); });
+        });
+        gridEl.querySelectorAll("[data-box]").forEach((el) => {
+          el.addEventListener("click", async () => {
+            const id = el.dataset.box;
+            const next = !doneSet.has(id);
+            if (next) doneSet.add(id); else doneSet.delete(id);
+            renderView();
+            await supabaseClient.from("timebox_checks").upsert({
+              student_id: profile.id, box_id: id, date: today, done: next,
+            });
+          });
+        });
+      }
+
+      /* 일주일 뷰: 7컬럼 × 시간축 */
+      function renderWeek() {
+        const PX = 30;
+        const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+        let gs = 5 * 60, ge = 24 * 60;
+        if (boxes.length) {
+          gs = Math.min(gs, Math.floor(Math.min(...boxes.map((b) => toMin(b.start_time))) / 60) * 60);
+          ge = Math.max(ge, Math.ceil(Math.max(...boxes.map((b) => toMin(b.end_time))) / 60) * 60);
+        }
+        const y = (min) => ((min - gs) / 60) * PX;
+        const H = ((ge - gs) / 60) * PX;
+
+        const head = `<div class="wk__gut"></div>` + DOWS.map((d, i) =>
+          `<div class="wk__day${i === todayDow ? " is-today" : ""}">${d}</div>`).join("");
+        let gut = "";
+        for (let m = gs; m <= ge; m += 120) {
+          gut += `<span style="top:${y(m)}px">${m / 60}</span>`;
+        }
+        const cols = DOWS.map((d, i) => {
+          let cells = "";
+          for (let m = gs; m <= ge; m += 60) cells += `<i style="top:${y(m)}px"></i>`;
+          const isT = i === todayDow;
+          const blks = boxes.filter((b) => daysOf(b).includes(i)).map((b) => {
+            const s = toMin(b.start_time), e = toMin(b.end_time);
+            const on = isT && doneSet.has(b.id);
+            const cur = isT && nowMin >= s && nowMin < e;
+            return `
+            <button type="button" class="wk__blk${on ? " is-done" : ""}${cur ? " is-now" : ""}"
+                    ${isT ? `data-box="${b.id}"` : ""}
+                    style="top:${y(s) + 0.5}px; height:${Math.max(14, y(e) - y(s) - 1)}px">
+              <span>${esc(b.label)}</span>
+            </button>`;
+          }).join("");
+          const nowLine = isT && nowMin >= gs && nowMin <= ge
+            ? `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>` : "";
+          return `<div class="wk__col${isT ? " is-today" : ""}" style="height:${H}px">${cells}${blks}${nowLine}</div>`;
+        }).join("");
+
+        gridEl.innerHTML = segHtml() + `
+          <div class="wk">
+            <div class="wk__head">${head}</div>
+            <div class="wk__body"><div class="wk__gutcol" style="height:${H}px">${gut}</div>${cols}</div>
+          </div>
+          <p class="wtb__hint">오늘(${DOWS[todayDow]}) 블록을 탭하면 완료 체크돼요</p>`;
+        wireCommon();
+      }
+
+      /* 하루 뷰: 요일 칩 + 세로 그리드 */
+      function renderDay() {
         const chips = `<div class="tbe__days tbv__days">${DOWS.map((d, i) =>
           `<button type="button" class="tbe__day${i === selDow ? " is-on" : ""}${i === todayDow ? " tbv__today" : ""}" data-dow="${i}">${d}</button>`).join("")}</div>`;
 
         const dayBoxes = boxes.filter((b) => daysOf(b).includes(selDow));
-
         const PX = 56;
         const isToday = selDow === todayDow;
         const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-        // 하루 전체(05~24시)를 항상 표시 — 블록이 범위를 벗어나면 그만큼 확장
         let gs = 5 * 60, ge = 24 * 60;
         if (dayBoxes.length) {
           gs = Math.min(gs, Math.floor(Math.min(...dayBoxes.map((b) => toMin(b.start_time))) / 60) * 60);
@@ -127,33 +201,12 @@
         if (isToday && nowMin >= gs && nowMin <= ge) {
           html += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
         }
-        gridEl.innerHTML = chips +
+        gridEl.innerHTML = segHtml() + chips +
           `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>` +
           (dayBoxes.length === 0
             ? `<p class="wtb__hint">${DOWS[selDow]}요일엔 블록이 없어요 — 오른쪽 위 편집에서 추가해보세요</p>`
             : isToday ? `<p class="wtb__hint">블록을 탭하면 오늘 완료 체크돼요</p>` : `<p class="wtb__hint">${DOWS[selDow]}요일 시간표 미리보기</p>`);
-
-        wireChips();
-        gridEl.querySelectorAll("[data-box]").forEach((el) => {
-          el.addEventListener("click", async () => {
-            const id = el.dataset.box;
-            const next = !doneSet.has(id);
-            if (next) doneSet.add(id); else doneSet.delete(id);
-            renderView();
-            await supabaseClient.from("timebox_checks").upsert({
-              student_id: profile.id, box_id: id, date: today, done: next,
-            });
-          });
-        });
-      }
-
-      function wireChips() {
-        gridEl.querySelectorAll("[data-dow]").forEach((chip) => {
-          chip.addEventListener("click", () => {
-            selDow = Number(chip.dataset.dow);
-            renderView();
-          });
-        });
+        wireCommon();
       }
 
       /* ---------- 편집 ---------- */
