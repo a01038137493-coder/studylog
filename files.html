@@ -431,8 +431,28 @@
           if (row.classList.contains("is-open")) { closeOpen(); return; }
           status("여는 중…");
           const url = await signed(card.dataset.open);
+          if (!url) { status(""); alert("파일을 열지 못했습니다."); return; }
+
+          // 앱: iOS 내장 뷰어(QuickLook) — 이미지는 사진 뷰어, PDF는 PDF 뷰어
+          const viz = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+            ? window.Capacitor.Plugins.VisionOCR : null;
+          if (viz && viz.previewFile) {
+            try {
+              const f = files.find((x) => x.id === row.dataset.id);
+              const resp = await fetch(url);
+              const blob = await resp.blob();
+              const b64 = await new Promise((res, rej) => {
+                const r = new FileReader();
+                r.onload = () => res(String(r.result).split(",")[1]);
+                r.onerror = rej;
+                r.readAsDataURL(blob);
+              });
+              status("");
+              await viz.previewFile({ base64: b64, name: (f && f.name) || "파일" });
+              return;
+            } catch (e) { /* 실패 시 아래 웹 열기로 폴백 */ }
+          }
           status("");
-          if (!url) { alert("파일을 열지 못했습니다."); return; }
           const w = window.open(url, "_blank");
           if (!w) window.location.href = url;
         });

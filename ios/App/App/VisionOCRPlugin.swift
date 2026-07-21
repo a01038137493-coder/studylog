@@ -13,6 +13,7 @@ import Foundation
 import UIKit
 import Vision
 import Capacitor
+import QuickLook
 
 @objc(VisionOCRPlugin)
 public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -23,8 +24,37 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "recognize", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "hasSharedFile", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "takeSharedFile", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "takeSharedFile", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "previewFile", returnType: CAPPluginReturnPromise)
     ]
+
+    private var previewURL: URL?
+
+    /* iOS 내장 뷰어(QuickLook)로 파일 열기 — 이미지·PDF·오피스 문서 등 */
+    @objc func previewFile(_ call: CAPPluginCall) {
+        guard let b64 = call.getString("base64"),
+              let data = Data(base64Encoded: b64, options: .ignoreUnknownCharacters) else {
+            call.reject("invalid_data")
+            return
+        }
+        let rawName = call.getString("name") ?? "파일"
+        let safeName = rawName.replacingOccurrences(of: "/", with: "_")
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("dt-preview", isDirectory: true)
+        try? FileManager.default.removeItem(at: dir)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent(safeName)
+        do { try data.write(to: url, options: .atomic) } catch {
+            call.reject("write_failed")
+            return
+        }
+        DispatchQueue.main.async {
+            self.previewURL = url
+            let ql = QLPreviewController()
+            ql.dataSource = self
+            self.bridge?.viewController?.present(ql, animated: true)
+            call.resolve()
+        }
+    }
 
     private static let appGroupID = "group.com.pinlog.app"
 
@@ -163,5 +193,14 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         let texts = merged.map(\.text)
         let avg = merged.isEmpty ? 0 : merged.map { Double($0.confidence) }.reduce(0, +) / Double(merged.count)
         return (texts.joined(separator: "\n"), texts, avg)
+    }
+}
+
+extension VisionOCRPlugin: QLPreviewControllerDataSource {
+    public func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+        return previewURL == nil ? 0 : 1
+    }
+    public func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        return (previewURL ?? URL(fileURLWithPath: "/")) as NSURL
     }
 }
