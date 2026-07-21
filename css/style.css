@@ -2479,10 +2479,11 @@ input[type="month"].field__input {
 /* ============================================================
    태블릿 레이어 — 노션풍 좌측 내비게이션 + 콘텐츠 배치
    (하단 탭바 마크업을 CSS만으로 좌측 사이드바로 변환.
-    아이폰 가로모드는 제외: min-height 500px 조건)
+    홈 화면(body.tab-home)은 제외 — 하단 탭바 유지.
+    아이폰 가로모드 제외: min-height 500px 조건)
    ============================================================ */
 @media (min-width: 768px) and (min-height: 500px) {
-  .tabbar {
+  body:not(.tab-home) .tabbar {
     top: 0; bottom: 0; right: auto; left: 0;
     width: 212px; box-sizing: border-box;
     flex-direction: column; justify-content: flex-start; gap: 2px;
@@ -2491,27 +2492,27 @@ input[type="month"].field__input {
     border-top: none; border-right: 1px solid var(--line);
     -webkit-backdrop-filter: none; backdrop-filter: none;
   }
-  .tabbar::before {
+  body:not(.tab-home) .tabbar::before {
     content: "핀로그";
     display: block;
     padding: 4px 10px 18px;
     font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
     color: var(--navy);
   }
-  .tabbar__item {
+  body:not(.tab-home) .tabbar__item {
     flex: 0 0 auto;
     flex-direction: row; justify-content: flex-start; gap: 11px;
     padding: 10px; border-radius: 9px;
     font-size: 0.93rem; font-weight: 600; color: var(--muted);
   }
-  .tabbar__item svg { width: 20px; height: 20px; }
-  .tabbar__item:active { background: rgba(15, 23, 42, 0.1); }
-  .tabbar__item.is-active { background: rgba(15, 23, 42, 0.08); color: var(--navy); font-weight: 700; }
-  body.has-tabbar { padding-left: 212px; padding-bottom: 0; }
-  body.kb-up .tabbar { transform: none; }        /* 사이드바는 키보드가 떠도 유지 */
+  body:not(.tab-home) .tabbar__item svg { width: 20px; height: 20px; }
+  body:not(.tab-home) .tabbar__item:active { background: rgba(15, 23, 42, 0.1); }
+  body:not(.tab-home) .tabbar__item.is-active { background: rgba(15, 23, 42, 0.08); color: var(--navy); font-weight: 700; }
+  body.has-tabbar:not(.tab-home) { padding-left: 212px; padding-bottom: 0; }
+  body.kb-up:not(.tab-home) .tabbar { transform: none; }   /* 사이드바는 키보드가 떠도 유지 */
 
-  /* 오버레이 모달은 사이드바를 뺀 콘텐츠 영역 기준 중앙 */
-  .evsheet, .catalog-modal { left: 212px; }
+  /* 오버레이 모달은 사이드바를 뺀 콘텐츠 영역 기준 중앙 (홈은 사이드바 없음) */
+  body:not(.tab-home) .evsheet, body:not(.tab-home) .catalog-modal { left: 212px; }
 
   /* 내 기록 요약 4지표: 한 줄 4칸 */
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
@@ -2523,5 +2524,5 @@ input[type="month"].field__input {
   #memo-list .dt-skel, #file-list .dt-skel { grid-column: 1 / -1; }
 }
 @media (min-width: 768px) and (min-height: 500px) and (hover: hover) {
-  .tabbar__item:not(.is-active):hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
+  body:not(.tab-home) .tabbar__item:not(.is-active):hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
 }
