@@ -2220,3 +2220,8 @@ body.is-general .task-subject { display: none; }
 .auth-back { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 14px); left: 16px; z-index: 60; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.08); background: rgba(255, 255, 255, 0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .auth-back svg { width: 20px; height: 20px; }
 .auth-back:active { transform: scale(0.94); }
+
+/* 로그인(브랜드 헤더 없는 카드): 모바일에서 폼이 뒤로가기 버튼과 겹치지 않게 */
+@media (max-width: 480px) {
+  .auth-card--brandled { padding-top: 64px; }
+}
