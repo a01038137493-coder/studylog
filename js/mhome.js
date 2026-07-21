@@ -222,9 +222,14 @@
 
       let ghtml = "";
       for (let m = gs; m <= ge; m += 60) {
-        ghtml += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
+        ghtml += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${hb12(m / 60)}</span></div>`;
         if (m < ge) ghtml += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
       }
+      const hb12 = (h) => (h % 12 === 0 ? 12 : h % 12);
+      const hbT12 = (t) => {
+        const [h, m] = t.split(":").map(Number);
+        return `${h < 12 ? "오전" : "오후"} ${hb12(h)}:${String(m).padStart(2, "0")}`;
+      };
       const HB_COLORS = ["#ef767a", "#f5a25d", "#d9b23c", "#64ba7b", "#45c4b6", "#6096f0", "#7d80da", "#a06ee1", "#ea7fb1"];
       const hbColor = (b) => {
         if (b.color) return b.color;
@@ -244,7 +249,7 @@
         return `
         <div class="tgrid__block${slim ? " tgrid__block--slim" : ""}"
              style="top:${y(s) + 1}px; height:${h}px; background:${bg}; border-left-color:${bc}">
-          ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
+          ${slim ? "" : `<span class="tgrid__time">${hbT12(b.start_time)}–${hbT12(b.end_time)}</span>`}
           <span class="tgrid__label">${esc(b.label)}</span>
         </div>`;
       }).join("");

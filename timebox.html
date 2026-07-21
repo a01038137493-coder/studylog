@@ -118,6 +118,11 @@
         return TB_COLORS[h % TB_COLORS.length];
       };
       const boxColor = (b) => b.color || colorOf(b.label);
+      const h12 = (h) => (h % 12 === 0 ? 12 : h % 12);
+      const t12 = (t) => {
+        const [h, m] = t.split(":").map(Number);
+        return `${h < 12 ? "오전" : "오후"} ${h12(h)}:${String(m).padStart(2, "0")}`;
+      };
       const segHtml = () => `
         <div class="period tbv__seg">
           <button type="button" class="period__btn${viewMode === "week" ? " is-active" : ""}" data-vm="week">일주일</button>
@@ -151,7 +156,7 @@
           `<div class="wk__day${i === todayDow ? " is-today" : ""}">${d}</div>`).join("");
         let gut = "";
         for (let m = gs; m <= ge; m += 120) {
-          gut += `<span style="top:${y(m)}px">${m / 60}</span>`;
+          gut += `<span style="top:${y(m)}px">${h12(m / 60)}</span>`;
         }
         const cols = DOWS.map((d, i) => {
           let cells = "";
@@ -193,7 +198,7 @@
 
         let html = "";
         for (let m = gs; m <= ge; m += 60) {
-          html += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
+          html += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${h12(m / 60)}</span></div>`;
           if (m < ge) html += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
         }
         html += dayBoxes.map((b) => {
@@ -208,7 +213,7 @@
           return `
           <div class="tgrid__block${slim ? " tgrid__block--slim" : ""}"
                style="top:${y(s) + 1}px; height:${h}px; background:${bg}; border-left-color:${bc}">
-            ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
+            ${slim ? "" : `<span class="tgrid__time">${t12(b.start_time)}–${t12(b.end_time)}</span>`}
             <span class="tgrid__label">${esc(b.label)}</span>
           </div>`;
         }).join("");
@@ -241,7 +246,7 @@
             <span class="tbr__dot" style="background:${boxColor(b)}"></span>
             <span class="tbr__mid">
               <b>${esc(b.label)}</b>
-              <span>${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)} · ${dayText(b)}</span>
+              <span>${t12(b.start_time)}–${t12(b.end_time)} · ${dayText(b)}</span>
             </span>
             <span class="tbr__chev">›</span>
           </button>`).join("");
