@@ -2223,5 +2223,5 @@ body.is-general .task-subject { display: none; }
 
 /* 로그인(브랜드 헤더 없는 카드): 모바일에서 폼이 뒤로가기 버튼과 겹치지 않게 */
 @media (max-width: 480px) {
-  .auth-card--brandled { padding-top: max(16vh, 110px); }
+  .auth-card--brandled { padding-top: max(9vh, 70px); }
 }
