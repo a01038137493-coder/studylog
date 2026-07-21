@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>내 기록 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=141" />
+  <link rel="stylesheet" href="/css/style.css?v=142" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -33,11 +33,29 @@
         <span class="stat__label"><span class="period-label">최근 7일</span> 완료 과제</span>
         <span class="stat__value" id="stat-done">—</span>
       </div>
+      <div class="card stat">
+        <span class="stat__label">기록한 날</span>
+        <span class="stat__value" id="stat-days">—</span>
+      </div>
+      <div class="card stat">
+        <span class="stat__label">평균 컨디션</span>
+        <span class="stat__value" id="stat-cond">—</span>
+      </div>
     </section>
 
     <section class="card">
       <h2 class="card__title"><span class="period-label">최근 7일</span> 일자별 완료율</h2>
       <div id="daily-completion" class="bar-list"><p class="muted">불러오는 중...</p></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">요일별 평균 완료율</h2>
+      <div id="weekday-stats" class="bar-list"><p class="muted">불러오는 중...</p></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">위험 요소 영향</h2>
+      <ul id="risk-impact" class="rank-list"><li class="muted">불러오는 중...</li></ul>
     </section>
 
     <section class="card">
@@ -82,6 +100,6 @@
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock12"></script>
   <script src="/js/utils.js?v=8"></script>
-  <script src="/js/history.js?v=9"></script>
+  <script src="/js/history.js?v=10"></script>
 </body>
 </html>
