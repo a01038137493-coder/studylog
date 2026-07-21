@@ -4,6 +4,17 @@
 <dict>
     <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.studylog.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dittonlog</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>메모에 첨부할 사진을 선택하기 위해 사진 보관함 접근 권한이 필요합니다.</string>
 	<key>NSCameraUsageDescription</key>

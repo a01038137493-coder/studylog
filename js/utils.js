@@ -329,3 +329,28 @@ function fmtTime12(d) {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return ampm + " " + h12 + ":" + String(m).padStart(2, "0");
 }
+
+/* ============================================================
+ * Share Extension 연동: 공유 시트로 받은 스크린샷이 App Group 에
+ * 남아 있으면 꺼내서 캘린더의 일정 인식 흐름으로 넘긴다.
+ * ============================================================ */
+async function checkSharedScreenshot() {
+  try {
+    const viz = window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.VisionOCR : null;
+    if (!viz || !viz.takeSharedScreenshot) return;
+    const { base64 } = await viz.takeSharedScreenshot();
+    if (!base64) return;
+    sessionStorage.setItem("dt_shared_shot", base64);
+    if (location.pathname !== "/calendar.html") {
+      window.location.href = "/calendar.html";
+    } else if (window.__dtHandleSharedShot) {
+      window.__dtHandleSharedShot();
+    }
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkSharedScreenshot();
+});
+if (document.readyState !== "loading") checkSharedScreenshot();
+else document.addEventListener("DOMContentLoaded", checkSharedScreenshot);

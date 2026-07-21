@@ -20,8 +20,28 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "VisionOCRPlugin"
     public let jsName = "VisionOCR"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "recognize", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "recognize", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise)
     ]
+
+    private static let appGroupID = "group.com.studylog.app"
+
+    /// Share Extension 이 App Group 에 남긴 스크린샷을 꺼내온다 (꺼내면서 삭제).
+    /// JS: VisionOCR.takeSharedScreenshot() → { base64: string | null }
+    @objc func takeSharedScreenshot(_ call: CAPPluginCall) {
+        guard let container = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupID) else {
+            call.resolve(["base64": NSNull()])
+            return
+        }
+        let url = container.appendingPathComponent("pending-screenshot.jpg")
+        guard let data = try? Data(contentsOf: url) else {
+            call.resolve(["base64": NSNull()])
+            return
+        }
+        try? FileManager.default.removeItem(at: url)
+        call.resolve(["base64": data.base64EncodedString()])
+    }
 
     @objc func recognize(_ call: CAPPluginCall) {
         guard let base64 = call.getString("base64"),
