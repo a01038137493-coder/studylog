@@ -2215,3 +2215,8 @@ body.is-general .task-subject { display: none; }
   .auth-split .auth-card--brandled .auth-card__title,
   .auth-split .auth-card--brandled .auth-card__subtitle { display: none; }
 }
+
+/* 로그인·가입 뒤로가기 (플로팅, 노치 안전영역 반영) */
+.auth-back { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 14px); left: 16px; z-index: 60; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.08); background: rgba(255, 255, 255, 0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.auth-back svg { width: 20px; height: 20px; }
+.auth-back:active { transform: scale(0.94); }
