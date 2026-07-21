@@ -2156,3 +2156,19 @@ body.is-general .task-subject { display: none; }
 /* 상시 디스플레이 시계 (일반 태블릿 홈) */
 .gtab-head { align-items: flex-start; }
 .gtab-clock { font-size: 2.9rem; font-weight: 800; letter-spacing: -1px; line-height: 1.05; margin-bottom: 3px; font-variant-numeric: tabular-nums; }
+
+/* 할 일 작성 시트 · 중요 · 예정 (일반 태블릿 홈) */
+.gtodo__addbtn { display: block; width: 100%; padding: 12px 4px; background: none; border: none; text-align: left; font: inherit; font-size: 0.95rem; font-weight: 700; color: var(--muted-soft); cursor: pointer; }
+.gtodo__addbtn:active { color: var(--muted); }
+.gt-input { width: 100%; box-sizing: border-box; margin: 14px 0 12px; font-size: 1.05rem; }
+.gt-chips { display: flex; gap: 8px; margin-bottom: 12px; }
+.gt-chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 0.88rem; font-weight: 700; color: var(--muted); cursor: pointer; }
+.gt-chip.is-active { background: var(--navy); border-color: var(--navy); color: #fff; }
+#gt-date { margin-bottom: 12px; }
+.gt-imp { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font: inherit; font-weight: 700; color: var(--muted); cursor: pointer; margin-bottom: 6px; }
+.gt-imp__star { font-size: 1.1rem; color: var(--line-strong); }
+.gt-imp.is-on { border-color: var(--orange); color: var(--orange-strong); }
+.gt-imp.is-on .gt-imp__star { color: var(--orange); }
+.gtodo__star { flex: none; color: var(--orange); font-size: 0.95rem; }
+.memo-act--imp { background: #e0a23c; }
+.gup-date { flex: none; font-size: 0.78rem; font-weight: 800; color: var(--muted); background: var(--bg-soft, #f2f3f6); border-radius: 8px; padding: 4px 8px; }
