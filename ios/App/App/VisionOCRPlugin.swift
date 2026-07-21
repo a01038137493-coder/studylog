@@ -1,6 +1,6 @@
 //
 //  VisionOCRPlugin.swift
-//  디턴로그 — 앱 내장 Capacitor 플러그인
+//  데이로그 — 앱 내장 Capacitor 플러그인
 //
 //  스크린샷 이미지를 온디바이스 Vision OCR(한국어)로 읽는다.
 //  JS: window.Capacitor.Plugins.VisionOCR.recognize({ base64 })

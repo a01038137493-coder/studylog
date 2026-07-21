@@ -1,6 +1,6 @@
 //
 //  ShareViewController.swift
-//  디턴로그 ShareExtension
+//  데이로그 ShareExtension
 //
 //  공유 시트에서 스크린샷을 받아 App Group 에 저장하고 본앱을 연다.
 //  OCR·일정 분석은 본앱(JS 파서)이 이어서 수행한다 — 파서 로직을 한 곳에 유지.
@@ -30,7 +30,7 @@ final class ShareViewController: UIViewController {
         statusLabel.textAlignment = .center
         statusLabel.numberOfLines = 0
 
-        openButton.setTitle("디턴로그에서 일정 등록", for: .normal)
+        openButton.setTitle("데이로그에서 일정 등록", for: .normal)
         openButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         openButton.backgroundColor = .black
         openButton.setTitleColor(.white, for: .normal)
@@ -84,7 +84,7 @@ final class ShareViewController: UIViewController {
                     self?.showError("저장하지 못했습니다.\n앱을 업데이트한 뒤 다시 시도해주세요.")
                     return
                 }
-                self?.statusLabel.text = "스크린샷 준비 완료!\n디턴로그에서 일정 등록을 이어가세요."
+                self?.statusLabel.text = "스크린샷 준비 완료!\n데이로그에서 일정 등록을 이어가세요."
                 self?.openButton.isHidden = false
                 // 자동으로 본앱 열기 시도 (실패해도 버튼으로 열 수 있음)
                 self?.openApp()
