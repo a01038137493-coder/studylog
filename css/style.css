@@ -2477,45 +2477,50 @@ input[type="month"].field__input {
 .evsheet__dt .field__input { flex: 1; }
 
 /* ============================================================
-   태블릿 레이어 — 노션풍 좌측 내비게이션 + 콘텐츠 배치
-   (하단 탭바 마크업을 CSS만으로 좌측 사이드바로 변환.
-    홈 화면(body.tab-home)은 제외 — 하단 탭바 유지.
+   태블릿 레이어 — 노션풍 좌측 콘텐츠 패널 + 배치 정리
+   (하단 탭바는 그대로. 메모·파일은 좌측에 폴더 패널을 세로로.
     아이폰 가로모드 제외: min-height 500px 조건)
    ============================================================ */
 @media (min-width: 768px) and (min-height: 500px) {
-  body:not(.tab-home) .tabbar {
-    top: 0; bottom: 0; right: auto; left: 0;
-    width: 212px; box-sizing: border-box;
-    flex-direction: column; justify-content: flex-start; gap: 2px;
-    padding: calc(20px + env(safe-area-inset-top, 0px)) 12px 20px calc(12px + env(safe-area-inset-left, 0px));
-    background: #efeff1;
-    border-top: none; border-right: 1px solid var(--line);
-    -webkit-backdrop-filter: none; backdrop-filter: none;
-  }
-  body:not(.tab-home) .tabbar::before {
-    content: "핀로그";
-    display: block;
-    padding: 4px 10px 18px;
-    font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
-    color: var(--navy);
-  }
-  body:not(.tab-home) .tabbar__item {
-    flex: 0 0 auto;
-    flex-direction: row; justify-content: flex-start; gap: 11px;
-    padding: 10px; border-radius: 9px;
-    font-size: 0.93rem; font-weight: 600; color: var(--muted);
-  }
-  body:not(.tab-home) .tabbar__item svg { width: 20px; height: 20px; }
-  body:not(.tab-home) .tabbar__item:active { background: rgba(15, 23, 42, 0.1); }
-  body:not(.tab-home) .tabbar__item.is-active { background: rgba(15, 23, 42, 0.08); color: var(--navy); font-weight: 700; }
-  body.has-tabbar:not(.tab-home) { padding-left: 212px; padding-bottom: 0; }
-  body.kb-up:not(.tab-home) .tabbar { transform: none; }   /* 사이드바는 키보드가 떠도 유지 */
-
-  /* 오버레이 모달은 사이드바를 뺀 콘텐츠 영역 기준 중앙 (홈은 사이드바 없음) */
-  body:not(.tab-home) .evsheet, body:not(.tab-home) .catalog-modal { left: 212px; }
-
   /* 내 기록 요약 4지표: 한 줄 4칸 */
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* 메모·파일: 좌측 폴더 패널 + 우측 콘텐츠 2단 */
+  main.container:has(> .memo-cats) {
+    display: grid; grid-template-columns: 208px minmax(0, 1fr);
+    column-gap: 20px; align-items: start;
+    max-width: 1024px;
+  }
+  main.container:has(> .memo-cats) > * { grid-column: 2; min-width: 0; }
+  main.container:has(> .memo-cats) > .memo-cats {
+    grid-column: 1; grid-row: 1 / span 6;
+    position: sticky; top: calc(env(safe-area-inset-top, 0px) + 74px);
+    flex-direction: column; align-items: stretch; gap: 2px;
+    overflow: visible; margin-bottom: 0;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 10px;
+  }
+  main.container:has(> .memo-cats) > .memo-cats::before {
+    content: "폴더";
+    display: block;
+    padding: 0 10px 8px;
+    font-size: 0.76rem; font-weight: 800; letter-spacing: 0.02em;
+    color: var(--muted-soft);
+  }
+  main.container:has(> .memo-cats) > .memo-cats .memo-cat {
+    display: flex; align-items: center; gap: 8px;
+    border: none; background: none; text-align: left;
+    border-radius: 8px; padding: 9px 10px;
+    font-size: 0.92rem;
+  }
+  main.container:has(> .memo-cats) > .memo-cats .memo-cat:active { background: rgba(15, 23, 42, 0.08); }
+  main.container:has(> .memo-cats) > .memo-cats .memo-cat.is-active {
+    background: rgba(240, 68, 56, 0.1); color: var(--primary);
+  }
+  main.container:has(> .memo-cats) > .memo-cats .memo-cat--add {
+    margin-top: 6px; border-top: 1px solid var(--line);
+    border-radius: 0 0 8px 8px; color: var(--muted-soft);
+  }
 
   /* 메모·파일 목록: 2열 */
   #memo-list, #file-list { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-items: start; }
@@ -2524,5 +2529,5 @@ input[type="month"].field__input {
   #memo-list .dt-skel, #file-list .dt-skel { grid-column: 1 / -1; }
 }
 @media (min-width: 768px) and (min-height: 500px) and (hover: hover) {
-  body:not(.tab-home) .tabbar__item:not(.is-active):hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
+  main.container:has(> .memo-cats) > .memo-cats .memo-cat:not(.is-active):hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
 }
