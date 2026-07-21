@@ -2352,3 +2352,19 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .tbe__days { display: flex; gap: 6px; margin: 7px 0 3px 2px; }
 .tbe__day { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font: inherit; font-size: 0.74rem; font-weight: 700; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .tbe__day.is-on { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+/* 타임박스 세로 그리드 (종이 타임박스 스타일) */
+.tgrid { position: relative; margin: 10px 2px 4px; }
+.tgrid__hour { position: absolute; left: 30px; right: 0; border-top: 1px solid var(--line); }
+.tgrid__hour span { position: absolute; top: -7px; left: -30px; width: 26px; text-align: right; font-size: 0.68rem; font-weight: 700; color: var(--muted-soft); font-variant-numeric: tabular-nums; }
+.tgrid__half { position: absolute; left: 30px; right: 0; border-top: 1px dashed #ececee; }
+.tgrid__block { position: absolute; left: 38px; right: 2px; border: none; border-left: 3px solid var(--orange); border-radius: 8px; background: var(--orange-bg); text-align: left; font: inherit; padding: 4px 9px; cursor: pointer; overflow: hidden; z-index: 2; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+.tgrid__block--slim { padding: 2px 9px; }
+.tgrid__time { font-size: 0.64rem; font-weight: 800; color: var(--orange-strong); font-variant-numeric: tabular-nums; }
+.tgrid__label { font-size: 0.82rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tgrid__block.is-now { background: repeating-linear-gradient(45deg, rgba(240, 68, 56, 0.3) 0 7px, rgba(240, 68, 56, 0.12) 7px 14px); }
+.tgrid__block.is-done { background: var(--orange); border-left-color: var(--orange-strong); }
+.tgrid__block.is-done .tgrid__label { color: #fff; }
+.tgrid__block.is-done .tgrid__time { color: rgba(255, 255, 255, 0.85); }
+.tgrid__now { position: absolute; left: 30px; right: 0; border-top: 2px solid #f04438; z-index: 3; pointer-events: none; }
+.tgrid__now::before { content: ""; position: absolute; left: -4px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: #f04438; }

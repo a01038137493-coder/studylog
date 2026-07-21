@@ -217,16 +217,36 @@
       const now = new Date();
       const nowMin = now.getHours() * 60 + now.getMinutes();
       const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-      tlist.innerHTML = todays.map((b) => {
-        const cur = nowMin >= toMin(b.start_time) && nowMin < toMin(b.end_time);
+
+      /* 세로 시간축 그리드 — 블록 범위에 맞춰 앞뒤 정시로 확장 */
+      const PX = 46;                                        // 1시간당 픽셀
+      const gs = Math.floor(Math.min(...todays.map((b) => toMin(b.start_time))) / 60) * 60;
+      const ge = Math.ceil(Math.max(...todays.map((b) => toMin(b.end_time))) / 60) * 60;
+      const H = ((ge - gs) / 60) * PX;
+      const y = (min) => ((min - gs) / 60) * PX;
+
+      let ghtml = "";
+      for (let m = gs; m <= ge; m += 60) {
+        ghtml += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
+        if (m < ge) ghtml += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
+      }
+      ghtml += todays.map((b) => {
+        const s = toMin(b.start_time), e = toMin(b.end_time);
+        const cur = nowMin >= s && nowMin < e;
         const on = doneSet.has(b.id);
+        const h = Math.max(20, y(e) - y(s) - 2);
+        const slim = h < 36;
         return `
-        <button type="button" class="tbox__row${cur ? " is-now" : ""}${on ? " is-done" : ""}" data-box="${b.id}">
-          <span class="tbox__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>
-          <span class="tbox__label">${esc(b.label)}</span>
-          <span class="tbox__check">${on ? "✓" : ""}</span>
+        <button type="button" class="tgrid__block${cur ? " is-now" : ""}${on ? " is-done" : ""}${slim ? " tgrid__block--slim" : ""}"
+                data-box="${b.id}" style="top:${y(s) + 1}px; height:${h}px">
+          ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
+          <span class="tgrid__label">${on ? "✓ " : ""}${esc(b.label)}</span>
         </button>`;
       }).join("");
+      if (nowMin >= gs && nowMin <= ge) {
+        ghtml += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
+      }
+      tlist.innerHTML = `<div class="tgrid" style="height:${H + 14}px">${ghtml}</div>`;
       card.hidden = false;
       tlist.querySelectorAll("[data-box]").forEach((row) => {
         row.addEventListener("click", async () => {
