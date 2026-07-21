@@ -422,38 +422,36 @@ async function renderHomeSchedule(sectionEl, listEl) {
     K.setResizeMode({ mode });
     if (mode !== "none") return;
 
-    // 시트 들어올림 = 실제 가려진 높이(visualViewport 기준)를 프레임 단위로 추적.
-    // 추정치가 아니라 실측이라, 웹뷰가 어떻게 동작하든 키보드 윗선에 정확히 붙는다.
+    // 들어올림 = 네이티브 키보드 이벤트의 실제 높이.
+    // 텍스트 입력은 탭 즉시 직전 높이로 선반응(브리지 지연 제거)하되,
+    // 키보드가 실제로 안 뜨면(날짜 휠 등) 0.6초 뒤 자동 원복한다.
     const root = document.documentElement;
-    let raf = null;
-    function track(ms) {
-      cancelAnimationFrame(raf);
-      const t0 = performance.now();
-      const step = () => {
-        const vv = window.visualViewport;
-        const lift = vv ? Math.max(0, root.clientHeight - vv.height - vv.offsetTop) : 0;
-        root.style.setProperty("--kb", lift + "px");
-        if (performance.now() - t0 < ms) raf = requestAnimationFrame(step);
-      };
-      raf = requestAnimationFrame(step);
-    }
+    const setKb = (h) => root.style.setProperty("--kb", h + "px");
+    const TEXTUAL = /^(text|search|email|password|tel|url|number)$/;
+    let kbShown = false, guard = null;
+    const isTextField = (el) => el && el.closest && el.closest(".evsheet__panel") &&
+      (el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && TEXTUAL.test(el.type || "text")));
+
     document.addEventListener("focusin", (e) => {
-      if (!e.target.closest || !e.target.closest(".evsheet__panel")) return;
-      document.body.classList.add("kb-open");        // 배경 스크롤 잠금
-      track(800);
+      if (!isTextField(e.target)) return;
+      document.body.classList.add("kb-open");
+      setKb(Number(localStorage.getItem("dt_kb_h")) || 300);
+      clearTimeout(guard);
+      guard = setTimeout(() => {
+        if (!kbShown) { setKb(0); document.body.classList.remove("kb-open"); }
+      }, 600);
     });
-    document.addEventListener("focusout", () => {
-      setTimeout(() => {
-        if (document.activeElement && document.activeElement.closest &&
-            document.activeElement.closest(".evsheet__panel")) return;
-        document.body.classList.remove("kb-open");
-        track(500);
-      }, 60);
+    K.addListener("keyboardWillShow", (e) => {
+      kbShown = true;
+      const h = (e && e.keyboardHeight) || 0;
+      if (h) localStorage.setItem("dt_kb_h", String(h));
+      document.body.classList.add("kb-open");
+      setKb(h);
     });
-    if (window.visualViewport) window.visualViewport.addEventListener("resize", () => track(400));
     K.addListener("keyboardWillHide", () => {
+      kbShown = false;
       document.body.classList.remove("kb-open");
-      track(500);
+      setKb(0);
     });
   } catch (e) {}
 })();
