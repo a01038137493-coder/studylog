@@ -523,7 +523,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
   .center-screen {
     background: var(--card);
     align-items: flex-start;
-    padding: max(7vh, 40px) 26px 40px;
+    padding: max(7vh, calc(env(safe-area-inset-top, 0px) + 24px)) 26px 40px;
   }
   .auth-card {
     max-width: none;
