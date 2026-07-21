@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=157" />
+  <link rel="stylesheet" href="/css/style.css?v=158" />
 </head>
-<body class="app-bg has-tabbar">
+<body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
     <div class="topbar__brand">타임박스</div>
     <div class="topbar__right">
@@ -20,13 +20,37 @@
       <div id="tb-grid"><p class="muted" style="text-align:center;margin:16px 0;">불러오는 중...</p></div>
     </section>
 
-    <!-- 편집: 블록 추가/수정/요일 -->
+    <!-- 편집: 블록 목록 (탭하면 시트로 수정) -->
     <section class="card" id="tb-editor" hidden>
-      <p class="tbe__hint" style="margin-top:2px;">시간·이름·요일을 바꾸면 바로 저장돼요.</p>
       <div id="tbe-list"></div>
       <button type="button" class="gtodo__addbtn" id="tbe-add">＋ 블록 추가</button>
     </section>
   </main>
+
+  <!-- 블록 추가/수정 시트 -->
+  <div class="evsheet" id="tbsheet" hidden>
+    <div class="evsheet__backdrop" data-tb-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <button type="button" class="evsheet__cancel" data-tb-close>취소</button>
+        <span class="evsheet__title" id="tbs-title">블록 추가</span>
+        <button type="button" class="evsheet__save" id="tbs-save">저장</button>
+      </div>
+      <input type="text" id="tbs-label" class="field__input gt-input" placeholder="무엇을 하나요? (예: 수학)" maxlength="30" autocomplete="off" enterkeyhint="done" />
+      <div class="evsheet__row evsheet__row--col">
+        <span>시간</span>
+        <div class="evsheet__dt">
+          <input type="time" id="tbs-start" class="field__input" />
+          <input type="time" id="tbs-end" class="field__input" />
+        </div>
+      </div>
+      <div class="tbs__dayswrap">
+        <span>요일</span>
+        <div class="tbe__days" id="tbs-days"></div>
+      </div>
+      <button type="button" class="evsheet__delete" id="tbs-del" hidden>블록 삭제</button>
+    </div>
+  </div>
 
   <nav class="tabbar">
     <a href="/student.html" class="tabbar__item">
@@ -213,71 +237,106 @@
         wireCommon();
       }
 
-      /* ---------- 편집 ---------- */
+      /* ---------- 편집: 요약 목록 + 바텀시트 ---------- */
+      const dayText = (b) => {
+        const ds = daysOf(b).slice().sort((x, z) => x - z);
+        if (ds.length === 7) return "매일";
+        if (ds.join(",") === "0,1,2,3,4") return "평일";
+        if (ds.join(",") === "5,6") return "주말";
+        return ds.map((i) => DOWS[i]).join("·");
+      };
+
       function renderEditor() {
         if (!boxes.length) {
           listEl.innerHTML = `<p class="muted" style="text-align:center;margin:14px 0;">아직 블록이 없어요.<br/>＋ 블록 추가로 시간표를 만들어보세요.</p>`;
           return;
         }
-        const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
-        const daysOf = (b) => Array.isArray(b.days) && b.days.length ? b.days : [0, 1, 2, 3, 4, 5, 6];
         listEl.innerHTML = boxes.map((b) => `
-          <div class="tbe__item" data-id="${b.id}">
-            <div class="tbe__row">
-              <input type="time" class="field__input tbe__start" value="${b.start_time.slice(0, 5)}" />
-              <input type="time" class="field__input tbe__end" value="${b.end_time.slice(0, 5)}" />
-              <input type="text" class="field__input tbe__label" value="${esc(b.label)}" maxlength="30" placeholder="할 일" />
-              <button type="button" class="tbe__del" aria-label="삭제">✕</button>
-            </div>
-            <div class="tbe__days">${DOWS.map((d, i) =>
-              `<button type="button" class="tbe__day${daysOf(b).includes(i) ? " is-on" : ""}" data-day="${i}">${d}</button>`).join("")}</div>
-          </div>`).join("");
-
-        listEl.querySelectorAll(".tbe__item").forEach((row) => {
-          const id = row.dataset.id;
-          const commit = async () => {
-            const start = row.querySelector(".tbe__start").value || "09:00";
-            const end = row.querySelector(".tbe__end").value || "10:00";
-            const label = row.querySelector(".tbe__label").value.trim() || "공부";
-            const days = [...row.querySelectorAll(".tbe__day.is-on")].map((c) => Number(c.dataset.day));
-            await supabaseClient.from("timeboxes")
-              .update({ start_time: start, end_time: end, label, days }).eq("id", id);
-            const b = boxes.find((x) => x.id === id);
-            if (b) { b.start_time = start; b.end_time = end; b.label = label; b.days = days; }
-            boxes.sort((a, bb) => a.start_time.localeCompare(bb.start_time));
-          };
-          row.querySelectorAll("input").forEach((inp) => {
-            inp.addEventListener("change", commit);
-            inp.addEventListener("blur", commit);
-          });
-          row.querySelectorAll(".tbe__day").forEach((chip) => {
-            chip.addEventListener("click", () => { chip.classList.toggle("is-on"); commit(); });
-          });
-          row.querySelector(".tbe__label").addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); e.target.blur(); }
-          });
-          row.querySelector(".tbe__del").addEventListener("click", async () => {
-            await supabaseClient.from("timeboxes").delete().eq("id", id);
-            boxes = boxes.filter((x) => x.id !== id);
-            renderEditor();
-          });
+          <button type="button" class="tbr" data-id="${b.id}">
+            <span class="tbr__dot" style="background:${colorOf(b.label)}"></span>
+            <span class="tbr__mid">
+              <b>${esc(b.label)}</b>
+              <span>${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)} · ${dayText(b)}</span>
+            </span>
+            <span class="tbr__chev">›</span>
+          </button>`).join("");
+        listEl.querySelectorAll(".tbr").forEach((row) => {
+          row.addEventListener("click", () =>
+            openSheet(boxes.find((x) => x.id === row.dataset.id) || null));
         });
       }
 
-      document.getElementById("tbe-add").addEventListener("click", async () => {
-        const last = boxes[boxes.length - 1];
-        const start = last ? last.end_time.slice(0, 5) : "09:00";
-        const [h, m] = start.split(":").map(Number);
-        const end = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-        const { data } = await supabaseClient.from("timeboxes")
-          .insert({ student_id: profile.id, label: "공부", start_time: start, end_time: end, sort: boxes.length, days: [0, 1, 2, 3, 4, 5, 6] })
-          .select().single();
-        if (data) {
-          boxes.push(data);
-          boxes.sort((a, b) => a.start_time.localeCompare(b.start_time));
-          renderEditor();
+      /* ----- 시트 ----- */
+      const sheet = document.getElementById("tbsheet");
+      const sLabel = document.getElementById("tbs-label");
+      const sStart = document.getElementById("tbs-start");
+      const sEnd = document.getElementById("tbs-end");
+      const sDays = document.getElementById("tbs-days");
+      const sDel = document.getElementById("tbs-del");
+      let editingBox = null;
+
+      function renderSheetDays(active) {
+        sDays.innerHTML = DOWS.map((d, i) =>
+          `<button type="button" class="tbe__day${active.includes(i) ? " is-on" : ""}" data-day="${i}">${d}</button>`).join("");
+        sDays.querySelectorAll(".tbe__day").forEach((chip) =>
+          chip.addEventListener("click", () => chip.classList.toggle("is-on")));
+      }
+
+      function openSheet(box) {
+        editingBox = box;
+        document.getElementById("tbs-title").textContent = box ? "블록 수정" : "블록 추가";
+        sLabel.value = box ? box.label : "";
+        if (box) {
+          sStart.value = box.start_time.slice(0, 5);
+          sEnd.value = box.end_time.slice(0, 5);
+        } else {
+          const last = boxes[boxes.length - 1];
+          const st = last ? last.end_time.slice(0, 5) : "09:00";
+          const [h, m] = st.split(":").map(Number);
+          sStart.value = st;
+          sEnd.value = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
         }
+        renderSheetDays(box ? daysOf(box) : [0, 1, 2, 3, 4, 5, 6]);
+        sDel.hidden = !box;
+        sheet.hidden = false;
+        if (!box) setTimeout(() => sLabel.focus({ preventScroll: true }), 60);
+      }
+      function closeSheet() { sheet.hidden = true; sLabel.blur(); }
+      sheet.querySelectorAll("[data-tb-close]").forEach((el) => el.addEventListener("click", closeSheet));
+
+      async function saveSheet() {
+        const label = sLabel.value.trim() || "공부";
+        let startT = sStart.value || "09:00";
+        let endT = sEnd.value || "10:00";
+        if (endT <= startT) {                    // 종료가 이르면 자동으로 1시간 뒤로
+          const [h, m] = startT.split(":").map(Number);
+          endT = `${String(Math.min(23, h + 1)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        }
+        const days = [...sDays.querySelectorAll(".tbe__day.is-on")].map((c) => Number(c.dataset.day));
+        if (editingBox) {
+          await supabaseClient.from("timeboxes")
+            .update({ label, start_time: startT, end_time: endT, days }).eq("id", editingBox.id);
+        } else {
+          await supabaseClient.from("timeboxes")
+            .insert({ student_id: profile.id, label, start_time: startT, end_time: endT, days, sort: boxes.length });
+        }
+        closeSheet();
+        await loadBoxes();
+        renderEditor();
+      }
+      document.getElementById("tbs-save").addEventListener("click", saveSheet);
+      sLabel.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); saveSheet(); }
       });
+      sDel.addEventListener("click", async () => {
+        if (!editingBox || !confirm(`'${editingBox.label}' 블록을 삭제할까요?`)) return;
+        await supabaseClient.from("timeboxes").delete().eq("id", editingBox.id);
+        closeSheet();
+        await loadBoxes();
+        renderEditor();
+      });
+
+      document.getElementById("tbe-add").addEventListener("click", () => openSheet(null));
 
       /* ---------- 보기/편집 전환 ---------- */
       let editing = false;
