@@ -2264,3 +2264,6 @@ html { background: #f4f4f5; }
 .fcal__events { flex: 0 0 auto; }
 .fab { position: fixed; right: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 88px); z-index: 90; width: 56px; height: 56px; border-radius: 50%; border: none; background: var(--orange); color: #fff; font-size: 1.9rem; font-weight: 500; line-height: 1; box-shadow: 0 8px 20px rgba(240, 68, 56, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
 .fab:active { transform: scale(0.93); }
+
+/* 지원·문의: 화면 세로 중앙 정렬 */
+body.support-page { align-items: center; padding-top: 24px; }
