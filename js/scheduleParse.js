@@ -140,7 +140,20 @@
       if (hour >= 13) return { hour: hour, minute: minute, ambiguity: null };
       if (meridiem === "pm") return { hour: hour < 12 ? hour + 12 : hour, minute: minute, ambiguity: null };
       if (meridiem === "am") return { hour: hour === 12 ? 0 : hour, minute: minute, ambiguity: null };
+      // 오전/오후 표기가 없는 1~6시는 관례상 오후로 해석 ("3시에 보자" = 15:00)
+      if (hour >= 1 && hour <= 6) return { hour: hour + 12, minute: minute, ambiguity: null };
       return { hour: hour, minute: minute, ambiguity: "오전·오후가 명확하지 않습니다" };
+    }
+
+    // "오후 3:30" 콜론 표기 (전송시각은 위에서 이미 제거됨)
+    var m2 = t.match(/([01]?[0-9]|2[0-3]):([0-5][0-9])/);
+    if (m2) {
+      var h2 = +m2[1], min2 = +m2[2];
+      if (h2 >= 13) return { hour: h2, minute: min2, ambiguity: null };
+      if (meridiem === "pm") return { hour: h2 < 12 ? h2 + 12 : h2, minute: min2, ambiguity: null };
+      if (meridiem === "am") return { hour: h2 === 12 ? 0 : h2, minute: min2, ambiguity: null };
+      if (h2 >= 1 && h2 <= 6) return { hour: h2 + 12, minute: min2, ambiguity: null };
+      return { hour: h2, minute: min2, ambiguity: "오전·오후가 명확하지 않습니다" };
     }
 
     for (var i = 0; i < VAGUE_TIME.length; i++) {
@@ -178,9 +191,16 @@
     return "약속";
   }
 
+  /* 카톡 말풍선 전송시각("오후 3:15")이 OCR 줄 병합으로 대화에 섞여
+   * 약속 시간으로 오인되는 것 방지 — 조사(에/부터/까지…)가 붙은 진짜 언급은 남긴다 */
+  function stripChatTimestamps(text) {
+    return String(text || "").replace(/(오전|오후)\s?\d{1,2}:\d{2}(?!\s*(분|에|에서|부터|까지|쯤|경|즈음))/g, " ");
+  }
+
   /* ---------- 메인 ---------- */
   function parse(fullText, now) {
     now = now || new Date();
+    fullText = stripChatTimestamps(fullText);
     var lines = String(fullText || "").split(/\n/).map(function (s) { return s.trim(); }).filter(Boolean);
     var base = kakaoSeparator(lines, now) || now;
 

@@ -2234,7 +2234,7 @@ body[data-kbresize="none"] .evsheet__panel { transform: translateY(calc(-1 * var
 html { background: #f4f4f5; }
 
 /* 캘린더: 여백·3패널 캐러셀 */
-.fcal__head { margin-top: 16px; padding-bottom: 14px; }
+.fcal__head { margin-top: 44px; padding-bottom: 16px; }
 .fcal__dows { padding-bottom: 10px; }
 .fcal__carousel { flex: 1; min-height: 0; overflow: hidden; }
 .fcal__track { display: flex; width: 300%; height: 100%; transform: translateX(-33.3333%); will-change: transform; }
