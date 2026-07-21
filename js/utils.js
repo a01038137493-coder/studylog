@@ -523,7 +523,7 @@ function dtSkeleton(el, rows) {
           href.indexOf("javascript:") === 0 || a.target === "_blank") return;
       if (e.metaKey || e.ctrlKey || e.defaultPrevented) return;
       e.preventDefault();
-      if (a.classList.contains("fab")) sessionStorage.setItem("dt_nav_up", "1");
+      if (a.classList.contains("fab") || a.classList.contains("fabmenu__item")) sessionStorage.setItem("dt_nav_up", "1");
       document.body.classList.add("dt-leaving");
       setTimeout(() => { window.location.href = href; }, 110);
     }, true);

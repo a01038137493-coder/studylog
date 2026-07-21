@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=138" />
+  <link rel="stylesheet" href="/css/style.css?v=139" />
 </head>
 <body class="app-bg has-tabbar">
   <!-- 태블릿/PC는 위젯 대시보드(student.html)로 — 이 파일은 모바일 전용 -->
@@ -46,7 +46,32 @@
     </section>
   </main>
 
-  <a href="/checkin.html" class="fab" aria-label="플랜 작성·수정">＋</a>
+  <div class="fabmenu" id="fabmenu">
+    <div class="fabmenu__backdrop" hidden></div>
+    <div class="fabmenu__items" hidden>
+      <a href="/checkin.html" class="fabmenu__item"><span>핵심과제 수정</span><i>✓</i></a>
+      <a href="/calendar.html?new=1" class="fabmenu__item"><span>일정 추가</span><i>📅</i></a>
+      <a href="/memo-edit.html" class="fabmenu__item"><span>메모 추가</span><i>✏️</i></a>
+      <a href="/files.html?upload=1" class="fabmenu__item"><span>파일 업로드</span><i>📁</i></a>
+    </div>
+    <button type="button" class="fab" id="fab-toggle" aria-label="빠른 추가">＋</button>
+  </div>
+
+  <script>
+    (function () {
+      const menu = document.getElementById("fabmenu");
+      const toggle = document.getElementById("fab-toggle");
+      const items = menu.querySelector(".fabmenu__items");
+      const back = menu.querySelector(".fabmenu__backdrop");
+      function set(open) {
+        menu.classList.toggle("is-open", open);
+        items.hidden = !open;
+        back.hidden = !open;
+      }
+      toggle.addEventListener("click", () => set(!menu.classList.contains("is-open")));
+      back.addEventListener("click", () => set(false));
+    })();
+  </script>
 
   <nav class="tabbar">
     <a href="/student-m.html" class="tabbar__item is-active">
@@ -73,7 +98,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock12"></script>
-  <script src="/js/utils.js?v=27"></script>
+  <script src="/js/utils.js?v=28"></script>
   <script src="/js/mhome.js?v=10"></script>
 </body>
 </html>
