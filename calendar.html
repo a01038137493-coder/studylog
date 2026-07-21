@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>캘린더 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=122" />
+  <link rel="stylesheet" href="/css/style.css?v=123" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
 <body class="app-bg has-tabbar fcal-page">
@@ -116,8 +116,8 @@
     </a>
   </nav>
 
-  <script src="/js/supabaseClient.js?v=mock11"></script>
-  <script src="/js/utils.js?v=18"></script>
+  <script src="/js/supabaseClient.js?v=mock12"></script>
+  <script src="/js/utils.js?v=19"></script>
   <script src="/js/scheduleParse.js?v=1"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
@@ -405,20 +405,45 @@
         }
       });
 
-      /* ---------- 좌우 스와이프로 달 이동 (요일 헤더·그리드 영역) ---------- */
+      /* ---------- 좌우 스와이프로 달 이동: 손가락을 따라오는 실시간 드래그 ---------- */
       (function wireSwipe() {
         const area = document.getElementById("fcal-grid");
-        let tx = null, ty = null;
+        let tx = null, ty = null, dragging = false;
         area.addEventListener("touchstart", (e) => {
-          tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+          tx = e.touches[0].clientX; ty = e.touches[0].clientY; dragging = false;
+        }, { passive: true });
+        area.addEventListener("touchmove", (e) => {
+          if (tx === null) return;
+          const dx = e.touches[0].clientX - tx, dy = e.touches[0].clientY - ty;
+          if (!dragging) {
+            if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+            dragging = true;
+          }
+          area.style.transition = "none";
+          area.style.transform = `translateX(${dx}px)`;
+          area.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx) / (area.clientWidth * 1.3)));
         }, { passive: true });
         area.addEventListener("touchend", (e) => {
           if (tx === null) return;
           const dx = e.changedTouches[0].clientX - tx;
-          const dy = e.changedTouches[0].clientY - ty;
-          tx = ty = null;
-          if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-            gotoMonth(dx < 0 ? 1 : -1);
+          const wasDragging = dragging;
+          tx = ty = null; dragging = false;
+          if (!wasDragging) return;
+          if (Math.abs(dx) > 55) {
+            const dir = dx < 0 ? 1 : -1;   // 민 방향으로 마저 밀어내고 새 달 슬라이드-인
+            area.style.transition = "transform 0.14s ease-out, opacity 0.14s ease-out";
+            area.style.transform = `translateX(${dir === 1 ? -area.clientWidth * 0.55 : area.clientWidth * 0.55}px)`;
+            area.style.opacity = "0";
+            setTimeout(() => {
+              area.style.transition = "none";
+              area.style.transform = "";
+              area.style.opacity = "";
+              gotoMonth(dir);
+            }, 140);
+          } else {                          // 임계 미달 → 제자리 스프링백
+            area.style.transition = "transform 0.24s cubic-bezier(.22,.61,.36,1), opacity 0.2s ease";
+            area.style.transform = "";
+            area.style.opacity = "";
           }
         }, { passive: true });
       })();

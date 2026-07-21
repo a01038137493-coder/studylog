@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=122" />
+  <link rel="stylesheet" href="/css/style.css?v=123" />
   <script src="/js/vendor/supabase.js"></script>
   <style>
     /* 웰컴(첫 화면) 전용 — 라이트 풀스크린 */
@@ -61,7 +61,7 @@
     .welcome__actions .btn--lg { min-height: 50px; padding-top: 12px; padding-bottom: 12px; }
     .tour { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .tour::-webkit-scrollbar { display: none; }
-    .tour__slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 12px 34px 0; box-sizing: border-box; text-align: center; }
+    .tour__slide { flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 12px 34px 0; box-sizing: border-box; text-align: center; }
     .tour__art { display: flex; align-items: center; justify-content: center; min-height: 0; flex: 1; margin-bottom: 16px; }
     .tour__title { font-size: 1.15rem; font-weight: 800; margin: 0 0 8px; }
     .tour__desc { font-size: 0.92rem; font-weight: 600; color: var(--muted); margin: 0; line-height: 1.6; }
@@ -241,7 +241,7 @@
     <p class="auth-alt">이미 계정이 있나요? <a href="/login.html">로그인</a></p>
   </div>
 
-  <script src="/js/supabaseClient.js?v=mock11"></script>
+  <script src="/js/supabaseClient.js?v=mock12"></script>
   <script>
     (function () {
       const tour = document.getElementById("tour");
@@ -265,7 +265,16 @@
         dots.forEach((d, i) => d.classList.toggle("is-on", i === idx));
         if (idx >= n - 1) reveal();          // 마지막 장 도달 → 시작 버튼 공개
       };
-      tour.addEventListener("scroll", sync, { passive: true });
+      let settle;
+      tour.addEventListener("scroll", () => {
+        sync();
+        clearTimeout(settle);
+        settle = setTimeout(() => {          // 중간에 걸치면 가까운 장으로 정착
+          const idx = Math.round(tour.scrollLeft / tour.clientWidth);
+          const target = idx * tour.clientWidth;
+          if (Math.abs(tour.scrollLeft - target) > 2) tour.scrollTo({ left: target, behavior: "smooth" });
+        }, 160);
+      }, { passive: true });
       sync();
 
       document.getElementById("tour-next").addEventListener("click", () => {

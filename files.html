@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>파일 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=122" />
+  <link rel="stylesheet" href="/css/style.css?v=123" />
   <script src="/js/vendor/supabase.js"></script>
 </head>
-<body class="app-bg has-tabbar">
+<body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
     <div class="topbar__brand">파일</div>
     <div class="topbar__right">
@@ -82,8 +82,8 @@
     </a>
   </nav>
 
-  <script src="/js/supabaseClient.js?v=mock11"></script>
-  <script src="/js/utils.js?v=18"></script>
+  <script src="/js/supabaseClient.js?v=mock12"></script>
+  <script src="/js/utils.js?v=19"></script>
   <script>
     /* 파일 보관함 — Supabase Storage + files 테이블 + 폴더(file_categories)
      * 업로드: 보고 있는 폴더로 / 탭: 열기 / 스와이프: 이동·삭제 */
@@ -150,7 +150,7 @@
         let html = `<button type="button" class="memo-cat${activeCat === "all" ? " is-active" : ""}" data-cat="all">전체 ${files.length}</button>`;
         html += categories.map((c) => {
           const n = files.filter((f) => f.category_id === c.id).length;
-          return `<button type="button" class="memo-cat${activeCat === c.id ? " is-active" : ""}" data-cat="${c.id}">${esc(c.name)} ${n}</button>`;
+          return `<button type="button" class="memo-cat${activeCat === c.id ? " is-active" : ""}" data-cat="${c.id}">${c.color ? `<i class="cat-dot" style="background:${c.color}"></i>` : ""}${esc(c.name)} ${n}</button>`;
         }).join("");
         if (uncategorized && categories.length) {
           html += `<button type="button" class="memo-cat${activeCat === "none" ? " is-active" : ""}" data-cat="none">미분류 ${uncategorized}</button>`;
@@ -193,6 +193,7 @@
         }
         box.innerHTML = categories.map((c) => `
           <div class="catmgr__row" data-id="${c.id}">
+            <button type="button" class="catmgr__dot" style="background:${c.color || CAT_COLORS[0]}" aria-label="색상 변경"></button>
             <input type="text" class="catmgr__name" value="${esc(c.name)}" maxlength="20" />
             <span class="catmgr__count">${files.filter((f) => f.category_id === c.id).length}</span>
             <button type="button" class="catmgr__del">삭제</button>
@@ -212,6 +213,15 @@
           nameEl.addEventListener("blur", commit);
           nameEl.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); nameEl.blur(); }
+          });
+
+          row.querySelector(".catmgr__dot").addEventListener("click", async (ev) => {
+            const cat = categories.find((c) => c.id === cid);
+            if (!cat) return;
+            const next = CAT_COLORS[(CAT_COLORS.indexOf(cat.color) + 1) % CAT_COLORS.length];
+            const { error } = await supabaseClient.from("file_categories")
+              .update({ color: next }).eq("id", cid);
+            if (!error) { cat.color = next; ev.currentTarget.style.background = next; }
           });
           row.querySelector(".catmgr__del").addEventListener("click", async () => {
             const cat = categories.find((c) => c.id === cid);

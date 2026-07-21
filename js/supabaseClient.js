@@ -293,19 +293,42 @@ async function getCurrentUser() {
   return data.user;
 }
 
-/* 현재 로그인한 사용자의 profiles 레코드 가져오기 */
+/* 현재 로그인한 사용자의 profiles 레코드 가져오기
+ * 로딩 단축: 로컬 캐시가 있으면 즉시 반환하고 백그라운드에서 갱신한다.
+ * 라우팅에 영향 주는 값(user_type/role/onboarded)이 바뀌었으면 새로고침으로 자가 치유. */
+const DT_PROFILE_CACHE = "dt_profile_cache";
+
+async function dtFetchProfile(id) {
+  const { data, error } = await supabaseClient
+    .from("profiles").select("*").eq("id", id).single();
+  return error ? null : data;
+}
+
 async function getCurrentProfile() {
-  const user = await getCurrentUser();
+  // 세션은 로컬 저장소에서 즉시 확인 (네트워크 왕복 없음)
+  let user = null;
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    user = (data && data.session && data.session.user) || null;
+  } catch (e) {}
+  if (!user) user = await getCurrentUser();
   if (!user) return null;
 
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(DT_PROFILE_CACHE) || "null"); } catch (e) {}
+  if (cached && cached.id === user.id) {
+    dtFetchProfile(user.id).then((fresh) => {          // 백그라운드 갱신
+      if (!fresh) return;
+      localStorage.setItem(DT_PROFILE_CACHE, JSON.stringify(fresh));
+      if (fresh.user_type !== cached.user_type || fresh.role !== cached.role ||
+          fresh.onboarded !== cached.onboarded) window.location.reload();
+    });
+    return cached;
+  }
 
-  if (error) return null;
-  return data;
+  const fresh = await dtFetchProfile(user.id);
+  if (fresh) localStorage.setItem(DT_PROFILE_CACHE, JSON.stringify(fresh));
+  return fresh;
 }
 
 /* 로그인 안 되어 있으면 로그인 페이지로 보냄 */
@@ -337,6 +360,7 @@ async function requireRole(allowedRoles) {
 
 /* 로그아웃 후 웰컴(첫 화면)으로 이동 */
 async function logout() {
+  localStorage.removeItem(DT_PROFILE_CACHE);
   await supabaseClient.auth.signOut();
   window.location.href = "/welcome.html";
 }
@@ -381,6 +405,7 @@ async function deleteMyAccount() {
     return;
   }
 
+  localStorage.removeItem(DT_PROFILE_CACHE);
   await supabaseClient.auth.signOut();
   alert("계정이 삭제되었습니다. 이용해주셔서 감사합니다.");
   window.location.replace("/welcome.html");

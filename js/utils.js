@@ -409,3 +409,25 @@ async function renderHomeSchedule(sectionEl, listEl) {
     sectionEl.hidden = false;
   } catch (e) {}
 }
+
+/* ============================================================
+ * 키보드 리사이즈 모드 — body[data-kbresize]로 페이지별 선택 (기본 native)
+ * "none" 페이지는 시트를 --kb 만큼 transform 으로 올려 키보드와 동시에 움직인다
+ * ============================================================ */
+(function () {
+  try {
+    const K = window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins.Keyboard : null;
+    if (!K || !K.setResizeMode) return;
+    const mode = (document.body && document.body.dataset.kbresize) || "native";
+    K.setResizeMode({ mode });
+    if (mode === "none") {
+      K.addListener("keyboardWillShow", (e) =>
+        document.documentElement.style.setProperty("--kb", ((e && e.keyboardHeight) || 0) + "px"));
+      K.addListener("keyboardWillHide", () =>
+        document.documentElement.style.setProperty("--kb", "0px"));
+    }
+  } catch (e) {}
+})();
+
+/* 폴더(카테고리) 색상 팔레트 — 탭할 때마다 순환 */
+const CAT_COLORS = ["#8e8e93", "#f04438", "#ff9f0a", "#f5c518", "#12b76a", "#2e90fa", "#7a5af8", "#ee46bc"];

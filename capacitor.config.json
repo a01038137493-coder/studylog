@@ -10,5 +10,6 @@
 			"resize": "native",
 			"resizeOnFullScreen": true
 		}
-	}
+	},
+	"backgroundColor": "#f4f4f5"
 }
