@@ -2411,7 +2411,7 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .wk__col:last-child { border-right: 1px solid #f0f0f2; }
 .wk__col.is-today { background: rgba(240, 68, 56, 0.045); }
 .wk__col i { position: absolute; left: 0; right: 0; border-top: 1px solid #f2f2f4; }
-.wk__blk { position: absolute; left: 1.5px; right: 1.5px; border: none; border-radius: 7px; color: #fff; font: inherit; font-size: 0.62rem; font-weight: 700; padding: 4px 4px; text-align: left; cursor: pointer; overflow: hidden; z-index: 2; -webkit-tap-highlight-color: transparent; }
+.wk__blk { position: absolute; left: 1.5px; right: 1.5px; border: none; border-radius: 0; color: #fff; font: inherit; font-size: 0.62rem; font-weight: 700; padding: 4px 4px; text-align: left; cursor: pointer; overflow: hidden; z-index: 2; -webkit-tap-highlight-color: transparent; }
 .wk__blk span { display: block; line-height: 1.25; overflow: hidden; word-break: keep-all; }
 .wk__blk.is-now { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85); }
 .wk__blk.is-done { opacity: 0.4; }
