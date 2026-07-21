@@ -93,6 +93,17 @@
     .mock__bars i.is-hot { background: var(--orange); }
     .mock__streak { font-size: 0.84rem; font-weight: 800; color: var(--orange-strong); }
 
+    .mock--tab { width: 300px; border: 7px solid #17171a; border-radius: 20px; padding: 13px 14px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16); }
+    .mtab__clock { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; }
+    .mtab__clock span { font-size: 0.68rem; color: var(--muted); font-weight: 700; margin-left: 7px; }
+    .mtab__cols { display: flex; gap: 9px; }
+    .mtab__col { flex: 1; background: var(--bg); border-radius: 10px; padding: 8px 9px; min-width: 0; }
+    .mtab__col p { margin: 0 0 6px; font-size: 0.62rem; font-weight: 800; color: var(--muted); }
+    .mtab__row { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; padding: 3px 0; white-space: nowrap; }
+    .mtab__row i { width: 12px; height: 12px; border-radius: 50%; border: 1.4px solid var(--line-strong); font-style: normal; font-size: 0.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+    .mtab__row i.is-on { background: var(--orange); border-color: var(--orange); }
+    .mtab__ev { display: flex; gap: 5px; font-size: 0.66rem; font-weight: 700; padding: 3px 0; white-space: nowrap; }
+    .mtab__ev span { color: var(--orange-strong); font-weight: 800; flex: none; }
     .welcome__skip { background: none; border: none; font: inherit; font-size: 0.9rem; font-weight: 700; color: var(--muted-soft); padding: 8px; cursor: pointer; }
     .welcome__actions--in { animation: authIn 0.35s cubic-bezier(.22,.61,.36,1); }
     @keyframes authIn { from { opacity: 0; transform: translateY(18px); } }
@@ -119,6 +130,28 @@
         </div>
         <p class="tour__title">계획으로 방향성을 잡고,<br />핀로그에 오늘의 로그를 남기세요!</p>
         <p class="tour__desc">오늘 할 일을 몇 초 만에 계획하고 기록해요</p>
+      </section>
+
+      <section class="tour__slide">
+        <div class="tour__art">
+          <div class="mock mock--tab">
+            <div class="mtab__clock">오후 2:37<span>7월 21일 (화)</span></div>
+            <div class="mtab__cols">
+              <div class="mtab__col">
+                <p>오늘 할 일</p>
+                <div class="mtab__row"><i class="is-on">✓</i>기획안 마감</div>
+                <div class="mtab__row"><i></i>운동 30분</div>
+              </div>
+              <div class="mtab__col">
+                <p>다가오는 일정</p>
+                <div class="mtab__ev"><span>3:00</span>팀 미팅</div>
+                <div class="mtab__ev"><span>내일</span>성수 약속</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="tour__title">태블릿은 책상 위 대시보드</p>
+        <p class="tour__desc">화면이 꺼지지 않는 상시 모드 — 시계·할 일·일정을 한눈에</p>
       </section>
 
       <section class="tour__slide">
