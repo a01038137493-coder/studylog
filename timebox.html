@@ -94,17 +94,16 @@
           `<button type="button" class="tbe__day${i === selDow ? " is-on" : ""}${i === todayDow ? " tbv__today" : ""}" data-dow="${i}">${d}</button>`).join("")}</div>`;
 
         const dayBoxes = boxes.filter((b) => daysOf(b).includes(selDow));
-        if (!dayBoxes.length) {
-          gridEl.innerHTML = chips + `<p class="muted" style="text-align:center;margin:20px 0;">${DOWS[selDow]}요일엔 블록이 없어요.<br/>오른쪽 위 편집에서 추가해보세요.</p>`;
-          wireChips();
-          return;
-        }
 
         const PX = 56;
         const isToday = selDow === todayDow;
         const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-        const gs = Math.floor(Math.min(...dayBoxes.map((b) => toMin(b.start_time))) / 60) * 60;
-        const ge = Math.ceil(Math.max(...dayBoxes.map((b) => toMin(b.end_time))) / 60) * 60;
+        // 하루 전체(05~24시)를 항상 표시 — 블록이 범위를 벗어나면 그만큼 확장
+        let gs = 5 * 60, ge = 24 * 60;
+        if (dayBoxes.length) {
+          gs = Math.min(gs, Math.floor(Math.min(...dayBoxes.map((b) => toMin(b.start_time))) / 60) * 60);
+          ge = Math.max(ge, Math.ceil(Math.max(...dayBoxes.map((b) => toMin(b.end_time))) / 60) * 60);
+        }
         const y = (min) => ((min - gs) / 60) * PX;
 
         let html = "";
@@ -130,7 +129,9 @@
         }
         gridEl.innerHTML = chips +
           `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>` +
-          (isToday ? `<p class="wtb__hint">블록을 탭하면 오늘 완료 체크돼요</p>` : `<p class="wtb__hint">${DOWS[selDow]}요일 시간표 미리보기</p>`);
+          (dayBoxes.length === 0
+            ? `<p class="wtb__hint">${DOWS[selDow]}요일엔 블록이 없어요 — 오른쪽 위 편집에서 추가해보세요</p>`
+            : isToday ? `<p class="wtb__hint">블록을 탭하면 오늘 완료 체크돼요</p>` : `<p class="wtb__hint">${DOWS[selDow]}요일 시간표 미리보기</p>`);
 
         wireChips();
         gridEl.querySelectorAll("[data-box]").forEach((el) => {
