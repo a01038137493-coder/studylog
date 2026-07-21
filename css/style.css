@@ -2243,3 +2243,15 @@ html { background: #f4f4f5; }
 
 /* 할일 시트 날짜 입력이 화면 밖으로 넘치지 않게 */
 #gt-date { width: 100%; box-sizing: border-box; min-width: 0; }
+
+/* ============================================================
+ * 탭 간 페이지 전환 — 크로스 문서 뷰 트랜지션 (iOS 18+ 웹뷰)
+ * 이전 화면이 살짝 페이드아웃되며 새 화면이 페이드인.
+ * 탭바는 전환 중에도 제자리 고정. 미지원 기기는 기존 즉시 전환.
+ * ============================================================ */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vt-fade-out 0.16s ease both; }
+::view-transition-new(root) { animation: vt-fade-in 0.22s ease both; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+.tabbar { view-transition-name: dt-tabbar; }
