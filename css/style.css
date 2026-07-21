@@ -2392,3 +2392,8 @@ body.kb-up .tabbar { transform: translateY(150%); }
 .wtb__now { position: absolute; left: 0; right: 0; border-top: 2px solid #f04438; z-index: 3; pointer-events: none; }
 .wtb__now::before { content: ""; position: absolute; left: 0; top: -4px; width: 6px; height: 6px; border-radius: 50%; background: #f04438; }
 .wtb__hint { text-align: center; font-size: 0.76rem; font-weight: 600; color: var(--muted-soft); margin: 11px 0 2px; }
+
+/* 타임박스 페이지 요일 선택 */
+.tbv__days { justify-content: center; margin: 4px 0 12px; }
+.tbv__days .tbe__day { width: 34px; height: 34px; }
+.tbv__days .tbv__today:not(.is-on) { border-color: var(--orange); color: var(--orange-strong); }

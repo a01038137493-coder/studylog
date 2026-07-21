@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=150" />
+  <link rel="stylesheet" href="/css/style.css?v=151" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -83,72 +83,56 @@
         doneSet = new Set((checks || []).filter((c) => c.done).map((c) => c.box_id));
       }
 
-      /* ---------- 보기: 주간 시간표 (요일 컬럼 × 시간축) ---------- */
-      const TB_COLORS = ["#ef767a", "#f5a25d", "#d9b23c", "#64ba7b", "#45c4b6", "#6096f0", "#7d80da", "#a06ee1", "#ea7fb1"];
-      const colorOf = (label) => {
-        let h = 0;
-        for (const ch of String(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-        return TB_COLORS[h % TB_COLORS.length];
-      };
+      /* ---------- 보기: 요일 선택 + 홈과 동일한 세로 시간축 그리드 ---------- */
+      const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
+      const todayDow = (new Date().getDay() + 6) % 7;   // 월=0
+      let selDow = todayDow;
+      const daysOf = (b) => Array.isArray(b.days) && b.days.length ? b.days : [0, 1, 2, 3, 4, 5, 6];
 
       function renderView() {
-        if (!boxes.length) {
-          gridEl.innerHTML = `<p class="muted" style="text-align:center;margin:18px 0;">아직 시간표가 없어요.<br/>오른쪽 위 편집에서 만들어보세요.</p>`;
+        const chips = `<div class="tbe__days tbv__days">${DOWS.map((d, i) =>
+          `<button type="button" class="tbe__day${i === selDow ? " is-on" : ""}${i === todayDow ? " tbv__today" : ""}" data-dow="${i}">${d}</button>`).join("")}</div>`;
+
+        const dayBoxes = boxes.filter((b) => daysOf(b).includes(selDow));
+        if (!dayBoxes.length) {
+          gridEl.innerHTML = chips + `<p class="muted" style="text-align:center;margin:20px 0;">${DOWS[selDow]}요일엔 블록이 없어요.<br/>오른쪽 위 편집에서 추가해보세요.</p>`;
+          wireChips();
           return;
         }
-        const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
-        const todayDow = (new Date().getDay() + 6) % 7;
-        const daysOf = (b) => Array.isArray(b.days) && b.days.length ? b.days : [0, 1, 2, 3, 4, 5, 6];
-        const hasDay = (d) => boxes.some((b) => daysOf(b).includes(d));
-        const showDays = [0, 1, 2, 3, 4].concat([5, 6].filter(hasDay));
-        if (!showDays.includes(todayDow)) showDays.push(todayDow);
-        showDays.sort((a, b) => a - b);
 
-        const PX = 52;
+        const PX = 56;
+        const isToday = selDow === todayDow;
         const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-        const gs = Math.floor(Math.min(...boxes.map((b) => toMin(b.start_time))) / 60) * 60;
-        const ge = Math.ceil(Math.max(...boxes.map((b) => toMin(b.end_time))) / 60) * 60;
+        const gs = Math.floor(Math.min(...dayBoxes.map((b) => toMin(b.start_time))) / 60) * 60;
+        const ge = Math.ceil(Math.max(...dayBoxes.map((b) => toMin(b.end_time))) / 60) * 60;
         const y = (min) => ((min - gs) / 60) * PX;
-        const H = ((ge - gs) / 60) * PX;
 
-        const head = `<div class="wtb__gut"></div>` + showDays.map((d) =>
-          `<div class="wtb__day${d === todayDow ? " is-today" : ""}">${DOWS[d]}</div>`).join("");
-
-        let gut = "";
+        let html = "";
         for (let m = gs; m <= ge; m += 60) {
-          gut += `<span style="top:${y(m)}px">${m / 60}</span>`;
+          html += `<div class="tgrid__hour" style="top:${y(m)}px"><span>${String(m / 60).padStart(2, "0")}</span></div>`;
+          if (m < ge) html += `<div class="tgrid__half" style="top:${y(m + 30)}px"></div>`;
         }
-
-        const cols = showDays.map((d) => {
-          let cells = "";
-          for (let m = gs; m <= ge; m += 60) cells += `<i style="top:${y(m)}px"></i>`;
-          const blks = boxes.filter((b) => daysOf(b).includes(d)).map((b) => {
-            const s = toMin(b.start_time), e = toMin(b.end_time);
-            const isT = d === todayDow;
-            const on = isT && doneSet.has(b.id);
-            const cur = isT && nowMin >= s && nowMin < e;
-            const bh = Math.max(20, y(e) - y(s) - 1);
-            return `
-            <button type="button" class="wtb__blk${on ? " is-done" : ""}${cur ? " is-cur" : ""}"
-                    ${isT ? `data-box="${b.id}"` : ""}
-                    style="top:${y(s) + 0.5}px; height:${bh}px; background:${colorOf(b.label)}">
-              <span>${esc(b.label)}</span>${bh >= 46 ? `<u>${b.start_time.slice(0, 5)}</u>` : ""}${on ? "<em>✓</em>" : ""}
-            </button>`;
-          }).join("");
-          const nowLine = d === todayDow && nowMin >= gs && nowMin <= ge
-            ? `<div class="wtb__now" style="top:${y(nowMin)}px"></div>` : "";
-          return `<div class="wtb__col${d === todayDow ? " is-today" : ""}" style="height:${H}px">${cells}${blks}${nowLine}</div>`;
+        html += dayBoxes.map((b) => {
+          const s = toMin(b.start_time), e = toMin(b.end_time);
+          const cur = isToday && nowMin >= s && nowMin < e;
+          const on = isToday && doneSet.has(b.id);
+          const h = Math.max(22, y(e) - y(s) - 2);
+          const slim = h < 40;
+          return `
+          <button type="button" class="tgrid__block${cur ? " is-now" : ""}${on ? " is-done" : ""}${slim ? " tgrid__block--slim" : ""}"
+                  ${isToday ? `data-box="${b.id}"` : ""} style="top:${y(s) + 1}px; height:${h}px">
+            ${slim ? "" : `<span class="tgrid__time">${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}</span>`}
+            <span class="tgrid__label">${on ? "✓ " : ""}${esc(b.label)}</span>
+          </button>`;
         }).join("");
+        if (isToday && nowMin >= gs && nowMin <= ge) {
+          html += `<div class="tgrid__now" style="top:${y(nowMin)}px"></div>`;
+        }
+        gridEl.innerHTML = chips +
+          `<div class="tgrid" style="height:${((ge - gs) / 60) * PX + 14}px">${html}</div>` +
+          (isToday ? `<p class="wtb__hint">블록을 탭하면 오늘 완료 체크돼요</p>` : `<p class="wtb__hint">${DOWS[selDow]}요일 시간표 미리보기</p>`);
 
-        gridEl.innerHTML = `
-          <div class="wtb">
-            <div class="wtb__head">${head}</div>
-            <div class="wtb__body">
-              <div class="wtb__gutcol" style="height:${H}px">${gut}</div>${cols}
-            </div>
-          </div>
-          <p class="wtb__hint">오늘(${DOWS[todayDow]}) 블록을 탭하면 완료 체크돼요</p>`;
-
+        wireChips();
         gridEl.querySelectorAll("[data-box]").forEach((el) => {
           el.addEventListener("click", async () => {
             const id = el.dataset.box;
@@ -158,6 +142,15 @@
             await supabaseClient.from("timebox_checks").upsert({
               student_id: profile.id, box_id: id, date: today, done: next,
             });
+          });
+        });
+      }
+
+      function wireChips() {
+        gridEl.querySelectorAll("[data-dow]").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            selDow = Number(chip.dataset.dow);
+            renderView();
           });
         });
       }
