@@ -1879,7 +1879,6 @@ body.fcal-page { display: flex; flex-direction: column; min-height: 100vh; min-h
 .fcal { flex: 1; display: flex; flex-direction: column; max-width: 900px; width: 100%; margin: 0 auto; padding: 4px 14px 0; box-sizing: border-box; }
 .fcal__head { display: flex; align-items: center; justify-content: center; padding: 12px 4px 10px; }
 .fcal__title { font-size: 1.15rem; font-weight: 800; margin: 0; }
-.fcal__nav { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 1.25rem; color: var(--text); cursor: pointer; line-height: 1; }
 .fcal__dows { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted-soft); padding-bottom: 6px; }
 .fcal__dows .is-sun { color: #d05b5b; }
 .fcal__dows .is-sat { color: #4a76c7; }
