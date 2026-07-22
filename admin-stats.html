@@ -22,6 +22,14 @@
     .ast-note { margin: 20px 0 30px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
     .ast-note a { color: var(--primary, #f04438); font-weight: 700; }
     .ast-denied { text-align: center; margin: 80px 0; color: var(--muted); }
+    .ast-bars--blue .ast-bar i { background: #6096f0; }
+    .ast-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 640px; }
+    .ast-table th { text-align: left; font-weight: 700; color: var(--muted-soft); font-size: 0.72rem; padding: 9px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    .ast-table td { padding: 9px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .ast-table tr:last-child td { border-bottom: none; }
+    .ast-badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; }
+    .ast-badge--exam { background: #ffece9; color: #f04438; }
+    .ast-badge--general { background: #eef2ff; color: #4f63d2; }
   </style>
 </head>
 <body class="app-bg">
@@ -47,14 +55,30 @@
       <h3 class="ast-h">최근 14일 신규 가입</h3>
       <section class="card"><div class="ast-bars" id="s-bars"></div></section>
 
+      <h3 class="ast-h">최근 14일 일별 활성 사용자</h3>
+      <section class="card"><div class="ast-bars ast-bars--blue" id="s-active-bars"></div></section>
+
       <h3 class="ast-h">콘텐츠</h3>
-      <div class="ast-grid" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="ast-grid" style="grid-template-columns: repeat(4, 1fr);">
         <div class="ast-card"><b id="s-todos">-</b><span>할 일</span></div>
         <div class="ast-card"><b id="s-events">-</b><span>일정</span></div>
         <div class="ast-card"><b id="s-memos">-</b><span>메모</span></div>
         <div class="ast-card"><b id="s-files">-</b><span>파일</span></div>
-        <div class="ast-card"><b id="s-tb">-</b><span>타임박스</span></div>
+        <div class="ast-card"><b id="s-tb">-</b><span>타임박스 블록</span></div>
+        <div class="ast-card"><b id="s-checkins">-</b><span>체크인 기록</span></div>
+        <div class="ast-card"><b id="s-storage">-</b><span>파일 저장 용량</span></div>
       </div>
+
+      <h3 class="ast-h">사용자 목록 <span style="font-weight:600;color:var(--muted-soft);font-size:0.78rem;">(최근 가입순, 최대 100명)</span></h3>
+      <section class="card" style="padding:6px 14px; overflow-x:auto;">
+        <table class="ast-table">
+          <thead><tr>
+            <th>이름</th><th>이메일</th><th>모드</th><th>가입 방식</th><th>가입일</th><th>마지막 로그인</th>
+            <th>할 일</th><th>메모</th><th>파일</th>
+          </tr></thead>
+          <tbody id="s-users-body"></tbody>
+        </table>
+      </section>
 
       <p class="ast-note">
         설치 수 · 충돌 · 스토어 노출 등 앱스토어 지표는 수집 SDK 없이 애플이 기본 제공하는
@@ -83,24 +107,46 @@
       set("s-exam", data.users_exam);   set("s-general", data.users_general);
       set("s-todos", data.todos);       set("s-events", data.events);
       set("s-memos", data.memos);       set("s-files", data.files);
-      set("s-tb", data.timeboxes);
+      set("s-tb", data.timeboxes);      set("s-checkins", data.checkins);
+      const mb = (data.storage_bytes || 0) / (1024 * 1024);
+      document.getElementById("s-storage").textContent =
+        mb >= 1024 ? (mb / 1024).toFixed(2) + " GB" : mb.toFixed(1) + " MB";
 
-      // 최근 14일을 날짜 축으로 채우고 가입 수를 막대로 (없는 날은 0)
-      const byDay = {};
-      (data.signups_daily || []).forEach((r) => { byDay[r.d] = r.n; });
-      const days = [];
-      for (let i = 13; i >= 0; i--) {
-        const dt = new Date(Date.now() - i * 86400000);
-        const key = `${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
-        days.push({ key, n: byDay[key] || 0 });
-      }
-      const max = Math.max(1, ...days.map((d) => d.n));
-      document.getElementById("s-bars").innerHTML = days.map((d) => `
-        <div class="ast-bar">
-          <b>${d.n || ""}</b>
-          <i style="height:${Math.round((d.n / max) * 82)}%"></i>
-          <em>${d.key.replace("-", "/")}</em>
-        </div>`).join("");
+      // 최근 14일을 날짜 축으로 채워 막대 그래프로 (없는 날은 0)
+      const drawBars = (elId, rows) => {
+        const byDay = {};
+        (rows || []).forEach((r) => { byDay[r.d] = r.n; });
+        const days = [];
+        for (let i = 13; i >= 0; i--) {
+          const dt = new Date(Date.now() - i * 86400000);
+          const key = `${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+          days.push({ key, n: byDay[key] || 0 });
+        }
+        const max = Math.max(1, ...days.map((d) => d.n));
+        document.getElementById(elId).innerHTML = days.map((d) => `
+          <div class="ast-bar">
+            <b>${d.n || ""}</b>
+            <i style="height:${Math.round((d.n / max) * 82)}%"></i>
+            <em>${d.key.replace("-", "/")}</em>
+          </div>`).join("");
+      };
+      drawBars("s-bars", data.signups_daily);
+      drawBars("s-active-bars", data.active_daily);
+
+      // 사용자 목록 테이블
+      const escT = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const PROV = { email: "이메일", kakao: "카카오", google: "구글", apple: "애플" };
+      document.getElementById("s-users-body").innerHTML = (data.users || []).map((u) => `
+        <tr>
+          <td><b>${escT(u.name || "-")}</b></td>
+          <td>${escT(u.email)}</td>
+          <td><span class="ast-badge ast-badge--${u.type === "exam" ? "exam" : "general"}">${u.type === "exam" ? "수험생" : "일반"}</span></td>
+          <td>${PROV[u.provider] || escT(u.provider)}</td>
+          <td>${escT(u.created)}</td>
+          <td>${escT(u.last_login || "-")}</td>
+          <td>${u.todos}</td><td>${u.memos}</td><td>${u.files}</td>
+        </tr>`).join("");
       document.getElementById("ast-body").hidden = false;
     });
   </script>
