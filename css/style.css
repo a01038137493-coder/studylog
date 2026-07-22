@@ -2836,17 +2836,6 @@ html { touch-action: manipulation; }
   }
 }
 
-/* 웹 메모 에디터: 공책 줄 그리드 */
-@media (min-width: 1100px) {
-  html.dt-web body.memo-page #mweb-editor .memoedit__body {
-    font-size: 1.02rem;
-    line-height: 30px;
-    background-image: repeating-linear-gradient(to bottom, transparent 0 29px, var(--line) 29px 30px);
-    background-attachment: local;
-    padding-bottom: 120px;
-  }
-}
-
 /* 웹 캘린더 일정 검색 바 */
 .fcal__search { display: none; }
 @media (min-width: 1100px) {
