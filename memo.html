@@ -8,9 +8,10 @@
   <link rel="apple-touch-icon" href="/assets/logo.png" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
-  <link rel="stylesheet" href="/css/style.css?v=185" />
+  <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
+  <link rel="stylesheet" href="/css/style.css?v=186" />
 </head>
-<body class="app-bg has-tabbar">
+<body class="app-bg has-tabbar memo-page">
   <header class="topbar">
     <div class="topbar__brand">메모</div>
     <div class="topbar__right">
@@ -21,6 +22,13 @@
     <input type="search" id="memo-search" class="field__input memo-search" placeholder="메모 검색" autocomplete="off" />
     <div class="memo-cats" id="memo-cats"></div>
     <div id="memo-list"></div>
+
+    <!-- 웹 데스크톱 전용: 중앙 메모 에디터 -->
+    <section class="mweb-editor" id="mweb-editor" hidden>
+      <div class="mweb-editor__bar"><span id="mw-status"></span></div>
+      <div id="mw-body" class="memoedit__body" contenteditable="true" spellcheck="false"
+           data-placeholder="메모를 선택하거나 새 메모를 작성하세요"></div>
+    </section>
   </main>
 
   <!-- 폴더 관리 시트 -->
@@ -67,7 +75,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=38"></script>
+  <script src="/js/utils.js?v=39"></script>
   <script src="/js/notify.js?v=4"></script>
   <script src="/js/memofmt.js?v=1"></script>
   <script>
@@ -111,7 +119,7 @@
               <button type="button" class="memo-act memo-act--pin" data-act="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 7 3 3H7l3-3z"/></svg><span>${m.pinned ? "해제" : "고정"}</span></button>
               <button type="button" class="memo-act memo-act--del" data-act="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg><span>삭제</span></button>
             </div>
-            <a href="/memo-edit.html?id=${m.id}" class="card memo-item">
+            <a href="/memo-edit.html?id=${m.id}" class="card memo-item${m.id === mwId ? " is-sel" : ""}">
               <span class="memo-item__title">${m.pinned ? '<span class="memo-item__pin">📌</span> ' : ""}${esc(title)}</span>
               <span class="memo-item__meta">
                 <span class="memo-item__date">${when(m.updated_at || m.created_at)}</span>
@@ -328,6 +336,68 @@
         if (made) { catInput.value = ""; renderCatManager(); }
       });
 
+      /* ---------- 웹 데스크톱 전용: 중앙 에디터 ---------- */
+      const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
+        window.matchMedia("(min-width: 1100px)").matches;
+      const mwBody = document.getElementById("mw-body");
+      const mwStatus = document.getElementById("mw-status");
+      let mwId = null;
+      let mwSaved = "";
+      let mwTimer = null;
+
+      function mwOpen(m) {
+        mwId = m ? m.id : null;
+        mwBody.innerHTML = m ? MemoFmt.toHtml(m.content || "") : "";
+        mwSaved = MemoFmt.clean(mwBody.innerHTML);
+        mwStatus.textContent = "";
+        renderList();
+        if (!m) mwBody.focus();
+      }
+
+      async function mwSave() {
+        const content = MemoFmt.clean(mwBody.innerHTML);
+        if (content === mwSaved) return;
+        if (!mwId && MemoFmt.isEmpty(content)) return;
+        mwStatus.textContent = "저장 중…";
+        try {
+          if (mwId) {
+            const { error } = await supabaseClient.from("memos").update({ content }).eq("id", mwId);
+            if (error) throw error;
+            const m = memos.find((x) => x.id === mwId);
+            if (m) { m.content = content; m.updated_at = new Date().toISOString(); }
+          } else {
+            const catId = activeCat !== "all" && activeCat !== "none" ? activeCat : null;
+            const { data, error } = await supabaseClient.from("memos")
+              .insert({ student_id: profile.id, content, category_id: catId }).select().single();
+            if (error) throw error;
+            mwId = data.id;
+            memos.unshift(data);
+            renderCats();
+          }
+          mwSaved = content;
+          mwStatus.textContent = "저장됨";
+          setTimeout(() => { if (mwStatus.textContent === "저장됨") mwStatus.textContent = ""; }, 1500);
+          renderList();
+        } catch (e) { mwStatus.textContent = "저장 실패"; }
+      }
+      mwBody.addEventListener("input", () => {
+        clearTimeout(mwTimer);
+        mwTimer = setTimeout(mwSave, 800);
+      });
+      window.addEventListener("pagehide", mwSave);
+
+      // 목록에서 메모 클릭 → 페이지 이동 대신 에디터에 열기 (웹 데스크톱)
+      listEl.addEventListener("click", (e) => {
+        if (!WEB_DESK()) return;
+        const a = e.target.closest ? e.target.closest('a[href^="/memo-edit.html"]') : null;
+        if (!a) return;
+        e.preventDefault();
+        const row = a.closest(".memo-row");
+        const m = row ? memos.find((x) => x.id === row.dataset.id) : null;
+        mwSave();
+        mwOpen(m || null);
+      }, true);
+
       function renderList() {
         const q = searchEl.value.trim().toLowerCase();
         // 선택된 폴더로 먼저 거른 뒤 검색어 적용
@@ -364,6 +434,7 @@
 
       searchEl.addEventListener("input", () => { openRow = null; renderList(); });
       document.getElementById("memo-new").addEventListener("click", () => {
+        if (WEB_DESK()) { mwSave(); mwOpen(null); return; }
         const cat = activeCat !== "all" && activeCat !== "none" ? "?cat=" + activeCat : "";
         window.location.href = "/memo-edit.html" + cat;
       });
@@ -384,6 +455,12 @@
         renderList();
       }
       await load();
+      if (WEB_DESK()) {
+        document.getElementById("mweb-editor").hidden = false;
+        const first = sorted(memos.filter((m) =>
+          activeCat === "all" ? true : activeCat === "none" ? !m.category_id : m.category_id === activeCat))[0];
+        if (first) mwOpen(first);
+      }
       // 편집에서 돌아올 때(bfcache 복원) 최신 분류·내용을 다시 불러온다
       window.addEventListener("pageshow", (e) => { if (e.persisted) load(); });
     });

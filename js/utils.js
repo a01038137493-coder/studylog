@@ -559,7 +559,10 @@ async function renderHomeSchedule(sectionEl, listEl) {
 (function () {
   try {
     const native = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-    if (!native && document.body) document.body.classList.add("dt-web");
+    if (!native) {
+      document.documentElement.classList.add("dt-web");
+      if (document.body) document.body.classList.add("dt-web");
+    }
   } catch (e) {}
 })();
 
