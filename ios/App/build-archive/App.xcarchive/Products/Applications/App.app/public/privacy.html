@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>개인정보처리방침 · 핀로그</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <link rel="apple-touch-icon" href="/assets/logo.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#f04438" />
+  <script>document.documentElement.classList.add(window.Capacitor ? "dt-app" : "dt-web");</script>
+  <link rel="stylesheet" href="/css/style.css?v=234" />
+  <style>
+    .doc { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px; line-height: 1.75; }
+    .doc h1 { font-size: 1.5rem; margin-bottom: 6px; }
+    .doc .doc__updated { color: var(--muted-soft); font-size: 0.85rem; margin-bottom: 28px; }
+    .doc h2 { font-size: 1.05rem; margin: 28px 0 10px; }
+    .doc p, .doc li { font-size: 0.92rem; color: var(--ink, #222); }
+    .doc ul { padding-left: 20px; margin: 8px 0; }
+    .doc table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 10px 0; }
+    .doc th, .doc td { border: 1px solid rgba(0,0,0,0.12); padding: 8px 10px; text-align: left; vertical-align: top; }
+    .doc th { background: rgba(0,0,0,0.04); }
+    .doc a { color: inherit; }
+    .doc .doc__back { display: inline-block; margin-bottom: 20px; font-size: 0.88rem; color: var(--muted); text-decoration: none; }
+    .doc .doc__back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <button type="button" class="auth-back" aria-label="뒤로 가기" onclick="if (history.length > 1) history.back(); else location.href='/index.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <h1>개인정보처리방침</h1>
+    <p class="doc__updated">시행일: 2026년 7월 20일</p>
+
+    <p>
+      「핀로그」(이하 "서비스")는 이용자의 개인정보를 소중히 다루며,
+      「개인정보 보호법」 등 관련 법령을 준수합니다.
+      본 방침은 서비스가 어떤 정보를 수집하고, 어떻게 이용·보관·파기하는지를 설명합니다.
+    </p>
+
+    <h2>1. 수집하는 개인정보</h2>
+    <table>
+      <tr><th>구분</th><th>항목</th><th>수집 시점</th></tr>
+      <tr>
+        <td>계정 정보</td>
+        <td>이메일 주소, 이름(또는 닉네임)</td>
+        <td>회원가입 시 (이메일 가입 또는 Apple·카카오·Google 소셜 로그인)</td>
+      </tr>
+      <tr>
+        <td>서비스 이용 기록</td>
+        <td>공부 목표·성과 기록(체크인/체크아웃), 주간 목표·회고, 컨디션 점수 등 이용자가 직접 입력한 내용</td>
+        <td>서비스 이용 시</td>
+      </tr>
+    </table>
+    <ul>
+      <li>소셜 로그인 시 해당 제공자(Apple, 카카오, Google)로부터 이메일·이름 등 최소한의 프로필 정보만 제공받습니다.</li>
+      <li>서비스는 광고 식별자, 위치 정보, 연락처 등을 수집하지 않습니다.</li>
+    </ul>
+
+    <h2>2. 개인정보의 이용 목적</h2>
+    <ul>
+      <li>회원 식별, 로그인 및 계정 관리</li>
+      <li>공부 기록·목표 관리 등 서비스 핵심 기능 제공</li>
+      <li>서비스 문의 대응</li>
+    </ul>
+
+    <h2>3. 보관 및 처리 위탁</h2>
+    <p>
+      수집된 정보는 클라우드 데이터베이스 서비스인
+      <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>에 안전하게 저장됩니다.
+      데이터는 암호화된 통신(HTTPS)으로 전송되며, 계정 인증은 Supabase Auth를 통해 처리됩니다.
+    </p>
+
+    <h2>4. 보유 기간 및 파기</h2>
+    <ul>
+      <li>개인정보는 회원 탈퇴(계정 삭제) 시까지 보유합니다.</li>
+      <li>앱 내 <b>계정 삭제</b> 기능을 이용하면 계정과 모든 공부 기록이 즉시, 영구적으로 삭제되며 복구할 수 없습니다.</li>
+      <li>관련 법령에 따라 보존 의무가 있는 정보는 해당 기간 동안만 별도 보관 후 파기합니다.</li>
+    </ul>
+
+    <h2>5. 제3자 제공</h2>
+    <p>서비스는 이용자의 개인정보를 제3자에게 판매하거나 제공하지 않습니다.</p>
+
+    <h2>6. 이용자의 권리</h2>
+    <ul>
+      <li>이용자는 언제든지 자신의 정보를 열람·수정할 수 있습니다.</li>
+      <li>앱 내 계정 삭제 기능 또는 아래 문의처를 통해 삭제를 요청할 수 있습니다.</li>
+    </ul>
+
+    <h2>7. 문의처</h2>
+    <p>
+      개인정보 관련 문의는 아래 이메일로 연락해 주세요.<br />
+      이메일: <a href="mailto:a01038137493@gmail.com">a01038137493@gmail.com</a>
+    </p>
+
+    <h2>8. 방침의 변경</h2>
+    <p>
+      본 방침이 변경되는 경우, 앱 또는 웹사이트를 통해 변경 사항을 공지합니다.
+    </p>
+  </main>
+</body>
+</html>
