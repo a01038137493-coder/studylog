@@ -2470,6 +2470,10 @@ input[type="month"].field__input {
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
+  /* 빈 값일 때 내용이 없어 납작해지는 것 방지 — 텍스트 입력과 같은 높이 유지 */
+  min-height: calc(1.05rem * 1.2 + 28px + 3px);
+  display: flex;
+  align-items: center;
   -webkit-appearance: none;
   appearance: none;
 }
