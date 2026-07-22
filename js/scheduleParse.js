@@ -140,9 +140,9 @@
       if (hour >= 13) return { hour: hour, minute: minute, ambiguity: null };
       if (meridiem === "pm") return { hour: hour < 12 ? hour + 12 : hour, minute: minute, ambiguity: null };
       if (meridiem === "am") return { hour: hour === 12 ? 0 : hour, minute: minute, ambiguity: null };
-      // 오전/오후 표기가 없는 1~6시는 관례상 오후로 해석 ("3시에 보자" = 15:00)
-      if (hour >= 1 && hour <= 6) return { hour: hour + 12, minute: minute, ambiguity: null };
-      return { hour: hour, minute: minute, ambiguity: "오전·오후가 명확하지 않습니다" };
+      // 오전/오후 표기가 없으면 무조건 오후로 해석 ("8시까지" = 20:00)
+      if (hour >= 1 && hour <= 11) return { hour: hour + 12, minute: minute, ambiguity: null };
+      return { hour: hour, minute: minute, ambiguity: null };
     }
 
     // "오후 3:30" 콜론 표기 (전송시각은 위에서 이미 제거됨)
@@ -152,8 +152,9 @@
       if (h2 >= 13) return { hour: h2, minute: min2, ambiguity: null };
       if (meridiem === "pm") return { hour: h2 < 12 ? h2 + 12 : h2, minute: min2, ambiguity: null };
       if (meridiem === "am") return { hour: h2 === 12 ? 0 : h2, minute: min2, ambiguity: null };
-      if (h2 >= 1 && h2 <= 6) return { hour: h2 + 12, minute: min2, ambiguity: null };
-      return { hour: h2, minute: min2, ambiguity: "오전·오후가 명확하지 않습니다" };
+      // 오전/오후 표기가 없으면 무조건 오후로 해석
+      if (h2 >= 1 && h2 <= 11) return { hour: h2 + 12, minute: min2, ambiguity: null };
+      return { hour: h2, minute: min2, ambiguity: null };
     }
 
     for (var i = 0; i < VAGUE_TIME.length; i++) {
