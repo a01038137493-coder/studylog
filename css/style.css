@@ -2788,3 +2788,17 @@ html { touch-action: manipulation; }
 
 /* 타임박스 블록: 클릭하면 수정 팝업 */
 .wk__blk, .tgd__block { cursor: pointer; }
+
+/* 웹 데스크톱: 타임박스 편집 버튼을 상단바 오른쪽 헤더 버튼으로 */
+@media (min-width: 900px) {
+  html.dt-web #tb-mode.fab {
+    top: calc(env(safe-area-inset-top, 0px) + 11px);
+    right: 24px; bottom: auto;
+    width: 40px; height: 40px;
+    background: #fff; color: var(--text);
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  html.dt-web #tb-mode.fab:hover { background: #f6f6f7; }
+  html.dt-web #tb-mode.fab svg { width: 18px; height: 18px; }
+}
