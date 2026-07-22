@@ -258,35 +258,121 @@
     }
 
 
-    /* ---------- 홈 커스터마이징 (웹) — 블록 표시 설정 ---------- */
-    const HOME_CFG_KEY = "dt_home_cfg";
+    /* ---------- 홈 커스터마이징 (웹) — 수험생 홈식: 흔들림·삭제·카탈로그·드래그 순서 ---------- */
+    const HOME_CFG_KEY = "dt_home_cfg2";
+    const GW_DEFS = {
+      todos: { label: "오늘 할 일", fixed: true },
+      upcoming: { label: "예정 할 일", el: () => document.getElementById("g-upcoming") },
+      events: { label: "일정", el: () => document.getElementById("g-events") },
+      note: { label: "업무 메모", el: () => document.getElementById("gnote") },
+    };
     function homeCfg() {
-      try { return JSON.parse(localStorage.getItem(HOME_CFG_KEY)) || {}; } catch (e) { return {}; }
+      try {
+        const c = JSON.parse(localStorage.getItem(HOME_CFG_KEY)) || {};
+        c.order = Array.isArray(c.order) ? c.order : ["upcoming", "events"];
+        c.hidden = c.hidden || {};
+        return c;
+      } catch (e) { return { order: ["upcoming", "events"], hidden: {} }; }
     }
+    function saveHomeCfg(c) { localStorage.setItem(HOME_CFG_KEY, JSON.stringify(c)); }
+    let homeEditing = false;
+
     function applyHomeCfg() {
       const c = homeCfg();
-      const map = { upcoming: "g-upcoming", events: "g-events", note: "gnote" };
-      Object.keys(map).forEach((k) => {
-        const el = document.getElementById(map[k]);
-        if (el) el.classList.toggle("cfg-hidden", c["hide_" + k] === true);
+      ["upcoming", "events", "note"].forEach((k) => {
+        const el = GW_DEFS[k].el();
+        if (el) el.classList.toggle("cfg-hidden", c.hidden[k] === true);
+      });
+      // 왼쪽 열 순서: 할 일(0) → 이월(1) → order 배열(2~)
+      c.order.forEach((k, i) => {
+        const el = GW_DEFS[k] && GW_DEFS[k].el && GW_DEFS[k].el();
+        if (el) el.style.order = String(2 + i);
       });
     }
-    (function wireHomeCfg() {
-      const btn = document.getElementById("home-cfg-btn");
-      const pop = document.getElementById("home-cfg-pop");
-      if (!btn || !pop) return;
+
+    function renderGwCatalog() {
+      const box = document.getElementById("gw-catalog-list");
       const c = homeCfg();
-      pop.querySelectorAll("[data-cfg]").forEach((cb) => {
-        cb.checked = c["hide_" + cb.dataset.cfg] !== true;   // 체크 = 표시
-        cb.addEventListener("change", () => {
-          const cur = homeCfg();
-          cur["hide_" + cb.dataset.cfg] = !cb.checked;
-          localStorage.setItem(HOME_CFG_KEY, JSON.stringify(cur));
+      const hidden = ["upcoming", "events", "note"].filter((k) => c.hidden[k] === true);
+      box.innerHTML = hidden.length
+        ? hidden.map((k) => `<button type="button" class="mopt" data-gw-add="${k}">${GW_DEFS[k].label}<span class="mopt__sub">추가</span></button>`).join("")
+        : '<p class="settings-menu__hint" style="padding:12px 4px;">숨긴 위젯이 없어요. 편집 모드에서 − 를 눌러 위젯을 숨길 수 있어요.</p>';
+      box.querySelectorAll("[data-gw-add]").forEach((b) =>
+        b.addEventListener("click", () => {
+          const c2 = homeCfg();
+          c2.hidden[b.dataset.gwAdd] = false;
+          saveHomeCfg(c2);
+          applyHomeCfg();
+          renderGwCatalog();
+        }));
+    }
+
+    (function wireHomeEdit() {
+      const btn = document.getElementById("home-edit-btn");
+      if (!btn) return;
+      const grid = document.querySelector(".gtab-grid");
+      const catalog = document.getElementById("gw-catalog");
+
+      function setEdit(on) {
+        homeEditing = on;
+        document.body.classList.toggle("home-edit", on);
+        btn.textContent = on ? "완료" : "홈 편집";
+        btn.classList.toggle("is-on", on);
+        // 삭제 배지 부착/제거
+        ["upcoming", "events", "note"].forEach((k) => {
+          const el = GW_DEFS[k].el();
+          if (!el) return;
+          let del = el.querySelector(".gw-del");
+          if (on && !del) {
+            del = document.createElement("button");
+            del.type = "button";
+            del.className = "gw-del";
+            del.textContent = "−";
+            del.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const c = homeCfg();
+              c.hidden[k] = true;
+              saveHomeCfg(c);
+              applyHomeCfg();
+            });
+            el.appendChild(del);
+          } else if (!on && del) del.remove();
+        });
+        // 위젯 추가 타일
+        let addTile = document.getElementById("gw-addtile");
+        if (on && !addTile) {
+          addTile = document.createElement("button");
+          addTile.type = "button";
+          addTile.id = "gw-addtile";
+          addTile.className = "gw-addtile";
+          addTile.textContent = "＋ 위젯 추가";
+          addTile.style.order = "99";
+          addTile.addEventListener("click", () => { renderGwCatalog(); catalog.hidden = false; });
+          const col = document.querySelector(".gtab-col");
+          if (col) col.appendChild(addTile);
+        } else if (!on && addTile) addTile.remove();
+      }
+      btn.addEventListener("click", () => setEdit(!homeEditing));
+      catalog.querySelectorAll("[data-gw-close]").forEach((el) =>
+        el.addEventListener("click", () => { catalog.hidden = true; }));
+
+      // 편집 모드: 드래그로 순서 교체 (예정 ↔ 일정)
+      let dragKey = null;
+      ["upcoming", "events"].forEach((k) => {
+        const el = GW_DEFS[k].el();
+        if (!el) return;
+        el.addEventListener("pointerdown", () => { if (homeEditing) dragKey = k; });
+        el.addEventListener("pointerup", () => { dragKey = null; });
+        el.addEventListener("pointerenter", () => {
+          if (!homeEditing || !dragKey || dragKey === k) return;
+          const c = homeCfg();
+          const a = c.order.indexOf(dragKey), b = c.order.indexOf(k);
+          if (a < 0 || b < 0) return;
+          c.order[a] = k; c.order[b] = dragKey;
+          saveHomeCfg(c);
           applyHomeCfg();
         });
       });
-      btn.addEventListener("click", (e) => { e.stopPropagation(); pop.hidden = !pop.hidden; });
-      document.addEventListener("click", (e) => { if (!pop.contains(e.target)) pop.hidden = true; });
       applyHomeCfg();
     })();
 
@@ -301,7 +387,7 @@
 
     function openNote(t) {
       if (!t || !noteBox) return;
-      if (homeCfg().hide_note === true) return;
+      if (homeCfg().hidden.note === true) return;
       noteId = t.id;
       document.getElementById("gnote-title").textContent = t.content;
       noteBody.value = t.note || "";

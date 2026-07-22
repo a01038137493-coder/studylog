@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=221" />
+  <link rel="stylesheet" href="/css/style.css?v=222" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <!-- 일반 사용자 전용 태블릿/PC 홈 (모바일은 general-m.html, 수험생은 student.html) -->
@@ -26,14 +26,7 @@
         <span class="mhead__date" id="g-date">오늘</span>
       </div>
       <span class="mhead__dday" id="g-dday" hidden></span>
-      <div style="position:relative">
-        <button type="button" class="homecfg-btn" id="home-cfg-btn">⚙ 홈 편집</button>
-        <div class="homecfg-pop" id="home-cfg-pop" hidden>
-          <div class="homecfg-row"><span>예정 할 일</span><label class="dtswitch"><input type="checkbox" data-cfg="upcoming" /><i></i></label></div>
-          <div class="homecfg-row"><span>일정</span><label class="dtswitch"><input type="checkbox" data-cfg="events" /><i></i></label></div>
-          <div class="homecfg-row"><span>업무 메모</span><label class="dtswitch"><input type="checkbox" data-cfg="note" /><i></i></label></div>
-        </div>
-      </div>
+      <button type="button" class="homecfg-btn" id="home-edit-btn">홈 편집</button>
     </div>
 
     <div class="gtab-grid">
@@ -78,6 +71,19 @@
       </div>
     </div>
   </main>
+
+  <!-- 위젯 추가 카탈로그 (홈 편집 모드) -->
+  <div class="evsheet" id="gw-catalog" hidden>
+    <div class="evsheet__backdrop" data-gw-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">위젯 추가</span>
+        <button type="button" class="evsheet__cancel" data-gw-close>닫기</button>
+      </div>
+      <div id="gw-catalog-list"></div>
+    </div>
+  </div>
 
   <!-- 할 일 작성 시트 -->
   <div class="evsheet" id="gt-sheet" hidden>
@@ -132,6 +138,6 @@
   <script src="/js/supabaseClient.js?v=mock13"></script>
   <script src="/js/utils.js?v=41"></script>
   <script src="/js/notify.js?v=5"></script>
-  <script src="/js/gtab.js?v=12"></script>
+  <script src="/js/gtab.js?v=13"></script>
 </body>
 </html>
