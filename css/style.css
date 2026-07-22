@@ -2817,12 +2817,13 @@ html { touch-action: manipulation; }
 
 /* 웹 데스크톱 타임박스: 좌측 풀스크린 시간표 + 우측 지금/주간 배분/블록 패널 */
 @media (min-width: 1100px) {
+  html.dt-web body:has(.tbside) { padding-bottom: 0; }
   html.dt-web main.container:has(> .tbside) {
     grid-template-columns: minmax(0, 1fr) 300px;
     max-width: none;
-    height: calc(100dvh - 76px);
+    height: calc(100dvh - 62px);
     align-items: stretch;
-    padding-bottom: 12px; box-sizing: border-box;
+    padding-bottom: 10px; box-sizing: border-box;
   }
   html.dt-web main.container:has(> .tbside) > * { grid-column: 1; }
   html.dt-web main.container:has(> .tbside) > .tbside {
