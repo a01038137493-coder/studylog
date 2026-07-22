@@ -335,7 +335,9 @@ async function getCurrentProfile() {
 async function requireAuth() {
   const user = await getCurrentUser();
   if (!user) {
-    window.location.href = "/login.html";
+    // 로그인 후 원래 보던 페이지로 복귀할 수 있게 next 전달
+    const here = window.location.pathname + window.location.search;
+    window.location.href = "/login.html?next=" + encodeURIComponent(here);
     return null;
   }
   return user;
