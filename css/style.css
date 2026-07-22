@@ -3160,3 +3160,32 @@ body.home-edit .gtab-grid #gnote {
   .fmtbar--inline button:hover { background: #f6f6f7; }
   .fmtbar--inline .fmtbar__sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; align-self: center; }
 }
+
+/* 앱 태블릿: 타임박스 풀스크린 — 그리드가 화면을 최대한 채우도록 고정 배치
+   (높이 계산 대신 fixed: 위=타이틀바 아래, 아래=탭바 위 → 어떤 기기에서도 안 잘림) */
+@media (min-width: 1100px) {
+  html.dt-app body:has(.tbside) { padding-bottom: 0; }
+  html.dt-app main.container:has(> .tbside) {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 56px);
+    left: 0; right: 0;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+    align-items: stretch;
+    padding: 16px 16px 10px; box-sizing: border-box;   /* 위 16px: 타이틀바와 간격 */
+  }
+  html.dt-app main.container:has(> .tbside) > .tbside { position: static; overflow-y: auto; min-height: 0; }
+  /* 사이드가 6행을 차지하므로 뷰도 6행 전체를 스팬해야 세로가 꽉 찬다 */
+  html.dt-app main.container:has(> .tbside) > #tb-view,
+  html.dt-app main.container:has(> .tbside) > #tb-editor {
+    grid-row: 1 / span 6; overflow-y: auto; min-height: 0; margin: 0;
+    display: flex; flex-direction: column;
+  }
+  html.dt-app main.container:has(> .tbside) > #tb-view > #tb-grid { flex: 1; display: flex; flex-direction: column; }
+}
+
+/* 앱 태블릿: 수험생 홈 하단 문구·페이지 인디케이터를 탭바에서 띄움 */
+@media (min-width: 768px) {
+  html.dt-app body:has(.pager) .footer-quote { margin: 26px 0 8px; }
+  html.dt-app body:has(.pager) .pager-dots { padding: 4px 0 36px; }
+}

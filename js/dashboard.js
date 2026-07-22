@@ -46,6 +46,9 @@ async function initDashboard(profile) {
   setupPager();
   setupEditEntry();        // 상단 "편집" 버튼(원탭 진입) — 롱프레스 어색함 보완
   setupCoreAutoReflow();   // 코어 카드 높이 변동 시 아래 위젯 자동 재배치(겹침/흐트러짐 방지)
+  // 프로필 로드 전(첫 페인트)에 만들어진 과제 위젯은 로드가 실패한 채 방치될 수 있다 → 여기서 다시 로드
+  const tasksEl = document.querySelector(".widget--tasks");
+  if (tasksEl && tasksWidget.tasks == null) { renderTasksWidget(tasksEl); loadTodayTasks(tasksEl); }
   window.addEventListener("resize", renderCanvas);
   // 웹폰트가 늦게 로드되면 코어 높이가 미세하게 달라지므로, 로드 후 한 번 더 정렬 보정
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => renderCanvas());

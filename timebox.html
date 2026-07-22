@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>document.documentElement.classList.add(window.Capacitor ? "dt-app" : "dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=234" />
+  <link rel="stylesheet" href="/css/style.css?v=237" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -166,7 +166,8 @@
         });
       }
 
-      const WEBD = () => document.documentElement.classList.contains("dt-web") &&
+      const WEBD = () => (document.documentElement.classList.contains("dt-web") ||
+        document.documentElement.classList.contains("dt-app")) &&
         window.matchMedia("(min-width: 1100px)").matches;
 
       /* 일주일 뷰: 7컬럼 × 시간축 */
