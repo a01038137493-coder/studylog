@@ -373,23 +373,75 @@ if (document.readyState !== "loading") dtCheckShared();
 else document.addEventListener("DOMContentLoaded", dtCheckShared);
 
 /* ============================================================
- * 홈 일정 블록: 오늘 일정 + 다가오는 일정(7일) — Apple 캘린더(앱 전용)
+ * 핀로그 일정 (Supabase events — 계정 동기화)
+ * 반복 일정(daily/weekly/monthly/yearly)을 기간 안의 발생일로 확장해
+ * {src:"pin", id, title, startDate, endDate, isAllDay, alertMin, repeat} 로 반환
+ * ============================================================ */
+async function dtPinEventsInRange(userId, fromMs, toMs) {
+  const out = [];
+  try {
+    const isoFrom = new Date(fromMs).toISOString();
+    const isoTo = new Date(toMs).toISOString();
+    const [one, rep] = await Promise.all([
+      supabaseClient.from("events").select("*").eq("user_id", userId)
+        .is("repeat", null).gte("start_at", isoFrom).lte("start_at", isoTo),
+      supabaseClient.from("events").select("*").eq("user_id", userId)
+        .not("repeat", "is", null),
+    ]);
+    const norm = (ev, startMs) => {
+      const dur = ev.end_at ? (new Date(ev.end_at) - new Date(ev.start_at)) : 3600000;
+      return { src: "pin", id: ev.id, title: ev.title, startDate: startMs, endDate: startMs + dur,
+               isAllDay: !!ev.all_day, alertMin: ev.alert_min, repeat: ev.repeat || "" };
+    };
+    (one.data || []).forEach((ev) => out.push(norm(ev, new Date(ev.start_at).getTime())));
+    for (const ev of (rep.data || [])) {
+      const base = new Date(ev.start_at);
+      const baseDay = new Date(base.getFullYear(), base.getMonth(), base.getDate()).getTime();
+      for (let t = fromMs; t <= toMs; t += 86400000) {
+        const d = new Date(t);
+        const day0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        if (day0.getTime() < baseDay) continue;
+        const hit =
+          ev.repeat === "daily" ||
+          (ev.repeat === "weekly" && day0.getDay() === base.getDay()) ||
+          (ev.repeat === "monthly" && day0.getDate() === base.getDate()) ||
+          (ev.repeat === "yearly" && day0.getDate() === base.getDate() && day0.getMonth() === base.getMonth());
+        if (hit) out.push(norm(ev, new Date(d.getFullYear(), d.getMonth(), d.getDate(), base.getHours(), base.getMinutes()).getTime()));
+      }
+    }
+  } catch (e) {}
+  return out;
+}
+
+/* ============================================================
+ * 홈 일정 블록: 오늘 일정 + 다가오는 일정(7일)
+ * 핀로그 일정(계정 동기화) + Apple 캘린더(기기, 앱 전용) 병합
  * ============================================================ */
 async function renderHomeSchedule(sectionEl, listEl) {
   try {
-    const calPlugin = window.Capacitor && window.Capacitor.Plugins
-      ? window.Capacitor.Plugins.CapacitorCalendar : null;
-    if (!calPlugin || !sectionEl || !listEl) return;
-    const { result: perm } = await calPlugin.requestFullCalendarAccess();
-    if (perm !== "granted") return;
-
+    if (!sectionEl || !listEl) return;
     const now = new Date();
     const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const rangeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59);
-    const { result } = await calPlugin.listEventsInRange({
-      from: dayStart.getTime(), to: rangeEnd.getTime(),
-    });
-    const events = (result || []).sort((a, b) => a.startDate - b.startDate);
+
+    let events = [];
+    const profile = await getCurrentProfile();
+    if (profile) events = await dtPinEventsInRange(profile.id, dayStart.getTime(), rangeEnd.getTime());
+
+    const calPlugin = window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.CapacitorCalendar : null;
+    if (calPlugin) {
+      try {
+        const { result: perm } = await calPlugin.requestFullCalendarAccess();
+        if (perm === "granted") {
+          const { result } = await calPlugin.listEventsInRange({
+            from: dayStart.getTime(), to: rangeEnd.getTime(),
+          });
+          events = events.concat(result || []);
+        }
+      } catch (e) {}
+    }
+    events.sort((a, b) => a.startDate - b.startDate);
     if (!events.length) return;
 
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>

@@ -42,9 +42,11 @@
   };
   const t12 = (h, m) => `${h < 12 ? "오전" : "오후"} ${h % 12 || 12}:${String(m).padStart(2, "0")}`;
 
-  /* 설정에 맞춰 전체 재예약 (기존 예약 모두 취소 후 다시) */
-  async function resync(profile) {
+  /* 설정에 맞춰 전체 재예약 (기존 예약 모두 취소 후 다시)
+     opts.prompt=false 면 권한 요청 팝업 없이 이미 허용된 경우에만 예약 (앱 실행 시 자가 치유용) */
+  async function resync(profile, opts) {
     if (!LN) return false;
+    const prompt = !opts || opts.prompt !== false;
     const s = getSettings();
     try {
       const pend = await LN.getPending();
@@ -52,8 +54,12 @@
         await LN.cancel({ notifications: pend.notifications.map((n) => ({ id: n.id })) });
       }
     } catch (e) {}
-    if (!s.morning && !s.evening && !s.timebox) return true;
-    if (!(await ensurePermission())) return false;
+
+    if (prompt) { if (!(await ensurePermission())) return false; }
+    else {
+      try { if ((await LN.checkPermissions()).display !== "granted") return false; }
+      catch (e) { return false; }
+    }
 
     const p = profile || cachedProfile();
     const isExam = !p || p.user_type !== "general";   // 알 수 없으면 수험생 문구
@@ -76,20 +82,61 @@
       try {
         const { data: boxes } = await supabaseClient.from("timeboxes")
           .select("*").eq("student_id", p.id).order("start_time");
-        let id = 2000;
+        let id = 2000, tbCount = 0;
         outer:
         for (const b of (boxes || [])) {
           const days = Array.isArray(b.days) ? b.days : [0, 1, 2, 3, 4, 5, 6];
           const [h, m] = b.start_time.split(":").map(Number);
           for (const d of days) {                       // 월=0..일=6 → iOS weekday 일=1..토=7
-            if (list.length >= 60) break outer;         // iOS 예약 한도(64) 보호
+            if (tbCount >= 40) break outer;             // iOS 예약 한도(64) 배분: 타임박스 최대 40
             list.push({
               id: id++,
               title: b.label,
               body: `타임박스 시작 시간이에요 (${t12(h, m)})`,
               schedule: { on: { weekday: ((d + 1) % 7) + 1, hour: h, minute: m }, allowWhileIdle: true },
             });
+            tbCount++;
           }
+        }
+      } catch (e) {}
+    }
+
+    /* 일정 알림 (핀로그 일정, alert_min 설정된 것 — 토글과 무관하게 일정별로 동작) */
+    if (p && p.id && window.supabaseClient) {
+      try {
+        const nowD = new Date();
+        const in35 = new Date(Date.now() + 35 * 86400000);
+        const [one, rep] = await Promise.all([
+          supabaseClient.from("events").select("*").eq("user_id", p.id)
+            .is("repeat", null).not("alert_min", "is", null)
+            .gte("start_at", nowD.toISOString()).lte("start_at", in35.toISOString())
+            .order("start_at").limit(18),
+          supabaseClient.from("events").select("*").eq("user_id", p.id)
+            .not("repeat", "is", null).not("alert_min", "is", null).limit(18),
+        ]);
+        let id = 3000, evCount = 0;
+        const bodyOf = (ev) => {
+          const st = new Date(ev.start_at);
+          return ev.all_day ? "오늘 일정이에요" : `${t12(st.getHours(), st.getMinutes())} 일정이에요`;
+        };
+        for (const ev of (one.data || [])) {
+          if (evCount >= 18) break;
+          const at = new Date(new Date(ev.start_at).getTime() + ev.alert_min * 60000);
+          if (at <= new Date()) continue;
+          list.push({ id: id++, title: ev.title, body: bodyOf(ev), schedule: { at, allowWhileIdle: true } });
+          evCount++;
+        }
+        for (const ev of (rep.data || [])) {
+          if (evCount >= 18) break;
+          const base = new Date(new Date(ev.start_at).getTime() + ev.alert_min * 60000);
+          const hmOn = { hour: base.getHours(), minute: base.getMinutes() };
+          const on =
+            ev.repeat === "daily" ? hmOn :
+            ev.repeat === "weekly" ? { weekday: base.getDay() + 1, ...hmOn } :
+            ev.repeat === "monthly" ? { day: base.getDate(), ...hmOn } :
+            { month: base.getMonth() + 1, day: base.getDate(), ...hmOn };
+          list.push({ id: id++, title: ev.title, body: bodyOf(ev), schedule: { on, allowWhileIdle: true } });
+          evCount++;
         }
       } catch (e) {}
     }
@@ -102,15 +149,15 @@
   if (LN) {
     LN.addListener("localNotificationActionPerformed", (a) => {
       const id = a && a.notification && a.notification.id;
-      if (id >= 2000) window.location.href = "/timebox.html";
+      if (id >= 3000) window.location.href = "/calendar.html";
+      else if (id >= 2000) window.location.href = "/timebox.html";
       else window.location.href = "/index.html";
     });
   }
 
-  /* 앱 실행 시 자가 치유 재예약 (페이지 로드에 방해되지 않게 지연) */
+  /* 앱 실행 시 자가 치유 재예약 — 권한 팝업 없이(이미 허용된 경우만), 일정 알림 포함 */
   document.addEventListener("DOMContentLoaded", () => {
-    const s = getSettings();
-    if (LN && (s.morning || s.evening || s.timebox)) setTimeout(() => resync(null), 4000);
+    if (LN) setTimeout(() => resync(null, { prompt: false }), 4000);
   });
 
   window.dtNotify = { available: !!LN, getSettings, saveSettings, resync, ensurePermission };

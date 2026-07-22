@@ -117,7 +117,8 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=31"></script>
+  <script src="/js/utils.js?v=32"></script>
+  <script src="/js/notify.js?v=2"></script>
   <script src="/js/scheduleParse.js?v=2"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
@@ -140,7 +141,7 @@
       let selected = dstr(viewY, viewM, now.getDate());
 
       const recorded = new Set();                  // 체크아웃한 날
-      const events = new Map();                    // 날짜 → Apple 캘린더 일정 배열
+      const events = new Map();                    // 날짜 → 일정 배열 (핀로그 DB + Apple 캘린더 병합)
 
       /* Apple 캘린더 (네이티브 앱에서만) */
       const calPlugin = window.Capacitor && window.Capacitor.Plugins
@@ -174,20 +175,26 @@
           } catch (e) {}
         }
 
+        const from = new Date(viewY, viewM, 1).getTime();
+        const to = new Date(viewY, viewM, daysInMonth, 23, 59, 59).getTime();
+        const put = (ev) => {
+          const d = new Date(ev.startDate);
+          const key = dstr(d.getFullYear(), d.getMonth(), d.getDate());
+          if (!events.has(key)) events.set(key, []);
+          events.get(key).push(ev);
+        };
+
+        // 핀로그 일정 (계정 동기화 — 모든 기기 공통)
+        (await dtPinEventsInRange(profile.id, from, to)).forEach(put);
+
+        // Apple 캘린더 일정 (기기 로컬, 읽기·기존 일정용)
         if (await ensureCalendarAccess()) {
           try {
-            const from = new Date(viewY, viewM, 1).getTime();
-            const to = new Date(viewY, viewM, daysInMonth, 23, 59, 59).getTime();
             const { result } = await calPlugin.listEventsInRange({ from, to });
-            (result || []).forEach((ev) => {
-              const d = new Date(ev.startDate);
-              const key = dstr(d.getFullYear(), d.getMonth(), d.getDate());
-              if (!events.has(key)) events.set(key, []);
-              events.get(key).push(ev);
-            });
-            events.forEach((list) => list.sort((a, b) => a.startDate - b.startDate));
+            (result || []).forEach((ev) => { ev.src = "apple"; put(ev); });
           } catch (e) {}
         }
+        events.forEach((list) => list.sort((a, b) => a.startDate - b.startDate));
       }
 
       async function gotoMonth(delta) {
@@ -287,7 +294,7 @@
             </button>`;
           }).join("");
         } else if (!hasRec) {
-          html += `<p class="fcal__events-empty">${calPlugin ? "일정이 없습니다 · 날짜를 길게 누르면 일정을 등록할 수 있어요" : "Apple 캘린더 일정은 앱에서 표시됩니다"}</p>`;
+          html += `<p class="fcal__events-empty">일정이 없습니다 · 날짜를 길게 누르면 일정을 등록할 수 있어요</p>`;
         }
         box.innerHTML = html;
 
@@ -304,6 +311,7 @@
       const sheet = document.getElementById("evsheet");
       const evErr = document.getElementById("ev-error");
       let editingId = null;   // null = 새 일정, 값 있으면 해당 일정 수정
+      let editingSrc = null;  // "pin"(핀로그 DB) | "apple"(기기 캘린더)
       let durationMs = 3600000;  // 종료는 입력받지 않고 시작 + 지속시간으로 자동 계산 (기본 1시간)
 
       function fillSheet({ title, allday, sd, st, repeat, alert5 }) {
@@ -319,8 +327,8 @@
       }
 
       function openSheet(dateKey) {
-        if (!calPlugin) { alert("일정 등록은 앱에서 사용할 수 있어요."); return; }
         editingId = null;
+        editingSrc = null;
         durationMs = 3600000;
         document.querySelector(".evsheet__title").textContent = "새 일정";
         document.getElementById("ev-delete").hidden = true;
@@ -330,6 +338,7 @@
 
       function openEditSheet(ev) {
         editingId = ev.id;
+        editingSrc = ev.src === "pin" ? "pin" : "apple";
         document.querySelector(".evsheet__title").textContent = "일정 수정";
         document.getElementById("ev-delete").hidden = false;
         const s = new Date(ev.startDate);
@@ -337,13 +346,15 @@
         durationMs = Math.max(0, e.getTime() - s.getTime()) || 3600000;  // 수정 시 원래 길이 유지
         // 알림: 기존 값이 선택지에 있으면 채우고, 없으면 '없음'
         const known = ["0", "-5", "-10", "-15", "-30", "-60", "-120", "-1440", "-2880", "-10080"];
-        const a = Array.isArray(ev.alerts) && ev.alerts.length ? String(ev.alerts[0]) : "";
+        const a = editingSrc === "pin"
+          ? (ev.alertMin == null ? "" : String(ev.alertMin))
+          : (Array.isArray(ev.alerts) && ev.alerts.length ? String(ev.alerts[0]) : "");
         fillSheet({
           title: ev.title || "",
           allday: !!ev.isAllDay,
           sd: dstr(s.getFullYear(), s.getMonth(), s.getDate()),
           st: `${pad(s.getHours())}:${pad(s.getMinutes())}`,
-          repeat: "",                       // 반복은 조회가 안 돼 기본값 — 바꾸면 새 반복으로 덮어씀
+          repeat: editingSrc === "pin" ? (ev.repeat || "") : "",   // 기기 캘린더는 반복 조회 불가
           alert5: known.includes(a) ? a : "",
         });
       }
@@ -371,27 +382,47 @@
           ? new Date(`${sd}T23:59:00`).getTime()
           : startDate + durationMs;   // 종료는 시작 + 지속시간(새 일정 1시간, 수정은 원래 길이)
 
-        const opts = { title, startDate, endDate, isAllDay: allday };
         const rep = document.getElementById("ev-repeat").value;
-        if (rep) opts.recurrence = { frequency: rep };
         const alert5 = document.getElementById("ev-alert").value;
-        if (alert5 !== "") opts.alerts = [Number(alert5)];
 
         const btn = document.getElementById("ev-save");
         btn.disabled = true;
         try {
-          if (!(await ensureCalendarAccess())) throw new Error("permission");
-          if (editingId) await calPlugin.modifyEvent({ id: editingId, ...opts });
-          else await calPlugin.createEvent(opts);
+          if (editingId && editingSrc === "apple") {
+            // 기기(Apple) 캘린더 일정은 기존 방식대로 수정
+            const opts = { title, startDate, endDate, isAllDay: allday };
+            if (rep) opts.recurrence = { frequency: rep };
+            if (alert5 !== "") opts.alerts = [Number(alert5)];
+            if (!(await ensureCalendarAccess())) throw new Error("permission");
+            await calPlugin.modifyEvent({ id: editingId, ...opts });
+          } else {
+            // 핀로그 일정 — DB 저장이라 같은 계정의 모든 기기에서 동기화
+            const row = {
+              title,
+              all_day: allday,
+              start_at: new Date(startDate).toISOString(),
+              end_at: new Date(endDate).toISOString(),
+              alert_min: alert5 === "" ? null : Number(alert5),
+              repeat: rep || null,
+            };
+            if (editingId) {
+              const { error } = await supabaseClient.from("events").update(row).eq("id", editingId);
+              if (error) throw error;
+            } else {
+              const { error } = await supabaseClient.from("events").insert({ ...row, user_id: profile.id });
+              if (error) throw error;
+            }
+            if (window.dtNotify && dtNotify.available) dtNotify.resync(profile);   // 일정 알림 재예약
+          }
           closeSheet();
           selected = sd;
           await loadMonth();
           renderGrid();
           renderEvents();
         } catch (e) {
-          evErr.textContent = editingId
+          evErr.textContent = editingId && editingSrc === "apple"
             ? "이 일정은 수정할 수 없어요. (공휴일 등 구독 캘린더 일정)"
-            : "일정을 저장하지 못했습니다. 캘린더 접근 권한을 확인해주세요.";
+            : "일정을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.";
         } finally {
           btn.disabled = false;
         }
@@ -402,7 +433,13 @@
         if (!editingId) return;
         if (!confirm("이 일정을 삭제할까요?")) return;
         try {
-          await calPlugin.deleteEventsById({ ids: [editingId] });
+          if (editingSrc === "apple") {
+            await calPlugin.deleteEventsById({ ids: [editingId] });
+          } else {
+            const { error } = await supabaseClient.from("events").delete().eq("id", editingId);
+            if (error) throw error;
+            if (window.dtNotify && dtNotify.available) dtNotify.resync(profile);
+          }
           closeSheet();
           await loadMonth();
           renderGrid();
