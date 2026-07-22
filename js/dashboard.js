@@ -24,7 +24,7 @@ const WIDGET_CATALOG = {
   calendar: { emoji: "📅", title: "달력",       desc: "이번 달 미니 달력",       builtin: true, w: 2, h: 2 },
   timer:    { emoji: "⏱️", title: "공부 타이머", desc: "집중 시간 카운트다운 (5·25·50분)",      w: 2, h: 2 },
   clock:    { emoji: "🕐", title: "시계",       desc: "현재 시각",               w: 2, h: 2 },
-  weather:  { emoji: "🌤️", title: "날씨",       desc: "현재 날씨 (위치 기반)",   w: 2, h: 2 },
+  weather:  { emoji: "🌤️", title: "날씨",       desc: "오늘의 날씨와 기온",   w: 2, h: 2 },
   tasks:    { emoji: "✅", title: "오늘 과제",   desc: "지금 할 일 · 완료 체크",  w: 2, h: 2 },
   memo:     { emoji: "📝", title: "메모장",     desc: "자유 메모 (폰트 선택 가능)", w: 2, h: 2 },
   motto:    { emoji: "🔥", title: "한줄 다짐",   desc: "오늘의 한 줄 선언 (가로 배너)", w: 4, h: 1 },
