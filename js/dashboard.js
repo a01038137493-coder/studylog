@@ -187,7 +187,11 @@ async function saveLayout() {
 function colsNow() {
   const canvas = document.getElementById("widget-canvas");
   const w = canvas ? canvas.clientWidth : window.innerWidth;
-  return Math.max(2, Math.floor((w + GAP) / (CELL_W + GAP)));
+  let n = Math.max(2, Math.floor((w + GAP) / (CELL_W + GAP)));
+  // 코어 카드(5칸)가 정확히 가운데 오도록 양옆 열 수를 짝수로 맞춘다.
+  // (예: 10열이면 좌2/우3으로 코어가 비껴 보임 → 9열로 줄여 좌2/우2 대칭)
+  if (n > CORE_COLS && (n - CORE_COLS) % 2 === 1) n -= 1;
+  return n;
 }
 
 /* 현재 화면 "열 수"에 맞는 위젯 배치 맵을 활성화 (기기/화면 폭별 분리 저장)
