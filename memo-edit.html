@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>메모 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=175" />
+  <link rel="stylesheet" href="/css/style.css?v=176" />
 </head>
 <body class="app-bg memoedit-page">
   <header class="topbar">
@@ -12,11 +12,29 @@
     <span class="memoedit__status" id="me-status"></span>
     <div class="topbar__right">
       <button type="button" class="btn btn--ghost btn--sm" id="me-done" hidden>완료</button>
+      <button type="button" class="topbar__more" id="me-more" aria-label="메모 옵션"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
     </div>
   </header>
 
-  <div class="memoedit__catbar">
-    <button type="button" id="me-cat-btn" class="memoedit__cat">📁 미분류</button>
+  <!-- 더보기 메뉴: 분류하기 · 공유하기 -->
+  <div class="evsheet" id="more-sheet" hidden>
+    <div class="evsheet__backdrop" data-more-close></div>
+    <div class="evsheet__panel">
+      <div class="evsheet__head">
+        <span></span>
+        <span class="evsheet__title">메모 옵션</span>
+        <button type="button" class="evsheet__cancel" data-more-close>닫기</button>
+      </div>
+      <button type="button" class="mopt" id="mo-cat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        분류하기
+        <span class="mopt__sub" id="mo-cat-cur">미분류</span>
+      </button>
+      <button type="button" class="mopt" id="mo-share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+        공유하기
+      </button>
+    </div>
   </div>
 
   <!-- 폴더 선택 시트 -->
@@ -57,7 +75,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=33"></script>
+  <script src="/js/utils.js?v=34"></script>
   <script src="/js/memofmt.js?v=1"></script>
   <script>
     /* 아이폰 메모장식 편집기: 서식 즉시 반영 + 자동 저장 */
@@ -86,7 +104,6 @@
       if (!id) setTimeout(() => body.focus(), 60);
 
       /* ---------- 폴더 선택 (시트) ---------- */
-      const catBtn = document.getElementById("me-cat-btn");
       const pickSheet = document.getElementById("pick-sheet");
       let categories = [];
       {
@@ -99,7 +116,7 @@
         const c = categories.find((x) => x.id === cid);
         return c ? c.name : "미분류";
       };
-      const paintCatBtn = () => { catBtn.textContent = "📁 " + catName(categoryId); };
+      const paintCatBtn = () => { document.getElementById("mo-cat-cur").textContent = catName(categoryId); };
       paintCatBtn();
 
       async function applyCategory(cid) {
@@ -128,9 +145,35 @@
           b.addEventListener("click", () => applyCategory(b.dataset.pick || null)));
       }
 
-      catBtn.addEventListener("click", () => { renderPicker(); pickSheet.hidden = false; });
       pickSheet.querySelectorAll("[data-pick-close]").forEach((el) =>
         el.addEventListener("click", () => { pickSheet.hidden = true; }));
+
+      /* ---------- 더보기 메뉴 (분류하기 · 공유하기) ---------- */
+      const moreSheet = document.getElementById("more-sheet");
+      document.getElementById("me-more").addEventListener("click", () => {
+        paintCatBtn();
+        moreSheet.hidden = false;
+      });
+      moreSheet.querySelectorAll("[data-more-close]").forEach((el) =>
+        el.addEventListener("click", () => { moreSheet.hidden = true; }));
+      document.getElementById("mo-cat").addEventListener("click", () => {
+        moreSheet.hidden = true;
+        renderPicker();
+        pickSheet.hidden = false;
+      });
+      document.getElementById("mo-share").addEventListener("click", async () => {
+        moreSheet.hidden = true;
+        const text = body.innerText.trim();
+        if (!text) { showToast("공유할 내용이 없어요"); return; }
+        try {
+          if (!navigator.share) throw new Error("unsupported");
+          await navigator.share({ text });
+        } catch (e) {
+          if (e && e.name === "AbortError") return;    // 사용자가 공유 취소
+          try { await navigator.clipboard.writeText(text); showToast("메모 내용을 복사했어요"); }
+          catch (e2) { showToast("공유를 지원하지 않는 환경이에요"); }
+        }
+      });
 
       async function createAndPick() {
         const input = document.getElementById("pick-new-input");

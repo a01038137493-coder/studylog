@@ -503,6 +503,11 @@ async function renderHomeSchedule(sectionEl, listEl) {
     // 키보드가 실제로 안 뜨면(날짜 휠 등) 0.6초 뒤 자동 원복한다.
     const root = document.documentElement;
     const setKb = (h) => root.style.setProperty("--kb", h + "px");
+
+    // 키보드 뒤 배경 마스크 — iOS 키보드 상단 라운딩 틈으로 비치는 배경을 키보드색으로 통일
+    const kbMask = document.createElement("div");
+    kbMask.className = "dt-kbmask";
+    document.body.appendChild(kbMask);
     const TEXTUAL = /^(text|search|email|password|tel|url|number)$/;
     let kbShown = false, guard = null;
     const isTextField = (el) => el && el.closest && el.closest(".evsheet__panel") &&

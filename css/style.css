@@ -2579,3 +2579,17 @@ input[type="month"].field__input {
 .dtswitch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
 .dtswitch input:checked + i { background: var(--primary); }
 .dtswitch input:checked + i::after { transform: translateX(18px); }
+
+/* 상단바 더보기(⋯) 버튼 + 메뉴 시트 행 */
+.topbar__more { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: none; border: none; color: #fff; -webkit-tap-highlight-color: transparent; }
+.topbar__more svg { width: 22px; height: 22px; }
+.topbar__more:active { transform: scale(0.94); }
+.mopt { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px 8px; background: none; border: none; font: inherit; font-size: 0.98rem; font-weight: 600; color: var(--text); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mopt + .mopt { border-top: 1px solid var(--line); }
+.mopt svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.mopt__sub { margin-left: auto; color: var(--muted-soft); font-size: 0.85rem; font-weight: 600; }
+.mopt:active { background: rgba(15, 23, 42, 0.05); }
+
+/* 키보드 뒤 배경 마스크 — iOS 키보드 상단 라운딩 틈 색상 통일 */
+.dt-kbmask { position: fixed; left: 0; right: 0; bottom: 0; height: var(--kb, 0px); background: #dee0e5; z-index: 950; display: none; pointer-events: none; }
+body.kb-open .dt-kbmask { display: block; }

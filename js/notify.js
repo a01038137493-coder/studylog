@@ -160,5 +160,26 @@
     if (LN) setTimeout(() => resync(null, { prompt: false }), 4000);
   });
 
-  window.dtNotify = { available: !!LN, getSettings, saveSettings, resync, ensurePermission };
+  /* 진단용: 5초 뒤 테스트 알림 */
+  async function test() {
+    if (!LN || !(await ensurePermission())) return false;
+    try {
+      await LN.schedule({ notifications: [{
+        id: 999,
+        title: "핀로그 알림 테스트",
+        body: "알림이 정상 작동하고 있어요!",
+        schedule: { at: new Date(Date.now() + 5000) },
+      }] });
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* 진단용: 현재 예약된 알림 개수 (-1 = 확인 실패) */
+  async function pendingCount() {
+    if (!LN) return -1;
+    try { return ((await LN.getPending()).notifications || []).length; }
+    catch (e) { return -1; }
+  }
+
+  window.dtNotify = { available: !!LN, getSettings, saveSettings, resync, ensurePermission, test, pendingCount };
 })();

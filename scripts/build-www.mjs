@@ -25,6 +25,7 @@ const COPY = [
   "memo-edit.html",
   "support.html",
   "settings.html",
+  "notifications.html",
   "demo.html",
   "student.html",
   "student-m.html",

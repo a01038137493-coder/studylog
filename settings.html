@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>설정 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=175" />
+  <link rel="stylesheet" href="/css/style.css?v=176" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -33,6 +33,10 @@
         개인정보처리방침
         <span class="settings-row__chevron" aria-hidden="true">›</span>
       </a>
+      <a href="/notifications.html" class="settings-row" id="ntf-link" hidden>
+        알림
+        <span class="settings-row__chevron" aria-hidden="true">›</span>
+      </a>
       <a href="/guide.html" class="settings-row">
         사용법
         <span class="settings-row__chevron" aria-hidden="true">›</span>
@@ -45,31 +49,6 @@
         로그아웃
         <span class="settings-row__chevron" aria-hidden="true">›</span>
       </button>
-    </section>
-
-    <!-- 알림 (앱에서만 표시) -->
-    <section class="card settings-menu" id="ntf-sec" hidden>
-      <div class="settings-row settings-row--static">
-        <span>아침 플랜 알림</span>
-        <span class="ntf-right">
-          <input type="time" id="ntf-morning-time" class="ntf-time" value="08:00" />
-          <label class="dtswitch"><input type="checkbox" id="ntf-morning" /><i></i></label>
-        </span>
-      </div>
-      <div class="settings-row settings-row--static">
-        <span>저녁 기록 알림</span>
-        <span class="ntf-right">
-          <input type="time" id="ntf-evening-time" class="ntf-time" value="22:00" />
-          <label class="dtswitch"><input type="checkbox" id="ntf-evening" /><i></i></label>
-        </span>
-      </div>
-      <div class="settings-row settings-row--static" id="ntf-tb-row" hidden>
-        <span>타임박스 시작 알림</span>
-        <span class="ntf-right">
-          <label class="dtswitch"><input type="checkbox" id="ntf-timebox" /><i></i></label>
-        </span>
-      </div>
-      <p class="settings-menu__hint" id="ntf-hint">알림은 이 기기에서 울립니다.</p>
     </section>
 
     <!-- 위험 영역 -->
@@ -139,8 +118,8 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=33"></script>
-  <script src="/js/notify.js?v=2"></script>
+  <script src="/js/utils.js?v=34"></script>
+  <script src="/js/notify.js?v=3"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const user = await requireAuth();
@@ -189,42 +168,8 @@
         window.location.reload();
       });
 
-      /* ---------- 알림 (앱에서만) ---------- */
-      if (window.dtNotify && dtNotify.available) {
-        document.getElementById("ntf-sec").hidden = false;
-        if (picked !== "general") document.getElementById("ntf-tb-row").hidden = false;
-
-        const el = {
-          morning: document.getElementById("ntf-morning"),
-          morningTime: document.getElementById("ntf-morning-time"),
-          evening: document.getElementById("ntf-evening"),
-          eveningTime: document.getElementById("ntf-evening-time"),
-          timebox: document.getElementById("ntf-timebox"),
-          hint: document.getElementById("ntf-hint"),
-        };
-        const s = dtNotify.getSettings();
-        el.morning.checked = s.morning; el.morningTime.value = s.morningTime;
-        el.evening.checked = s.evening; el.eveningTime.value = s.eveningTime;
-        el.timebox.checked = s.timebox;
-
-        let applyTimer;
-        const apply = () => {
-          dtNotify.saveSettings({
-            morning: el.morning.checked, morningTime: el.morningTime.value || "08:00",
-            evening: el.evening.checked, eveningTime: el.eveningTime.value || "22:00",
-            timebox: el.timebox.checked,
-          });
-          clearTimeout(applyTimer);
-          applyTimer = setTimeout(async () => {
-            const ok = await dtNotify.resync(profile);
-            el.hint.textContent = ok
-              ? "알림은 이 기기에서 울립니다."
-              : "알림 권한이 꺼져 있어요. 설정 앱 > 핀로그에서 알림을 허용해주세요.";
-          }, 250);
-        };
-        [el.morning, el.evening, el.timebox].forEach((c) => c.addEventListener("change", apply));
-        [el.morningTime, el.eveningTime].forEach((t) => t.addEventListener("change", apply));
-      }
+      /* 알림 설정 메뉴 — 앱에서만 노출 (전용 페이지로 이동) */
+      if (window.dtNotify && dtNotify.available) document.getElementById("ntf-link").hidden = false;
     });
   </script>
 </body>
