@@ -66,13 +66,13 @@
     const list = [];
 
     if (s.morning) list.push({
-      id: 1001,
+      id: 1001, badge: 1,
       title: "오늘 계획 세울 시간이에요",
       body: isExam ? "오늘의 핵심 과제를 입력하고 하루를 시작해보세요." : "오늘 할 일을 정리하고 하루를 시작해보세요.",
       schedule: { on: hm(s.morningTime), allowWhileIdle: true },
     });
     if (s.evening) list.push({
-      id: 1002,
+      id: 1002, badge: 1,
       title: "오늘 하루 기록할 시간이에요",
       body: isExam ? "오늘의 성과를 기록하고 마무리해보세요." : "오늘 하루를 정리하고 마무리해보세요.",
       schedule: { on: hm(s.eveningTime), allowWhileIdle: true },
@@ -90,7 +90,7 @@
           for (const d of days) {                       // 월=0..일=6 → iOS weekday 일=1..토=7
             if (tbCount >= 40) break outer;             // iOS 예약 한도(64) 배분: 타임박스 최대 40
             list.push({
-              id: id++,
+              id: id++, badge: 1,
               title: b.label,
               body: `타임박스 시작 시간이에요 (${t12(h, m)})`,
               schedule: { on: { weekday: ((d + 1) % 7) + 1, hour: h, minute: m }, allowWhileIdle: true },
@@ -123,7 +123,7 @@
           if (evCount >= 18) break;
           const at = new Date(new Date(ev.start_at).getTime() + ev.alert_min * 60000);
           if (at <= new Date()) continue;
-          list.push({ id: id++, title: ev.title, body: bodyOf(ev), schedule: { at, allowWhileIdle: true } });
+          list.push({ id: id++, badge: 1, title: ev.title, body: bodyOf(ev), schedule: { at, allowWhileIdle: true } });
           evCount++;
         }
         for (const ev of (rep.data || [])) {
@@ -135,7 +135,7 @@
             ev.repeat === "weekly" ? { weekday: base.getDay() + 1, ...hmOn } :
             ev.repeat === "monthly" ? { day: base.getDate(), ...hmOn } :
             { month: base.getMonth() + 1, day: base.getDate(), ...hmOn };
-          list.push({ id: id++, title: ev.title, body: bodyOf(ev), schedule: { on, allowWhileIdle: true } });
+          list.push({ id: id++, badge: 1, title: ev.title, body: bodyOf(ev), schedule: { on, allowWhileIdle: true } });
           evCount++;
         }
       } catch (e) {}
@@ -155,9 +155,18 @@
     });
   }
 
+  /* 앱을 열거나 복귀하면 아이콘 배지·알림 센터 항목 정리 */
+  function clearBadge() { try { LN.removeAllDeliveredNotifications(); } catch (e) {} }
+  if (LN) {
+    const AppPlugin = window.Capacitor.Plugins.App;
+    if (AppPlugin) AppPlugin.addListener("appStateChange", ({ isActive }) => { if (isActive) clearBadge(); });
+  }
+
   /* 앱 실행 시 자가 치유 재예약 — 권한 팝업 없이(이미 허용된 경우만), 일정 알림 포함 */
   document.addEventListener("DOMContentLoaded", () => {
-    if (LN) setTimeout(() => resync(null, { prompt: false }), 4000);
+    if (!LN) return;
+    clearBadge();
+    setTimeout(() => resync(null, { prompt: false }), 4000);
   });
 
   /* 진단용: 5초 뒤 테스트 알림 */
@@ -165,7 +174,7 @@
     if (!LN || !(await ensurePermission())) return false;
     try {
       await LN.schedule({ notifications: [{
-        id: 999,
+        id: 999, badge: 1,
         title: "핀로그 알림 테스트",
         body: "알림이 정상 작동하고 있어요!",
         schedule: { at: new Date(Date.now() + 5000) },

@@ -6,7 +6,8 @@
   "scripts": {
     "build:www": "node scripts/build-www.mjs",
     "ios:sync": "node scripts/build-www.mjs && cap sync ios",
-    "ios:open": "cap open ios"
+    "ios:open": "cap open ios",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
@@ -19,6 +20,7 @@
     "@supabase/supabase-js": "^2.110.7"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.4.2"
+    "@capacitor/cli": "^8.4.2",
+    "patch-package": "^8.0.1"
   }
 }
