@@ -2485,6 +2485,9 @@ input[type="month"].field__input {
     아이폰 가로모드 제외: min-height 500px 조건)
    ============================================================ */
 @media (min-width: 768px) and (min-height: 500px) {
+  /* 태블릿: 본문 블록 좌측 정렬 */
+  main.container { margin-left: 0; }
+
   /* 내 기록 요약 4지표: 한 줄 4칸 */
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
 
