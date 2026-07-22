@@ -2725,3 +2725,15 @@ html { touch-action: manipulation; }
   html.dt-web .gtab-grid #gnote { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; }
   html.dt-web .gtodo__row.is-note .gtodo__item { background: rgba(240, 68, 56, 0.06); border-radius: 10px; }
 }
+
+/* 웹 홈 할 일 호버 액션 (★ 중요 · ✎ 수정 · 🗑 삭제) — 스와이프 대체 */
+.gt-webacts { display: none; }
+@media (min-width: 1100px) {
+  html.dt-web .gt-webacts { display: flex; gap: 2px; margin-left: auto; opacity: 0; transition: opacity 0.12s ease; }
+  html.dt-web .gtodo__row:hover .gt-webacts { opacity: 1; }
+  html.dt-web .gt-webacts button { border: none; background: none; cursor: pointer; width: 30px; height: 30px; border-radius: 8px; color: var(--muted-soft); font-size: 0.92rem; display: flex; align-items: center; justify-content: center; padding: 0; }
+  html.dt-web .gt-webacts button:hover { background: rgba(15, 23, 42, 0.06); color: var(--text); }
+  html.dt-web .gt-webacts [data-wact="del"]:hover { color: #e5484d; }
+  html.dt-web .gtodo__row .memo-row__actions { display: none; }   /* 웹은 스와이프 액션 패널 숨김 */
+  html.dt-web .gt-editin { flex: 1; min-width: 0; font: inherit; font-weight: 600; color: var(--text); border: none; outline: none; background: none; border-bottom: 1.5px solid var(--primary); padding: 0 0 2px; }
+}

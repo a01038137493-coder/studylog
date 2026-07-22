@@ -81,6 +81,11 @@
           ${t.important ? `<span class="gtodo__star">★</span>` : ""}
           <span class="gtodo__text">${esc(t.content)}</span>
           ${tagHtml(t)}
+          <span class="gt-webacts">
+            <button type="button" data-wact="imp" title="중요">★</button>
+            <button type="button" data-wact="edit" title="이름 수정">✎</button>
+            <button type="button" data-wact="del" title="삭제">🗑</button>
+          </span>
         </button>
       </div>`;
 
@@ -137,7 +142,7 @@
         card.style.transition = "none";
       });
       card.addEventListener("pointermove", (e) => {
-        if (!active) return;
+        if (!active || WEB_DESK()) return;      // 웹은 스와이프 대신 호버 액션 사용
         const mx = e.clientX - sx, my = e.clientY - sy;
         if (!dir) {
           if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
@@ -163,6 +168,7 @@
 
       card.addEventListener("click", async (e) => {
         if (moved) { moved = false; return; }
+        if (e.target.closest && (e.target.closest(".gt-webacts") || e.target.closest(".gt-editin"))) return;
         if (row.classList.contains("is-open")) { closeOpen(); return; }
         const todo = findTodo(row.dataset.id);
         if (!todo) return;
@@ -197,6 +203,57 @@
           openRow = null;
           renderAll();
         }
+      });
+
+      /* 웹 호버 액션: 중요 · 이름 수정 · 삭제 */
+      const wImp = row.querySelector("[data-wact=imp]");
+      if (wImp) wImp.addEventListener("click", async () => {
+        const todo = findTodo(row.dataset.id);
+        if (!todo) return;
+        todo.important = !todo.important;
+        renderAll();
+        const { error } = await supabaseClient.from("todos")
+          .update({ important: todo.important }).eq("id", todo.id);
+        if (error) { todo.important = !todo.important; renderAll(); }
+      });
+      const wDel = row.querySelector("[data-wact=del]");
+      if (wDel) wDel.addEventListener("click", async () => {
+        if (!confirm("이 할 일을 삭제할까요?")) return;
+        const id = row.dataset.id;
+        const { error } = await supabaseClient.from("todos").delete().eq("id", id);
+        if (!error) {
+          todos = todos.filter((t) => t.id !== id);
+          upcoming = upcoming.filter((t) => t.id !== id);
+          renderAll();
+        }
+      });
+      const wEdit = row.querySelector("[data-wact=edit]");
+      if (wEdit) wEdit.addEventListener("click", () => {
+        const todo = findTodo(row.dataset.id);
+        if (!todo) return;
+        const span = row.querySelector(".gtodo__text");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "gt-editin";
+        input.maxLength = 200;
+        input.value = todo.content;
+        span.replaceWith(input);
+        input.focus();
+        input.select();
+        const commit = async () => {
+          const v = input.value.trim();
+          if (v && v !== todo.content) {
+            todo.content = v;
+            await supabaseClient.from("todos").update({ content: v }).eq("id", todo.id);
+            if (noteId === todo.id) document.getElementById("gnote-title").textContent = v;
+          }
+          renderAll();
+        };
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); input.blur(); }
+          if (e.key === "Escape") { input.value = todo.content; input.blur(); }
+        });
+        input.addEventListener("blur", commit);
       });
     }
 
