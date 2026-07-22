@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=192" />
+  <link rel="stylesheet" href="/css/style.css?v=193" />
 </head>
 <body class="app-bg has-tabbar fcal-page" data-kbresize="none">
   <main class="fcal">
@@ -17,8 +17,9 @@
     <div class="fcal__head">
       <h1 class="fcal__title" id="fcal-title">—</h1>
       <div class="fcal__nav">
-        <button type="button" class="fcal__navbtn" id="fcal-prev-btn" aria-label="이전 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <button type="button" class="fcal__navbtn" id="fcal-next-btn" aria-label="다음 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button type="button" class="fcal__navbtn" id="fcal-prev-btn" aria-label="이전 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button type="button" class="fcal__navbtn fcal__navbtn--today" id="fcal-today-btn">오늘</button>
+        <button type="button" class="fcal__navbtn" id="fcal-next-btn" aria-label="다음 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
     </div>
 
@@ -393,6 +394,18 @@
       // 웹(마우스)용 달 이동 버튼 — 모바일은 스와이프
       document.getElementById("fcal-prev-btn").addEventListener("click", () => gotoMonth(-1));
       document.getElementById("fcal-next-btn").addEventListener("click", () => gotoMonth(1));
+      document.getElementById("fcal-today-btn").addEventListener("click", async () => {
+        if (monthBusy) return;
+        monthBusy = true;
+        viewY = now.getFullYear();
+        viewM = now.getMonth();
+        selected = dstr(viewY, viewM, now.getDate());
+        renderGrid();
+        await loadMonth();
+        renderGrid();
+        renderEvents();
+        monthBusy = false;
+      });
       if (new URLSearchParams(location.search).get("new")) setTimeout(() => openSheet(selected), 250);
       sheet.querySelectorAll("[data-ev-close]").forEach((el) => el.addEventListener("click", closeSheet));
 

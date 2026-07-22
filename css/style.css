@@ -2763,10 +2763,16 @@ html { touch-action: manipulation; }
     padding: 18px 18px 22px; min-height: 440px; max-height: calc(100dvh - 110px); overflow-y: auto;
   }
   html.dt-web body.fcal-page .fcal__cell { min-height: 84px; }
-  html.dt-web .fcal__nav { display: flex; gap: 6px; }
-  html.dt-web .fcal__navbtn { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; }
-  html.dt-web .fcal__navbtn svg { width: 18px; height: 18px; }
+  html.dt-web .fcal__nav {
+    display: flex; align-items: stretch;
+    background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  html.dt-web .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
+  html.dt-web .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
+  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
+  html.dt-web .fcal__navbtn svg { width: 16px; height: 16px; }
+  html.dt-web .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 
   /* 웹 메모 목록: 스와이프 잔상 제거 + 카드 폭 정렬 */
   html.dt-web body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
