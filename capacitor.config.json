@@ -10,6 +10,9 @@
 			"resize": "native",
 			"resizeOnFullScreen": true,
 			"style": "LIGHT"
+		},
+		"LocalNotifications": {
+			"presentationOptions": ["banner", "sound"]
 		}
 	},
 	"backgroundColor": "#f4f4f5"

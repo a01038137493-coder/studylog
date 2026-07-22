@@ -1,0 +1,117 @@
+/*
+ * notify.js
+ * ------------------------------------------------------------
+ * 앱 로컬 알림 (기기별 설정 — localStorage "dt_notify")
+ * - 아침 플랜 리마인더 / 저녁 기록 리마인더 (매일 반복)
+ * - 타임박스 블록 시작 알림 (수험생, 요일 반복)
+ * 설정 변경·타임박스 수정·앱 실행 시 resync 로 전체 재예약한다.
+ * 웹(브라우저)에서는 dtNotify.available = false 로 동작하지 않음.
+ * ------------------------------------------------------------
+ */
+
+(function () {
+  const KEY = "dt_notify";
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const LN = isNative && window.Capacitor.Plugins ? window.Capacitor.Plugins.LocalNotifications : null;
+
+  const DEF = { morning: false, morningTime: "08:00", evening: false, eveningTime: "22:00", timebox: false };
+
+  function getSettings() {
+    try { return { ...DEF, ...(JSON.parse(localStorage.getItem(KEY)) || {}) }; }
+    catch (e) { return { ...DEF }; }
+  }
+  function saveSettings(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+
+  function cachedProfile() {
+    try { return JSON.parse(localStorage.getItem("dt_profile_cache") || "null"); }
+    catch (e) { return null; }
+  }
+
+  async function ensurePermission() {
+    if (!LN) return false;
+    try {
+      let st = await LN.checkPermissions();
+      if (st.display !== "granted") st = await LN.requestPermissions();
+      return st.display === "granted";
+    } catch (e) { return false; }
+  }
+
+  const hm = (t) => {
+    const [h, m] = String(t || "0:0").split(":").map(Number);
+    return { hour: h || 0, minute: m || 0 };
+  };
+  const t12 = (h, m) => `${h < 12 ? "오전" : "오후"} ${h % 12 || 12}:${String(m).padStart(2, "0")}`;
+
+  /* 설정에 맞춰 전체 재예약 (기존 예약 모두 취소 후 다시) */
+  async function resync(profile) {
+    if (!LN) return false;
+    const s = getSettings();
+    try {
+      const pend = await LN.getPending();
+      if (pend.notifications && pend.notifications.length) {
+        await LN.cancel({ notifications: pend.notifications.map((n) => ({ id: n.id })) });
+      }
+    } catch (e) {}
+    if (!s.morning && !s.evening && !s.timebox) return true;
+    if (!(await ensurePermission())) return false;
+
+    const p = profile || cachedProfile();
+    const isExam = !p || p.user_type !== "general";   // 알 수 없으면 수험생 문구
+    const list = [];
+
+    if (s.morning) list.push({
+      id: 1001,
+      title: "오늘 계획 세울 시간이에요",
+      body: isExam ? "오늘의 핵심 과제를 입력하고 하루를 시작해보세요." : "오늘 할 일을 정리하고 하루를 시작해보세요.",
+      schedule: { on: hm(s.morningTime), allowWhileIdle: true },
+    });
+    if (s.evening) list.push({
+      id: 1002,
+      title: "오늘 하루 기록할 시간이에요",
+      body: isExam ? "오늘의 성과를 기록하고 마무리해보세요." : "오늘 하루를 정리하고 마무리해보세요.",
+      schedule: { on: hm(s.eveningTime), allowWhileIdle: true },
+    });
+
+    if (s.timebox && isExam && p && p.id && window.supabaseClient) {
+      try {
+        const { data: boxes } = await supabaseClient.from("timeboxes")
+          .select("*").eq("student_id", p.id).order("start_time");
+        let id = 2000;
+        outer:
+        for (const b of (boxes || [])) {
+          const days = Array.isArray(b.days) ? b.days : [0, 1, 2, 3, 4, 5, 6];
+          const [h, m] = b.start_time.split(":").map(Number);
+          for (const d of days) {                       // 월=0..일=6 → iOS weekday 일=1..토=7
+            if (list.length >= 60) break outer;         // iOS 예약 한도(64) 보호
+            list.push({
+              id: id++,
+              title: b.label,
+              body: `타임박스 시작 시간이에요 (${t12(h, m)})`,
+              schedule: { on: { weekday: ((d + 1) % 7) + 1, hour: h, minute: m }, allowWhileIdle: true },
+            });
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (list.length) await LN.schedule({ notifications: list });
+    return true;
+  }
+
+  /* 알림 탭 → 관련 화면으로 */
+  if (LN) {
+    LN.addListener("localNotificationActionPerformed", (a) => {
+      const id = a && a.notification && a.notification.id;
+      if (id >= 2000) window.location.href = "/timebox.html";
+      else window.location.href = "/index.html";
+    });
+  }
+
+  /* 앱 실행 시 자가 치유 재예약 (페이지 로드에 방해되지 않게 지연) */
+  document.addEventListener("DOMContentLoaded", () => {
+    const s = getSettings();
+    if (LN && (s.morning || s.evening || s.timebox)) setTimeout(() => resync(null), 4000);
+  });
+
+  window.dtNotify = { available: !!LN, getSettings, saveSettings, resync, ensurePermission };
+})();

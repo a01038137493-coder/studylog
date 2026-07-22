@@ -2568,3 +2568,14 @@ input[type="month"].field__input {
   .tbside__wxt b { font-size: 1.25rem; font-weight: 800; color: var(--navy); line-height: 1.1; }
   .tbside__wxt em { font-style: normal; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
 }
+
+/* ---------------- 앱 알림 설정 (설정 페이지) ---------------- */
+.settings-row--static { cursor: default; }
+.ntf-right { display: flex; align-items: center; gap: 10px; }
+.ntf-time { border: 1px solid var(--line); border-radius: 9px; padding: 6px 8px; font: inherit; font-size: 0.88rem; background: #fff; color: var(--text); }
+.dtswitch { position: relative; display: inline-block; width: 46px; height: 28px; flex: none; }
+.dtswitch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.dtswitch i { position: absolute; inset: 0; background: #d9d9de; border-radius: 999px; transition: background 0.18s ease; }
+.dtswitch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
+.dtswitch input:checked + i { background: var(--primary); }
+.dtswitch input:checked + i::after { transform: translateX(18px); }

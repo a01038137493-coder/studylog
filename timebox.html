@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>타임박스 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=174" />
+  <link rel="stylesheet" href="/css/style.css?v=175" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -93,6 +93,7 @@
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock12"></script>
   <script src="/js/utils.js?v=31"></script>
+  <script src="/js/notify.js?v=1"></script>
   <script>
     /* 타임박스 페이지 — 보기(그리드·체크) / 편집(블록·요일) 전환 */
     document.addEventListener("DOMContentLoaded", async () => {
@@ -406,10 +407,11 @@
           row.addEventListener("click", () => openSheet(boxes.find((x) => x.id === row.dataset.id) || null)));
       }
 
-      /* 데이터 변경 후 현재 모드 화면 + 좌측 패널 갱신 */
+      /* 데이터 변경 후 현재 모드 화면 + 좌측 패널 갱신 (+블록 알림 재예약) */
       function refresh() {
         if (editing) renderEditor(); else renderView();
         renderSide();
+        if (window.dtNotify && dtNotify.available && dtNotify.getSettings().timebox) dtNotify.resync(profile);
       }
 
       /* ---------- 날씨 (현재 위치: GPS → IP 폴백) ---------- */
