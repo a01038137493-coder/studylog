@@ -437,7 +437,9 @@ async function renderHomeSchedule(sectionEl, listEl) {
           const { result } = await calPlugin.listEventsInRange({
             from: dayStart.getTime(), to: rangeEnd.getTime(),
           });
-          events = events.concat(result || []);
+          const dup = new Set(events.map((p) => (p.title || "") + "|" + Math.round(p.startDate / 60000)));
+          events = events.concat((result || []).filter((ev) =>
+            !dup.has((ev.title || "") + "|" + Math.round(ev.startDate / 60000))));
         }
       } catch (e) {}
     }

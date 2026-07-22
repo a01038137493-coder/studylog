@@ -117,7 +117,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=32"></script>
+  <script src="/js/utils.js?v=33"></script>
   <script src="/js/notify.js?v=2"></script>
   <script src="/js/scheduleParse.js?v=2"></script>
   <script>
@@ -185,13 +185,19 @@
         };
 
         // 핀로그 일정 (계정 동기화 — 모든 기기 공통)
-        (await dtPinEventsInRange(profile.id, from, to)).forEach(put);
+        const pins = await dtPinEventsInRange(profile.id, from, to);
+        pins.forEach(put);
 
-        // Apple 캘린더 일정 (기기 로컬, 읽기·기존 일정용)
+        // Apple 캘린더 일정 (기기 로컬, 읽기·기존 일정용) — 이관된 일정과 중복 표시 방지
         if (await ensureCalendarAccess()) {
           try {
+            const dup = new Set(pins.map((p) => (p.title || "") + "|" + Math.round(p.startDate / 60000)));
             const { result } = await calPlugin.listEventsInRange({ from, to });
-            (result || []).forEach((ev) => { ev.src = "apple"; put(ev); });
+            (result || []).forEach((ev) => {
+              if (dup.has((ev.title || "") + "|" + Math.round(ev.startDate / 60000))) return;
+              ev.src = "apple";
+              put(ev);
+            });
           } catch (e) {}
         }
         events.forEach((list) => list.sort((a, b) => a.startDate - b.startDate));
@@ -540,11 +546,61 @@
         evErr.textContent = info.join("  ");
       }
 
+      /* 기존 기기(Apple) 캘린더 일정 1회 이관 — 계정 DB로 업로드해 기기 간 동기화.
+         쓰기 가능한 캘린더만(공휴일 등 구독·생일 캘린더 제외), 제목+시각 중복은 건너뜀 */
+      async function migrateDeviceEvents() {
+        if (!calPlugin) return;
+        const FLAG = "dt_ev_migrated_" + profile.id;
+        if (localStorage.getItem(FLAG)) return;
+        if (!(await ensureCalendarAccess())) return;
+        try {
+          const { result: cals } = await calPlugin.listCalendars();
+          const writable = new Set((cals || [])
+            .filter((c) => c.allowsContentModifications !== false).map((c) => c.id));
+          const { result: devEvents } = await calPlugin.listEventsInRange({
+            from: Date.now() - 30 * 86400000, to: Date.now() + 120 * 86400000,
+          });
+          const { data: mine } = await supabaseClient
+            .from("events").select("title,start_at").eq("user_id", profile.id);
+          const keyOf = (t, ms) => (t || "") + "|" + Math.round(ms / 60000);
+          const seen = new Set((mine || []).map((e) => keyOf(e.title, new Date(e.start_at).getTime())));
+          const rows = [];
+          for (const ev of (devEvents || [])) {
+            if (rows.length >= 200) break;
+            if (ev.calendarId && !writable.has(ev.calendarId)) continue;
+            if (ev.birthdayContactIdentifier) continue;
+            const key = keyOf(ev.title, ev.startDate);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            rows.push({
+              user_id: profile.id,
+              title: ev.title || "(제목 없음)",
+              start_at: new Date(ev.startDate).toISOString(),
+              end_at: new Date(ev.endDate || ev.startDate + 3600000).toISOString(),
+              all_day: !!ev.isAllDay,
+              alert_min: Array.isArray(ev.alerts) && ev.alerts.length ? ev.alerts[0] : null,
+              repeat: null,
+            });
+          }
+          if (rows.length) {
+            const { error } = await supabaseClient.from("events").insert(rows);
+            if (error) return;                     // 실패 시 플래그를 안 남겨 다음에 재시도
+            if (window.dtNotify && dtNotify.available) dtNotify.resync(profile);
+          }
+          localStorage.setItem(FLAG, "1");
+          if (rows.length) {
+            await loadMonth(); renderGrid(); renderEvents();
+            showToast(`기기 일정 ${rows.length}개를 계정으로 가져왔어요`);
+          }
+        } catch (e) {}
+      }
+
       renderGrid();          // 데이터 로드 전 골격 먼저
       renderEvents();
       await loadMonth();
       renderGrid();
       renderEvents();
+      migrateDeviceEvents();
     });
   </script>
 </body>
