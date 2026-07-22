@@ -16,6 +16,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body class="app-bg has-tabbar">
+  <script>
+    /* 일반 사용자면 대시보드를 그리기 전에 즉시 일반 홈으로 (수험생 홈 깜빡임 방지) */
+    try {
+      var __p = JSON.parse(localStorage.getItem("dt_profile_cache") || "null");
+      if (__p && __p.user_type === "general") {
+        location.replace(window.matchMedia("(max-width: 600px)").matches ? "/general-m.html" : "/general.html");
+      }
+    } catch (e) {}
+  </script>
+
   <!-- 모바일은 별도 페이지(student-m.html)에서 개발 — 이 파일은 태블릿/PC 전용 -->
   <script>
     if (window.matchMedia("(max-width: 600px)").matches) window.location.replace("/student-m.html");
