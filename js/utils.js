@@ -365,7 +365,25 @@ async function checkSharedFile() {
   } catch (e) {}
 }
 
-function dtCheckShared() { checkSharedScreenshot(); checkSharedFile(); }
+/* 공유 시트로 받은 텍스트 → 캘린더에서 일정 자동 인식 */
+async function checkSharedText() {
+  try {
+    const viz = window.Capacitor && window.Capacitor.Plugins
+      ? window.Capacitor.Plugins.VisionOCR : null;
+    if (!viz || !viz.hasSharedText) return;
+    const { pending } = await viz.hasSharedText();
+    if (!pending) return;
+    const { text } = await viz.takeSharedText();
+    if (!text || !String(text).trim()) return;
+    sessionStorage.setItem("dt_shared_text", String(text));
+    if (location.pathname !== "/calendar.html") {
+      window.location.href = "/calendar.html";
+    } else if (window.__dtHandleSharedText) {
+      window.__dtHandleSharedText();
+    }
+  } catch (e) {}
+}
+function dtCheckShared() { checkSharedScreenshot(); checkSharedFile(); checkSharedText(); }
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) dtCheckShared();
 });
@@ -613,8 +631,10 @@ function dtSkeleton(el, rows) {
   } catch (e) {}
 })();
 
-/* 왼쪽 가장자리에서 오른쪽 스와이프 → 뒤로가기 (뒤로가기 버튼이 있는 화면) — dt-edge-back */
+/* 왼쪽 가장자리에서 오른쪽 스와이프 → 뒤로가기 (뒤로가기 버튼이 있는 화면) — dt-edge-back
+ * 앱에서는 WKWebView 네이티브 제스처(이전 화면이 실시간으로 따라 보임)가 담당하므로 웹 폴백만 */
 (function () {
+  if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) return;
   const backEl = document.querySelector(".topbar__back, .auth-back");
   if (!backEl) return;
   let sx = null, sy = 0;

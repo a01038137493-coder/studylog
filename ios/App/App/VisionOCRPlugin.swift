@@ -25,6 +25,8 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "takeSharedScreenshot", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "hasSharedFile", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takeSharedFile", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hasSharedText", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "takeSharedText", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "previewFile", returnType: CAPPluginReturnPromise)
     ]
 
@@ -95,6 +97,28 @@ public class VisionOCRPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
         call.resolve(["base64": data.base64EncodedString(), "name": url.lastPathComponent])
+    }
+
+    /* 공유 시트로 받은 텍스트 (일정 자동 인식용, App Group pending-text.txt) */
+    private func pendingSharedTextURL() -> URL? {
+        guard let container = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupID) else { return nil }
+        let url = container.appendingPathComponent("pending-text.txt")
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    @objc func hasSharedText(_ call: CAPPluginCall) {
+        call.resolve(["pending": pendingSharedTextURL() != nil])
+    }
+
+    @objc func takeSharedText(_ call: CAPPluginCall) {
+        guard let url = pendingSharedTextURL(),
+              let text = try? String(contentsOf: url, encoding: .utf8) else {
+            call.resolve(["text": NSNull()])
+            return
+        }
+        try? FileManager.default.removeItem(at: url)
+        call.resolve(["text": text])
     }
 
     @objc func recognize(_ call: CAPPluginCall) {

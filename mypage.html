@@ -30,10 +30,6 @@
         <span class="mp-row__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>내 기록</span>
         <span class="settings-row__chevron" aria-hidden="true">›</span>
       </a>
-      <a href="/guide.html" class="settings-row mp-row">
-        <span class="mp-row__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M20 17v5H6.5a2.5 2.5 0 0 1 0-5"/></svg>사용법</span>
-        <span class="settings-row__chevron" aria-hidden="true">›</span>
-      </a>
     </section>
 
     <!-- 계정 정보 -->
@@ -41,10 +37,6 @@
       <div class="settings-row settings-row--static mp-row">
         <span class="mp-row__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2 19 4"/><path d="m15.5 7.5 3 3L22 7l-3-3"/><circle cx="9" cy="15" r="6"/><path d="m12.6 11.4 3-3"/></svg>로그인 방식</span>
         <span class="settings-row__value" id="mp-provider">—</span>
-      </div>
-      <div class="settings-row settings-row--static mp-row">
-        <span class="mp-row__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>사용 유형</span>
-        <span class="settings-row__value" id="mp-type">—</span>
       </div>
       <div class="settings-row settings-row--static mp-row">
         <span class="mp-row__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>가입일</span>
@@ -65,7 +57,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=36"></script>
+  <script src="/js/utils.js?v=37"></script>
   <script src="/js/notify.js?v=4"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -81,7 +73,6 @@
       const PROVIDERS = { kakao: "카카오", google: "Google", apple: "Apple", email: "이메일" };
       const prov = (user.app_metadata && user.app_metadata.provider) || "email";
       document.getElementById("mp-provider").textContent = PROVIDERS[prov] || prov;
-      document.getElementById("mp-type").textContent = profile.user_type === "general" ? "일반 사용자" : "수험생";
       if (user.created_at) {
         const d = new Date(user.created_at);
         document.getElementById("mp-joined").textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;

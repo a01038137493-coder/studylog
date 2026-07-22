@@ -31,6 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.backgroundColor = .white
         if let root = window?.rootViewController {
             root.view.backgroundColor = .white
+            // 가장자리 드래그 뒤로가기: 이전 화면이 실시간으로 따라 보이는 iOS 기본 제스처
+            if let bridgeVC = root as? CAPBridgeViewController {
+                bridgeVC.webView?.allowsBackForwardNavigationGestures = true
+            }
         }
     }
 

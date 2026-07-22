@@ -79,6 +79,8 @@ final class ShareViewController: UIViewController {
 
         if let imageProv = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }) {
             prepareImage(imageProv)
+        } else if let textProv = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) }) {
+            stashText(textProv)
         } else if let fileProv = providers.first(where: {
             $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) ||
             $0.hasItemConformingToTypeIdentifier(UTType.data.identifier)
@@ -189,6 +191,31 @@ final class ShareViewController: UIViewController {
 
     @objc private func openFileTarget() {
         openApp(URL(string: "dittonlog://shared-file")!)
+    }
+
+    // MARK: - 텍스트 → 일정 자동 인식
+
+    private func stashText(_ provider: NSItemProvider) {
+        statusLabel.text = "텍스트를 준비하는 중…"
+        provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] item, _ in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                var text: String?
+                switch item {
+                case let s as String: text = s
+                case let d as Data: text = String(data: d, encoding: .utf8)
+                case let u as URL: text = u.absoluteString
+                default: break
+                }
+                guard let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      let data = text.data(using: .utf8),
+                      self.writeToAppGroup(data, path: "pending-text.txt") else {
+                    self.showError("텍스트를 읽지 못했습니다."); return
+                }
+                self.statusLabel.text = "텍스트에서 일정을 찾아 등록할게요."
+                self.openApp(URL(string: "dittonlog://shared-text")!)
+            }
+        }
     }
 
     private static func downscaledJPEG(_ image: UIImage, maxDim: CGFloat = 2048) -> Data? {

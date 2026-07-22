@@ -117,9 +117,9 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=36"></script>
+  <script src="/js/utils.js?v=37"></script>
   <script src="/js/notify.js?v=4"></script>
-  <script src="/js/scheduleParse.js?v=2"></script>
+  <script src="/js/scheduleParse.js?v=3"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
      * - 공부 기록(체크아웃)한 날: 초록 점 / Apple 캘린더 일정: 주황 점
@@ -531,6 +531,22 @@
         processScreenshotBase64(b64);
       };
       window.__dtHandleSharedShot();
+
+      /* 공유 시트로 들어온 텍스트 자동 처리 (OCR 없이 바로 파싱) */
+      window.__dtHandleSharedText = () => {
+        const txt = sessionStorage.getItem("dt_shared_text");
+        if (!txt) return;
+        sessionStorage.removeItem("dt_shared_text");
+        const { candidate, cancelled } = ScheduleParse.parse(txt, new Date());
+        if (!candidate) {
+          alert(cancelled
+            ? "취소된 일정만 발견했어요.\n새로 등록할 일정이 없습니다."
+            : "등록할 일정을 찾지 못했습니다.\n날짜나 시간이 포함된 텍스트를 공유해주세요.");
+          return;
+        }
+        openSheetFromCandidate(candidate);
+      };
+      window.__dtHandleSharedText();
 
       /* 인식 결과로 새 일정 시트를 미리 채워서 연다 (등록 전 확인은 사용자가) */
       function openSheetFromCandidate(c) {

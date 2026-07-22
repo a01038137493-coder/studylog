@@ -204,10 +204,23 @@
     var lines = String(fullText || "").split(/\n/).map(function (s) { return s.trim(); }).filter(Boolean);
     var base = kakaoSeparator(lines, now) || now;
 
+    // 카카오 날짜 구분선("2026년 7월 21일 화요일 >")은 기준일로만 쓰고
+    // 일정 후보 문장에서는 제외한다 — 구분선 날짜가 일정으로 오인되는 것 방지
+    var SEP_RE = [
+      /^\d{4}년\d{1,2}월\d{1,2}일(월|화|수|목|금|토|일)요일>?$/,
+      /^\d{1,2}월\d{1,2}일(월|화|수|목|금|토|일)요일>?$/,
+      /^\d{4}\.\d{1,2}\.\d{1,2}\.?>?$/,
+    ];
+    var isSeparator = function (s) {
+      var c = s.replace(/\s+/g, "");
+      return SEP_RE.some(function (re) { return re.test(c); });
+    };
+
     var sentences = String(fullText || "")
       .split(/[\n.!?]/)
       .map(function (s) { return s.trim(); })
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter(function (s) { return !isSeparator(s); });
 
     var best = null;
     var cancelled = false;
@@ -226,8 +239,13 @@
       if (malgo >= 0) effective = sentence.slice(malgo + 2);
 
       var dateR = resolveDate(effective, base);
-      if (!dateR.date) continue;
       var timeR = resolveTime(effective);
+      // 날짜 언급이 없어도 확실한 시각이 있으면 기준일(구분선/오늘)로 잡는다
+      // — "19시47분 하차 예정입니다" 같은 텍스트 공유 대응
+      if (!dateR.date) {
+        if (timeR.hour === null) continue;
+        dateR = { date: startOfDay(base), ambiguity: "날짜 언급이 없어 기준일로 설정했어요" };
+      }
 
       var ambiguities = [];
       if (dateR.ambiguity) ambiguities.push(dateR.ambiguity);
