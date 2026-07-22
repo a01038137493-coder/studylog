@@ -2638,3 +2638,6 @@ body.kb-open .dt-kbmask { display: block; }
 .gt-tag--add { border-style: dashed; color: var(--muted-soft); }
 #gt-tagadd { margin-top: 10px; }
 .gtodo__tag { flex: none; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; color: var(--tagc, #8e8e93); background: color-mix(in srgb, var(--tagc, #8e8e93) 12%, #fff); }
+
+/* 탭 반응 즉시화 — iOS 더블탭 줌 판정 대기(~300ms 클릭 지연) 제거 */
+html { touch-action: manipulation; }
