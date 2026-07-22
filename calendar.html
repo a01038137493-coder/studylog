@@ -212,14 +212,22 @@
         events.forEach((list) => list.sort((a, b) => a.startDate - b.startDate));
       }
 
+      let monthBusy = false;
       async function gotoMonth(delta) {
+        if (monthBusy) return;              // 연타로 요청이 겹치면 달이 어긋남
+        monthBusy = true;
         viewM += delta;
         if (viewM < 0) { viewM = 11; viewY--; }
         if (viewM > 11) { viewM = 0; viewY++; }
+        // 선택 날짜를 보이는 달로 이동 (이번 달이면 오늘, 아니면 1일)
+        selected = (viewY === now.getFullYear() && viewM === now.getMonth())
+          ? dstr(viewY, viewM, now.getDate())
+          : dstr(viewY, viewM, 1);
         renderGrid();
         await loadMonth();
         renderGrid();
         renderEvents();
+        monthBusy = false;
       }
 
       /* 길게 누르면 새 일정 시트 (탭과 구분: 이동·해제 시 취소) */
