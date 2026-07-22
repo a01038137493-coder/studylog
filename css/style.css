@@ -3141,3 +3141,10 @@ body.home-edit .gtab-grid #gnote {
     border-left: none; border-right: none;
   }
 }
+
+/* 최종 해제: 일정 패널 max-height 상한 · 메모 컬럼 stretch 차단 해제 */
+@media (min-width: 1100px) {
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__events { max-height: none; }
+  :is(html.dt-web, html.dt-app) body.memo-page main.container,
+  :is(html.dt-web, html.dt-app) body.memo-page main.container:has(> .memo-cats) { align-items: stretch; }
+}
