@@ -326,10 +326,18 @@
 
       function renderList() {
         const q = searchEl.value.trim().toLowerCase();
+        // 선택된 폴더로 먼저 거른 뒤 검색어 적용
+        const byCat = activeCat === "all" ? memos
+          : activeCat === "none" ? memos.filter((m) => !m.category_id)
+          : memos.filter((m) => m.category_id === activeCat);
         const rows = sorted(q
-          ? memos.filter((m) => MemoFmt.toText(m.content).toLowerCase().includes(q))
-          : memos);
+          ? byCat.filter((m) => MemoFmt.toText(m.content).toLowerCase().includes(q))
+          : byCat);
 
+        if (memos.length && !byCat.length && !q) {
+          listEl.innerHTML = `<p class="muted" style="text-align:center;margin:28px 0;">이 폴더에 메모가 없어요</p>`;
+          return;
+        }
         if (!memos.length) {
           listEl.innerHTML = `
             <div class="card memo-empty">
