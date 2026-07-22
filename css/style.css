@@ -2683,8 +2683,8 @@ html { touch-action: manipulation; }
 /* 웹 캘린더: 좌측 달력 / 우측 선택 날짜 일정 패널 + 달 이동 버튼 */
 .fcal__nav { display: none; }
 @media (min-width: 1100px) {
-  html.dt-web body.fcal-page { padding-bottom: 0; }
-  html.dt-web body.fcal-page .fcal {
+  :is(html.dt-web, html.dt-app) body.fcal-page { padding-bottom: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     grid-template-rows: auto auto minmax(0, 1fr);
@@ -2695,29 +2695,29 @@ html { touch-action: manipulation; }
     height: calc(100dvh - 8px);
     padding-bottom: 16px; box-sizing: border-box;
   }
-  html.dt-web body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
-  html.dt-web body.fcal-page .fcal__track { height: 100%; }
-  html.dt-web body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
-  html.dt-web body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
-  html.dt-web body.fcal-page .fcal__dows { grid-area: dows; }
-  html.dt-web body.fcal-page .fcal__carousel { grid-area: cal; }
-  html.dt-web body.fcal-page .fcal__events {
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__track { height: 100%; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__dows { grid-area: dows; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__carousel { grid-area: cal; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__events {
     grid-area: events;
     background: #fff; border: 1px solid var(--line); border-radius: 18px;
     padding: 18px 18px 22px; min-height: 0; overflow-y: auto;
     align-self: stretch;
   }
-  html.dt-web body.fcal-page .fcal__cell { min-height: 0; }
-  html.dt-web .fcal__nav {
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell { min-height: 0; }
+  :is(html.dt-web, html.dt-app) .fcal__nav {
     display: flex; align-items: stretch;
     background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
     overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  html.dt-web .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
-  html.dt-web .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
-  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
-  html.dt-web .fcal__navbtn svg { width: 16px; height: 16px; }
-  html.dt-web .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn svg { width: 16px; height: 16px; }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 
   /* 웹 메모 목록: 스와이프 잔상 제거 + 카드 폭 정렬 */
   html.dt-web body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
@@ -2729,7 +2729,7 @@ html { touch-action: manipulation; }
 @media (min-width: 900px) {
   html.dt-web main.container { margin-left: 0; }
   html.dt-web main.container.home-wide { margin-left: auto; }   /* 수험생 홈 위젯 캔버스는 중앙 유지 */
-  html.dt-web body.fcal-page .fcal { margin-left: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal { margin-left: 0; }
 }
 
 /* 타임박스 블록: 클릭하면 수정 팝업 */
@@ -2745,11 +2745,11 @@ html { touch-action: manipulation; }
 
 /* 웹 캘린더: 전체 그리드 선 */
 @media (min-width: 1100px) {
-  html.dt-web body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  html.dt-web body.fcal-page .fcal__cell,
-  html.dt-web body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
-  html.dt-web body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
-  html.dt-web body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell,
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
 }
 
 /* 웹 데스크톱 타임박스: 좌측 풀스크린 시간표 + 우측 지금/주간 배분/블록 패널 */
@@ -2853,8 +2853,8 @@ body.home-edit .gtab-grid #gnote {
 /* 웹 캘린더: 좌측 달력 / 우측 선택 날짜 일정 패널 + 달 이동 버튼 */
 .fcal__nav { display: none; }
 @media (min-width: 1100px) {
-  html.dt-web body.fcal-page { padding-bottom: 0; }
-  html.dt-web body.fcal-page .fcal {
+  :is(html.dt-web, html.dt-app) body.fcal-page { padding-bottom: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     grid-template-rows: auto auto minmax(0, 1fr);
@@ -2865,29 +2865,29 @@ body.home-edit .gtab-grid #gnote {
     height: calc(100dvh - 8px);
     padding-bottom: 16px; box-sizing: border-box;
   }
-  html.dt-web body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
-  html.dt-web body.fcal-page .fcal__track { height: 100%; }
-  html.dt-web body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
-  html.dt-web body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
-  html.dt-web body.fcal-page .fcal__dows { grid-area: dows; }
-  html.dt-web body.fcal-page .fcal__carousel { grid-area: cal; }
-  html.dt-web body.fcal-page .fcal__events {
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__track { height: 100%; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__dows { grid-area: dows; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__carousel { grid-area: cal; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__events {
     grid-area: events;
     background: #fff; border: 1px solid var(--line); border-radius: 18px;
     padding: 18px 18px 22px; min-height: 0; overflow-y: auto;
     align-self: stretch;
   }
-  html.dt-web body.fcal-page .fcal__cell { min-height: 0; }
-  html.dt-web .fcal__nav {
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell { min-height: 0; }
+  :is(html.dt-web, html.dt-app) .fcal__nav {
     display: flex; align-items: stretch;
     background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
     overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  html.dt-web .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
-  html.dt-web .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
-  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
-  html.dt-web .fcal__navbtn svg { width: 16px; height: 16px; }
-  html.dt-web .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn svg { width: 16px; height: 16px; }
+  :is(html.dt-web, html.dt-app) .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 
   /* 웹 메모 목록: 스와이프 잔상 제거 + 카드 폭 정렬 */
   html.dt-web body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
@@ -2899,7 +2899,7 @@ body.home-edit .gtab-grid #gnote {
 @media (min-width: 900px) {
   html.dt-web main.container { margin-left: 0; }
   html.dt-web main.container.home-wide { margin-left: auto; }   /* 수험생 홈 위젯 캔버스는 중앙 유지 */
-  html.dt-web body.fcal-page .fcal { margin-left: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal { margin-left: 0; }
 }
 
 /* 타임박스 블록: 클릭하면 수정 팝업 */
@@ -2915,11 +2915,11 @@ body.home-edit .gtab-grid #gnote {
 
 /* 웹 캘린더: 전체 그리드 선 */
 @media (min-width: 1100px) {
-  html.dt-web body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  html.dt-web body.fcal-page .fcal__cell,
-  html.dt-web body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
-  html.dt-web body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
-  html.dt-web body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell,
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
+  :is(html.dt-web, html.dt-app) body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
 }
 
 /* 웹 데스크톱 타임박스: 좌측 풀스크린 시간표 + 우측 지금/주간 배분/블록 패널 */
@@ -3068,7 +3068,7 @@ body.home-edit .gtab-grid #gnote {
   :is(html.dt-web, html.dt-app) .gtab-grid #g-events { grid-column: 1; }
   :is(html.dt-web, html.dt-app) .gtab-grid #gnote,
   :is(html.dt-web, html.dt-app) .gtab-grid #gevd { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; align-self: start; }
-  :is(html.dt-web, html.dt-app) .gtodo__row.is-note .gtodo__item { background: rgba(240, 68, 56, 0.06); border-radius: 10px; }
+  :is(html.dt-web, html.dt-app) .gtodo__row.is-note .gtodo__item { background: #fef4f3; border-radius: 10px; }
 }
 
 /* 웹 홈 할 일 호버 액션 (★ 중요 · ✎ 수정 · 🗑 삭제) — 스와이프 대체 */
@@ -3094,3 +3094,12 @@ body.home-edit .gtab-grid #gnote {
 .gevd__row span { color: var(--muted); font-weight: 600; }
 .gevd__row b { font-weight: 700; }
 #gevd .mtoday__more { display: block; margin: 14px 0 2px; text-align: center; }
+
+/* 태블릿 캘린더: 좌측 일정 패널 / 우측 풀스크린 달력 (웹과 좌우 반대) */
+@media (min-width: 1100px) {
+  html.dt-app body.fcal-page .fcal {
+    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-areas: ". head" ". dows" "events cal";
+    height: calc(100dvh - 8px - env(safe-area-inset-top, 0px));
+  }
+}
