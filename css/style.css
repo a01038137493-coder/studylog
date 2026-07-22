@@ -2499,7 +2499,7 @@ input[type="month"].field__input {
   }
   main.container:has(> .memo-cats) > * { grid-column: 2; min-width: 0; }
   main.container:has(> .memo-cats) > .memo-cats {
-    grid-column: 1; grid-row: 1 / span 6;
+    grid-column: 1; grid-row: 2 / span 5;
     position: sticky; top: calc(env(safe-area-inset-top, 0px) + 74px);
     flex-direction: column; align-items: stretch; gap: 2px;
     overflow: visible; margin-bottom: 0;
@@ -2839,5 +2839,5 @@ html { touch-action: manipulation; }
 /* 웹 캘린더 일정 검색 바 */
 .fcal__search { display: none; }
 @media (min-width: 1100px) {
-  html.dt-web body.fcal-page .fcal__search { display: block; grid-area: search; align-self: end; width: auto; margin: 0 0 10px; }
+  html.dt-web body.fcal-page .fcal__search { display: block; grid-area: search; align-self: end; width: auto; margin: 0 0 4px; box-sizing: border-box; }
 }
