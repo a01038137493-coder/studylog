@@ -2746,16 +2746,21 @@ html { touch-action: manipulation; }
 /* 웹 캘린더: 좌측 달력 / 우측 선택 날짜 일정 패널 + 달 이동 버튼 */
 .fcal__nav { display: none; }
 @media (min-width: 1100px) {
+  html.dt-web body.fcal-page { padding-bottom: 0; }
   html.dt-web body.fcal-page .fcal {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
     grid-template-areas: "head events" "dows events" "cal events";
     column-gap: 26px;
-    max-width: 1160px; margin: 0 auto;
-    align-items: start;
-    padding-bottom: 40px;
+    max-width: none; margin: 0 auto;
+    align-items: stretch;
+    height: calc(100dvh - 8px);
+    padding-bottom: 16px; box-sizing: border-box;
   }
+  html.dt-web body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
+  html.dt-web body.fcal-page .fcal__track { height: 100%; }
+  html.dt-web body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
   html.dt-web body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
   html.dt-web body.fcal-page .fcal__dows { grid-area: dows; }
   html.dt-web body.fcal-page .fcal__carousel { grid-area: cal; }
@@ -2764,7 +2769,7 @@ html { touch-action: manipulation; }
     background: #fff; border: 1px solid var(--line); border-radius: 18px;
     padding: 18px 18px 22px; min-height: 440px; max-height: calc(100dvh - 110px); overflow-y: auto;
   }
-  html.dt-web body.fcal-page .fcal__cell { min-height: 84px; }
+  html.dt-web body.fcal-page .fcal__cell { min-height: 0; }
   html.dt-web .fcal__nav {
     display: flex; align-items: stretch;
     background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
