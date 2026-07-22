@@ -10,60 +10,84 @@
   <meta name="theme-color" content="#f04438" />
   <link rel="stylesheet" href="/css/style.css?v=184" />
   <style>
+    /* 노션식 센터 로그인 */
+    .nlogin {
+      min-height: 100dvh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 44px 26px calc(44px + env(safe-area-inset-bottom, 0px));
+      box-sizing: border-box;
+    }
+    .nlogin__inner { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
+    .nlogin__logo { width: 48px; height: 48px; border-radius: 12px; margin-bottom: 20px; }
+    .nlogin__title { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; color: var(--navy); text-align: center; line-height: 1.4; }
+    .nlogin__sub { margin: 5px 0 30px; font-size: 1.02rem; font-weight: 700; color: var(--muted); }
+    .nlogin__provs { display: flex; gap: 10px; width: 100%; }
+    .nprov {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 9px;
+      padding: 18px 10px 15px; border: 1px solid var(--line-strong); border-radius: 14px;
+      background: #fff; font: inherit; font-size: 0.92rem; font-weight: 700; color: var(--text);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .nprov:active { background: #f6f6f7; }
+    .nprov svg { width: 26px; height: 26px; }
+    .nlogin__div { display: flex; align-items: center; gap: 12px; width: 100%; margin: 24px 0 20px; color: var(--muted-soft); font-size: 0.82rem; }
+    .nlogin__div::before, .nlogin__div::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .nlogin form { width: 100%; text-align: left; }
+    .nlogin .field + .field { margin-top: 12px; }
+    .nlogin__go { width: 100%; margin-top: 18px; min-height: 52px; border-radius: 13px; font-size: 1.02rem; font-weight: 800; }
+    .nlogin__alt { margin-top: 24px; font-size: 0.92rem; color: var(--muted); }
+    .nlogin__alt a { color: var(--primary); font-weight: 700; }
+    .nlogin__terms { margin-top: 30px; font-size: 0.78rem; color: var(--muted-soft); text-align: center; line-height: 1.7; }
+    .nlogin__terms a { color: var(--muted); }
+    #login-error:empty { display: none; }
+    #login-error { margin: 10px 0 0; }
     /* 데모(목업) 로그인 영역 — 목업 모드일 때만 표시 */
-    .demo-login { margin-top: 18px; }
-    .demo-login__divider { display: flex; align-items: center; gap: 10px; color: var(--muted, #8a93a6); font-size: 0.8rem; margin: 4px 0 12px; }
-    .demo-login__divider::before, .demo-login__divider::after { content: ""; flex: 1; height: 1px; background: rgba(0, 0, 0, 0.1); }
-    .demo-login__hint { text-align: center; font-size: 0.82rem; color: var(--muted, #8a93a6); margin: 0 0 10px; }
-    .demo-login .btn + .btn { margin-top: 8px; }
-    #login-form button[type=submit] { margin-top: 26px; }
+    .demo-login { margin-top: 18px; width: 100%; }
   </style>
 </head>
-<body class="center-screen">
+<body>
   <button type="button" class="auth-back" aria-label="뒤로 가기"
           onclick="if (history.length > 1) history.back(); else location.href='/welcome.html'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
   </button>
 
-  <div class="auth-split">
-  <aside class="auth-brand" aria-hidden="true">
-    <div class="auth-brand__inner">
-      <img src="/assets/logo.png" alt="" class="auth-brand__logo" onerror="this.style.display='none'" />
-      <p class="auth-brand__title">핀로그</p>
-      <p class="auth-brand__subtitle">매일 목표를 세우고,<br />실제 성과를 기록하고,<br />누적 데이터를 기반으로 관리합니다.</p>
+  <main class="nlogin">
+    <div class="nlogin__inner">
+      <img src="/assets/logo.png" alt="핀로그" class="nlogin__logo" onerror="this.style.display='none'" />
+      <h1 class="nlogin__title">계획하고, 기록하는<br />가장 빠른 방법</h1>
+      <p class="nlogin__sub">핀로그 계정에 로그인</p>
+
+      <!-- 소셜 로그인 카드 -->
+      <div class="nlogin__provs">
+        <button type="button" class="nprov" onclick="signInWithProvider('kakao')">
+          <svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="6.5" fill="#FEE500"/><path fill="#3C1E1E" d="M13 6.2c-4 0-7.2 2.5-7.2 5.6 0 2 1.3 3.7 3.3 4.7-.1.4-.7 2.4-.7 2.5 0 0 0 .12.06.17.08.05.17.01.17.01.23-.03 2.6-1.7 3-2 .45.06.9.1 1.37.1 4 0 7.2-2.5 7.2-5.6S17 6.2 13 6.2z"/></svg>
+          카카오
+        </button>
+        <button type="button" class="nprov" onclick="signInWithProvider('google')">
+          <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+          Google
+        </button>
+      </div>
+
+      <div class="nlogin__div">또는 이메일로 계속하기</div>
+
+      <form id="login-form" class="form" autocomplete="on">
+        <label class="field">
+          <span class="field__label">이메일</span>
+          <input type="email" id="email" class="field__input" placeholder="이메일 주소를 입력하세요" required autocomplete="email" />
+        </label>
+        <label class="field">
+          <span class="field__label">비밀번호</span>
+          <input type="password" id="password" class="field__input" placeholder="비밀번호" required autocomplete="current-password" />
+        </label>
+        <p id="login-error" class="form__error" role="alert"></p>
+        <button type="submit" class="btn btn--primary nlogin__go">계속</button>
+      </form>
+
+      <p class="nlogin__alt">처음이신가요? <a href="/signup.html">회원가입</a></p>
+      <p class="nlogin__terms">계속 진행하면 핀로그의 <a href="/privacy.html">개인정보처리방침</a>을<br />이해했으며 이에 동의하는 것으로 간주됩니다.</p>
     </div>
-  </aside>
-  <main class="auth-card auth-card--brandled">
-    <form id="login-form" class="form" autocomplete="on">
-      <label class="field">
-        <span class="field__label">이메일</span>
-        <input type="email" id="email" class="field__input" placeholder="이메일" required autocomplete="email" />
-      </label>
-
-      <label class="field">
-        <span class="field__label">비밀번호</span>
-        <input type="password" id="password" class="field__input" placeholder="비밀번호" required autocomplete="current-password" />
-      </label>
-
-      <p id="login-error" class="form__error" role="alert"></p>
-
-      <button type="submit" class="btn btn--primary btn--block btn--lg">로그인</button>
-    </form>
-
-    <div class="auth-divider">또는 간편하게 시작하기</div>
-
-    <button type="button" class="btn btn--social btn--kakao btn--block btn--lg" onclick="signInWithProvider('kakao')">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65-.15.52-.97 3.36-1 3.58 0 0-.02.17.09.24.11.07.24.02.24.02.32-.04 3.66-2.4 4.24-2.81.57.08 1.16.13 1.77.13 5.52 0 10-3.54 10-7.9S17.52 3 12 3z"/></svg>
-      카카오로 시작하기
-    </button>
-    <button type="button" class="btn btn--social btn--google btn--block btn--lg" onclick="signInWithProvider('google')">
-      <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
-      Google로 시작하기
-    </button>
-
-    <p class="auth-alt">아직 계정이 없나요? <a href="/signup.html">이메일로 회원가입</a></p>
   </main>
-  </div>
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>

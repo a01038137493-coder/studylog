@@ -26,7 +26,9 @@
     (async () => {
       const profile = await getCurrentProfile();
       if (!profile) {
-        window.location.href = "/welcome.html";
+        // 앱: 웰컴 투어 / 웹: 노션식 로그인 화면이 메인
+        const native = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        window.location.href = native ? "/welcome.html" : "/login.html";
         return;
       }
       if (!profile.onboarded) { window.location.href = "/onboarding.html"; return; }
