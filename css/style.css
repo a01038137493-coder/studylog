@@ -2684,9 +2684,9 @@ html { touch-action: manipulation; }
   html.dt-web body.memo-page main.container,
   html.dt-web body.memo-page main.container:has(> .memo-cats) {
     display: grid;
-    grid-template-columns: 232px minmax(0, 1fr) 330px;
+    grid-template-columns: 232px 330px minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas: "cats editor search" "cats editor list";
+    grid-template-areas: "cats search editor" "cats list editor";
     column-gap: 0; row-gap: 0;
     max-width: none; width: auto; margin: 0; padding: 0;
     height: calc(100dvh - 62px);
@@ -2701,7 +2701,7 @@ html { touch-action: manipulation; }
   }
   html.dt-web body.memo-page #mweb-editor {
     grid-area: editor; overflow-y: auto; background: #fff;
-    border-right: 1px solid var(--line); padding: 16px 38px 48px;
+    border-left: 1px solid var(--line); padding: 16px 38px 48px;
   }
   html.dt-web body.memo-page #mweb-editor .memoedit__body { min-height: 60vh; font-size: 1.02rem; }
   html.dt-web body.memo-page #memo-list,
