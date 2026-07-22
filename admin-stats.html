@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>서비스 통계 · 핀로그</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <script>document.documentElement.classList.add(window.Capacitor ? "dt-app" : "dt-web");</script>
+  <link rel="stylesheet" href="/css/style.css?v=240" />
+  <style>
+    .ast-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
+    @media (min-width: 700px) { .ast-grid { grid-template-columns: repeat(4, 1fr); } }
+    .ast-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 14px; }
+    .ast-card b { display: block; font-size: 1.55rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+    .ast-card span { font-size: 0.8rem; color: var(--muted); }
+    .ast-h { margin: 22px 0 10px; font-size: 0.95rem; font-weight: 800; }
+    .ast-bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 12px 4px 0; }
+    .ast-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+    .ast-bar i { width: 100%; max-width: 34px; background: var(--primary, #f04438); border-radius: 6px 6px 0 0; min-height: 3px; }
+    .ast-bar em { font-style: normal; font-size: 0.62rem; color: var(--muted-soft); white-space: nowrap; }
+    .ast-bar b { font-size: 0.72rem; font-weight: 700; color: var(--navy); }
+    .ast-note { margin: 20px 0 30px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+    .ast-note a { color: var(--primary, #f04438); font-weight: 700; }
+    .ast-denied { text-align: center; margin: 80px 0; color: var(--muted); }
+  </style>
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <div class="topbar__brand">서비스 통계</div>
+  </header>
+
+  <main class="container">
+    <p class="muted" id="ast-loading" style="text-align:center;margin:40px 0;">불러오는 중...</p>
+    <div id="ast-body" hidden>
+      <h3 class="ast-h">사용자</h3>
+      <div class="ast-grid">
+        <div class="ast-card"><b id="s-users">-</b><span>전체 가입자</span></div>
+        <div class="ast-card"><b id="s-active">-</b><span>활성 사용자 (7일)</span></div>
+        <div class="ast-card"><b id="s-new7">-</b><span>신규 가입 (7일)</span></div>
+        <div class="ast-card"><b id="s-new30">-</b><span>신규 가입 (30일)</span></div>
+      </div>
+      <div class="ast-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="ast-card"><b id="s-exam">-</b><span>수험생 모드</span></div>
+        <div class="ast-card"><b id="s-general">-</b><span>일반 모드</span></div>
+      </div>
+
+      <h3 class="ast-h">최근 14일 신규 가입</h3>
+      <section class="card"><div class="ast-bars" id="s-bars"></div></section>
+
+      <h3 class="ast-h">콘텐츠</h3>
+      <div class="ast-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="ast-card"><b id="s-todos">-</b><span>할 일</span></div>
+        <div class="ast-card"><b id="s-events">-</b><span>일정</span></div>
+        <div class="ast-card"><b id="s-memos">-</b><span>메모</span></div>
+        <div class="ast-card"><b id="s-files">-</b><span>파일</span></div>
+        <div class="ast-card"><b id="s-tb">-</b><span>타임박스</span></div>
+      </div>
+
+      <p class="ast-note">
+        설치 수 · 충돌 · 스토어 노출 등 앱스토어 지표는 수집 SDK 없이 애플이 기본 제공하는
+        <a href="https://appstoreconnect.apple.com/analytics" target="_blank" rel="noopener">App Store Connect → 분석</a>에서 확인할 수 있어요.
+      </p>
+    </div>
+    <div class="ast-denied" id="ast-denied" hidden>
+      <p>이 페이지를 볼 권한이 없어요.</p>
+    </div>
+  </main>
+
+  <script src="/js/vendor/supabase.js"></script>
+  <script src="/js/supabaseClient.js?v=mock14"></script>
+  <script src="/js/utils.js?v=42"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await requireAuth();
+      if (!user) return;
+      const { data, error } = await supabaseClient.rpc("admin_service_stats");
+      document.getElementById("ast-loading").hidden = true;
+      if (error || !data) { document.getElementById("ast-denied").hidden = false; return; }
+
+      const set = (id, v) => { document.getElementById(id).textContent = Number(v || 0).toLocaleString(); };
+      set("s-users", data.users_total); set("s-active", data.active_7d);
+      set("s-new7", data.new_7d);       set("s-new30", data.new_30d);
+      set("s-exam", data.users_exam);   set("s-general", data.users_general);
+      set("s-todos", data.todos);       set("s-events", data.events);
+      set("s-memos", data.memos);       set("s-files", data.files);
+      set("s-tb", data.timeboxes);
+
+      // 최근 14일을 날짜 축으로 채우고 가입 수를 막대로 (없는 날은 0)
+      const byDay = {};
+      (data.signups_daily || []).forEach((r) => { byDay[r.d] = r.n; });
+      const days = [];
+      for (let i = 13; i >= 0; i--) {
+        const dt = new Date(Date.now() - i * 86400000);
+        const key = `${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+        days.push({ key, n: byDay[key] || 0 });
+      }
+      const max = Math.max(1, ...days.map((d) => d.n));
+      document.getElementById("s-bars").innerHTML = days.map((d) => `
+        <div class="ast-bar">
+          <b>${d.n || ""}</b>
+          <i style="height:${Math.round((d.n / max) * 82)}%"></i>
+          <em>${d.key.replace("-", "/")}</em>
+        </div>`).join("");
+      document.getElementById("ast-body").hidden = false;
+    });
+  </script>
+</body>
+</html>

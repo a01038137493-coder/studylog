@@ -140,6 +140,8 @@ function normalizeLayout(l) {
     clock: {
       design: l && l.clock && l.clock.design === "analog" ? "analog" : "digital",
     },
+    // 날씨 지역 선택 (null = 자동 추정)
+    weather: l && l.weather && typeof l.weather.lat === "number" ? l.weather : null,
   };
 }
 
@@ -1226,8 +1228,9 @@ function createWeatherTile() {
   el.dataset.widget = "weather";
   el.innerHTML = `
     <button type="button" class="widget__del" aria-label="삭제">−</button>
+    <button type="button" class="widget__opt weather__region" aria-label="지역 변경" title="지역 변경">⌖</button>
     <div class="weather__top">
-      <span class="weather__loc" id="weather-loc">대구광역시</span>
+      <span class="weather__loc" id="weather-loc">--</span>
       <svg class="weather__nav" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 3.4c.66-.26 1.3.38 1.04 1.04L15 21c-.3.76-1.4.66-1.55-.14l-1.27-6.04-6.04-1.27c-.8-.16-.9-1.25-.14-1.55z"/></svg>
     </div>
     <div class="weather__temp" id="weather-temp">--°</div>
@@ -1238,6 +1241,11 @@ function createWeatherTile() {
     </div>`;
   el.querySelector(".widget__del").addEventListener("click", (e) => {
     e.preventDefault(); e.stopPropagation(); removeWidget("weather");
+  });
+  const regionBtn = el.querySelector(".weather__region");
+  regionBtn.addEventListener("pointerdown", (e) => e.stopPropagation());  // 드래그/롱프레스와 충돌 방지
+  regionBtn.addEventListener("click", (e) => {
+    e.preventDefault(); e.stopPropagation(); openWeatherRegionMenu(regionBtn);
   });
   loadWeather();
   return el;
@@ -1278,6 +1286,65 @@ function wmoWeather(code, isDay) {
   return { img: `/assets/weather/${WEATHER_ICONS[key]}.png`, text };
 }
 
+/* 지역: 저장된 선택 → 없으면 IP로 추정(위치 권한 불필요) → 실패 시 서울 */
+const WEATHER_CITIES = [
+  { name: "서울", lat: 37.5665, lon: 126.978 },
+  { name: "인천", lat: 37.4563, lon: 126.7052 },
+  { name: "수원", lat: 37.2636, lon: 127.0286 },
+  { name: "춘천", lat: 37.8813, lon: 127.7298 },
+  { name: "강릉", lat: 37.7519, lon: 128.8761 },
+  { name: "청주", lat: 36.6424, lon: 127.489 },
+  { name: "천안", lat: 36.8151, lon: 127.1139 },
+  { name: "대전", lat: 36.3504, lon: 127.3845 },
+  { name: "세종", lat: 36.48, lon: 127.289 },
+  { name: "전주", lat: 35.8242, lon: 127.148 },
+  { name: "광주", lat: 35.1595, lon: 126.8526 },
+  { name: "여수", lat: 34.7604, lon: 127.6622 },
+  { name: "대구", lat: 35.8714, lon: 128.6014 },
+  { name: "포항", lat: 36.019, lon: 129.3435 },
+  { name: "부산", lat: 35.1796, lon: 129.0756 },
+  { name: "울산", lat: 35.5384, lon: 129.3114 },
+  { name: "창원", lat: 35.2281, lon: 128.6811 },
+  { name: "제주", lat: 33.4996, lon: 126.5312 },
+];
+function nearestWeatherCity(lat, lon) {
+  let best = WEATHER_CITIES[0], bd = Infinity;
+  WEATHER_CITIES.forEach((c) => {
+    const d = (c.lat - lat) ** 2 + (c.lon - lon) ** 2;
+    if (d < bd) { bd = d; best = c; }
+  });
+  return best;
+}
+
+function openWeatherRegionMenu(anchor) {
+  const old = document.getElementById("weather-region-menu");
+  if (old) { old.remove(); return; }
+  const menu = document.createElement("div");
+  menu.id = "weather-region-menu";
+  menu.className = "weather-regionmenu";
+  const cur = dashLayout.weather && dashLayout.weather.name;
+  menu.innerHTML =
+    `<button type="button" data-auto class="${cur ? "" : "is-on"}">자동 (내 위치 추정)</button>` +
+    WEATHER_CITIES.map((c) =>
+      `<button type="button" data-city="${c.name}" class="${cur === c.name ? "is-on" : ""}">${c.name}</button>`).join("");
+  document.body.appendChild(menu);
+  const r = anchor.getBoundingClientRect();
+  menu.style.left = Math.max(8, Math.min(window.innerWidth - 190, r.left - 8)) + "px";
+  menu.style.top = (r.bottom + 6) + "px";
+  const close = () => { menu.remove(); document.removeEventListener("pointerdown", onDoc, true); };
+  const onDoc = (e) => { if (!menu.contains(e.target)) close(); };
+  document.addEventListener("pointerdown", onDoc, true);
+  menu.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.auto !== undefined) dashLayout.weather = null;
+    else dashLayout.weather = WEATHER_CITIES.find((c) => c.name === b.dataset.city) || null;
+    saveLayout();
+    close();
+    loadWeather();
+  });
+}
+
 function loadWeather() {
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   const fetchAt = (lat, lon, locName) => {
@@ -1298,7 +1365,25 @@ function loadWeather() {
       })
       .catch(() => set("weather-cond", "날씨 정보를 못 불러왔어요"));
   };
-  fetchAt(35.8714, 128.6014, "대구광역시");   // 대구 고정
+
+  const cfg = dashLayout.weather;
+  if (cfg && typeof cfg.lat === "number") { fetchAt(cfg.lat, cfg.lon, cfg.name); return; }
+  // 자동: IP 기반 대략적 위치 추정 (권한 팝업 없음). 국내면 가까운 도시명으로 표기.
+  fetch("https://ipwho.is/")
+    .then((r) => r.json())
+    .then((d) => {
+      if (d && d.success !== false && typeof d.latitude === "number") {
+        if (d.country_code === "KR") {
+          const c = nearestWeatherCity(d.latitude, d.longitude);
+          fetchAt(c.lat, c.lon, c.name);
+        } else {
+          fetchAt(d.latitude, d.longitude, d.city || "내 위치");
+        }
+      } else {
+        const s = WEATHER_CITIES[0]; fetchAt(s.lat, s.lon, s.name);
+      }
+    })
+    .catch(() => { const s = WEATHER_CITIES[0]; fetchAt(s.lat, s.lon, s.name); });
 }
 
 /* ============================================================

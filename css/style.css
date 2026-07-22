@@ -3203,3 +3203,20 @@ body.home-edit .gtab-grid #gnote {
 .tbweekm .tbside__row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .tbweekm .tbside__row b { font-weight: 700; color: var(--navy); font-size: 0.86rem; }
 .tbweekm .tbside__sub { margin: 6px 0 0; font-size: 0.84rem; color: var(--muted); }
+
+/* 날씨 위젯 지역 선택 메뉴 */
+.weather-regionmenu {
+  position: fixed; z-index: 400; width: 180px; max-height: 320px; overflow-y: auto;
+  background: #fff; border: 1px solid var(--line); border-radius: 13px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16); padding: 6px; box-sizing: border-box;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+}
+.weather-regionmenu button {
+  border: none; background: none; font: inherit; font-size: 0.86rem; font-weight: 600;
+  padding: 8px 6px; border-radius: 8px; cursor: pointer; color: var(--text);
+}
+.weather-regionmenu button[data-auto] { grid-column: 1 / -1; font-weight: 700; }
+.weather-regionmenu button:hover { background: rgba(15, 23, 42, 0.05); }
+.weather-regionmenu button.is-on { background: #ffece9; color: var(--primary, #f04438); font-weight: 800; }
+/* 지역 변경 버튼은 편집 모드가 아니어도 위젯에 올리면 보이도록 (데스크톱 호버) */
+html.dt-web .widget--weather:hover .weather__region { display: flex; }
