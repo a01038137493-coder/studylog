@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=186" />
+  <link rel="stylesheet" href="/css/style.css?v=187" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <!-- 일반 사용자 전용 태블릿/PC 홈 (모바일은 general-m.html, 수험생은 student.html) -->
@@ -55,8 +55,15 @@
         </section>
       </div>
 
-      <!-- 오른쪽: 일정 (오늘 + 다가오는 7일, Apple 캘린더) -->
+      <!-- 오른쪽: 일정 (오늘 + 다가오는 7일) · 웹에선 업무 메모 패널 -->
       <div class="gtab-col">
+        <section class="card gnote" id="gnote" hidden>
+          <div class="gtodo__head">
+            <span class="gtodo__title" id="gnote-title">업무 메모</span>
+            <span class="gtodo__count" id="gnote-status"></span>
+          </div>
+          <textarea id="gnote-body" class="gnote__body" placeholder="이 업무에 대한 메모를 적어보세요"></textarea>
+        </section>
         <section class="card gtab-events mevents" id="g-events">
           <div id="g-events-list"><p class="gtodo__empty">표시할 일정이 없어요</p></div>
         </section>
@@ -117,6 +124,6 @@
   <script src="/js/supabaseClient.js?v=mock13"></script>
   <script src="/js/utils.js?v=39"></script>
   <script src="/js/notify.js?v=4"></script>
-  <script src="/js/gtab.js?v=6"></script>
+  <script src="/js/gtab.js?v=7"></script>
 </body>
 </html>

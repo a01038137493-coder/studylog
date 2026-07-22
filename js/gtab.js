@@ -70,7 +70,7 @@
 
     /* ---------- 렌더 ---------- */
     const rowHtml = (t, dateLbl) => `
-      <div class="gtodo__row memo-row" data-id="${t.id}">
+      <div class="gtodo__row memo-row${t.id === noteId ? " is-note" : ""}" data-id="${t.id}">
         <div class="memo-row__actions">
           <button type="button" class="memo-act memo-act--imp" data-act="imp">${STAR_SVG}<span>중요</span></button>
           <button type="button" class="memo-act memo-act--del" data-act="del">${DEL_SVG}<span>삭제</span></button>
@@ -161,11 +161,15 @@
       card.addEventListener("pointerup", finish);
       card.addEventListener("pointercancel", finish);
 
-      card.addEventListener("click", async () => {
+      card.addEventListener("click", async (e) => {
         if (moved) { moved = false; return; }
         if (row.classList.contains("is-open")) { closeOpen(); return; }
         const todo = findTodo(row.dataset.id);
         if (!todo) return;
+        if (WEB_DESK() && !(e.target.closest && e.target.closest(".gtodo__check"))) {
+          openNote(todo);                   // 웹: 업무 클릭 = 오른쪽 메모 패널
+          return;
+        }
         todo.done = !todo.done;             // 낙관적 갱신
         renderAll();
         const { error } = await supabaseClient.from("todos")
@@ -196,6 +200,46 @@
       });
     }
 
+
+    /* ---------- 웹 데스크톱: 업무 메모 패널 ---------- */
+    const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
+      window.matchMedia("(min-width: 1100px)").matches;
+    const noteBox = document.getElementById("gnote");
+    const noteBody = document.getElementById("gnote-body");
+    const noteStatus = document.getElementById("gnote-status");
+    let noteId = null;
+    let noteTimer = null;
+
+    function openNote(t) {
+      if (!t || !noteBox) return;
+      noteId = t.id;
+      document.getElementById("gnote-title").textContent = t.content;
+      noteBody.value = t.note || "";
+      noteStatus.textContent = "";
+      noteStatus.hidden = true;
+      noteBox.hidden = false;
+      document.querySelectorAll(".gtodo__row").forEach((r) =>
+        r.classList.toggle("is-note", r.dataset.id === noteId));
+      noteBody.focus();
+    }
+
+    async function saveNote() {
+      if (!noteId) return;
+      const t = findTodo(noteId);
+      const val = noteBody.value;
+      if (t && (t.note || "") === val) return;
+      noteStatus.hidden = false;
+      noteStatus.textContent = "저장 중…";
+      const { error } = await supabaseClient.from("todos").update({ note: val }).eq("id", noteId);
+      if (error) { noteStatus.textContent = "저장 실패"; return; }
+      if (t) t.note = val;
+      noteStatus.textContent = "저장됨";
+      setTimeout(() => { if (noteStatus.textContent === "저장됨") noteStatus.hidden = true; }, 1400);
+    }
+    if (noteBody) {
+      noteBody.addEventListener("input", () => { clearTimeout(noteTimer); noteTimer = setTimeout(saveNote, 700); });
+      window.addEventListener("pagehide", saveNote);
+    }
 
     /* ---------- 태그 ---------- */
     let tags = [];
