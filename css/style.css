@@ -3148,3 +3148,15 @@ body.home-edit .gtab-grid #gnote {
   :is(html.dt-web, html.dt-app) body.memo-page main.container,
   :is(html.dt-web, html.dt-app) body.memo-page main.container:has(> .memo-cats) { align-items: stretch; }
 }
+
+/* 메모 워크스페이스: 목록 카드 폭 통일 (스와이프 잔상 제거) + 인라인 서식 바 */
+@media (min-width: 1100px) {
+  :is(html.dt-web, html.dt-app) body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
+  :is(html.dt-web, html.dt-app) body.memo-page #memo-list .memo-row { width: 100%; }
+  :is(html.dt-web, html.dt-app) body.memo-page #memo-list .memo-row__actions { display: none; }
+  .mweb-editor__bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .fmtbar--inline { position: static; display: flex; gap: 4px; padding: 0; border: none; background: none; box-shadow: none; }
+  .fmtbar--inline button { min-width: 34px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text); cursor: pointer; padding: 0 8px; }
+  .fmtbar--inline button:hover { background: #f6f6f7; }
+  .fmtbar--inline .fmtbar__sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; align-self: center; }
+}

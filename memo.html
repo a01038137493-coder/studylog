@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>document.documentElement.classList.add(window.Capacitor ? "dt-app" : "dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=233" />
+  <link rel="stylesheet" href="/css/style.css?v=234" />
 </head>
 <body class="app-bg has-tabbar memo-page">
   <header class="topbar">
@@ -25,7 +25,20 @@
 
     <!-- 웹 데스크톱 전용: 중앙 메모 에디터 -->
     <section class="mweb-editor" id="mweb-editor" hidden>
-      <div class="mweb-editor__bar"><span id="mw-status"></span></div>
+      <div class="mweb-editor__bar">
+        <div class="fmtbar fmtbar--inline" id="mw-bar">
+          <button type="button" data-cmd="bold" aria-label="굵게"><b>B</b></button>
+          <button type="button" data-cmd="italic" aria-label="기울임"><i>I</i></button>
+          <button type="button" data-cmd="underline" aria-label="밑줄"><u>U</u></button>
+          <button type="button" data-cmd="strikeThrough" aria-label="취소선"><s>S</s></button>
+          <span class="fmtbar__sep"></span>
+          <button type="button" data-block="title" aria-label="제목">제목</button>
+          <button type="button" data-block="head" aria-label="소제목">소제목</button>
+          <span class="fmtbar__sep"></span>
+          <button type="button" data-cmd="insertUnorderedList" aria-label="글머리 기호">• 목록</button>
+        </div>
+        <span id="mw-status"></span>
+      </div>
       <div id="mw-body" class="memoedit__body" contenteditable="true" spellcheck="false"
            data-placeholder="메모를 선택하거나 새 메모를 작성하세요"></div>
     </section>
@@ -382,7 +395,16 @@
           renderList();
         } catch (e) { mwStatus.textContent = "저장 실패"; }
       }
-      mwBody.addEventListener("input", () => {
+      document.getElementById("mw-bar").querySelectorAll("button").forEach((b) => {
+        b.addEventListener("mousedown", (e) => e.preventDefault());   // 선택 영역 유지
+        b.addEventListener("click", () => {
+          mwBody.focus();
+          if (b.dataset.cmd) document.execCommand(b.dataset.cmd, false, null);
+          else if (b.dataset.block) MemoFmt.applyBlock(b.dataset.block);
+          mwBody.dispatchEvent(new Event("input"));
+        });
+      });
+            mwBody.addEventListener("input", () => {
         clearTimeout(mwTimer);
         mwTimer = setTimeout(mwSave, 800);
       });
