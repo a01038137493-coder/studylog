@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=217" />
+  <link rel="stylesheet" href="/css/style.css?v=218" />
 </head>
 <body class="app-bg has-tabbar memo-page">
   <header class="topbar">
@@ -154,7 +154,7 @@
         });
 
         card.addEventListener("pointermove", (e) => {
-          if (!active || WEB_DESK()) return;   // 웹 데스크톱은 스와이프 없음
+          if (!active || DESK_SWIPE_OFF()) return;   // 웹 데스크톱은 스와이프 없음
           const mx = e.clientX - sx;
           const my = e.clientY - sy;
           if (!dir) {
@@ -337,7 +337,9 @@
       });
 
       /* ---------- 웹 데스크톱 전용: 중앙 에디터 ---------- */
-      const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
+      // 파일 페이지와 동일한 단순 목록 디자인 — 인라인 에디터 워크스페이스 비활성
+      const WEB_DESK = () => false;
+      const DESK_SWIPE_OFF = () => document.documentElement.classList.contains("dt-web") &&
         window.matchMedia("(min-width: 1100px)").matches;
       const mwBody = document.getElementById("mw-body");
       const mwStatus = document.getElementById("mw-status");

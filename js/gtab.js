@@ -258,6 +258,38 @@
     }
 
 
+    /* ---------- 홈 커스터마이징 (웹) — 블록 표시 설정 ---------- */
+    const HOME_CFG_KEY = "dt_home_cfg";
+    function homeCfg() {
+      try { return JSON.parse(localStorage.getItem(HOME_CFG_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function applyHomeCfg() {
+      const c = homeCfg();
+      const map = { upcoming: "g-upcoming", events: "g-events", note: "gnote" };
+      Object.keys(map).forEach((k) => {
+        const el = document.getElementById(map[k]);
+        if (el) el.classList.toggle("cfg-hidden", c["hide_" + k] === true);
+      });
+    }
+    (function wireHomeCfg() {
+      const btn = document.getElementById("home-cfg-btn");
+      const pop = document.getElementById("home-cfg-pop");
+      if (!btn || !pop) return;
+      const c = homeCfg();
+      pop.querySelectorAll("[data-cfg]").forEach((cb) => {
+        cb.checked = c["hide_" + cb.dataset.cfg] !== true;   // 체크 = 표시
+        cb.addEventListener("change", () => {
+          const cur = homeCfg();
+          cur["hide_" + cb.dataset.cfg] = !cb.checked;
+          localStorage.setItem(HOME_CFG_KEY, JSON.stringify(cur));
+          applyHomeCfg();
+        });
+      });
+      btn.addEventListener("click", (e) => { e.stopPropagation(); pop.hidden = !pop.hidden; });
+      document.addEventListener("click", (e) => { if (!pop.contains(e.target)) pop.hidden = true; });
+      applyHomeCfg();
+    })();
+
     /* ---------- 웹 데스크톱: 업무 메모 패널 ---------- */
     const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
       window.matchMedia("(min-width: 1100px)").matches;
@@ -269,6 +301,7 @@
 
     function openNote(t) {
       if (!t || !noteBox) return;
+      if (homeCfg().hide_note === true) return;
       noteId = t.id;
       document.getElementById("gnote-title").textContent = t.content;
       noteBody.value = t.note || "";
