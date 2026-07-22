@@ -2814,3 +2814,23 @@ html { touch-action: manipulation; }
   html.dt-web body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
   html.dt-web body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
 }
+
+/* 웹 데스크톱 타임박스: 좌측 풀스크린 시간표 + 우측 지금/주간 배분/블록 패널 */
+@media (min-width: 1100px) {
+  html.dt-web main.container:has(> .tbside) {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    max-width: none;
+    height: calc(100dvh - 76px);
+    align-items: stretch;
+    padding-bottom: 12px; box-sizing: border-box;
+  }
+  html.dt-web main.container:has(> .tbside) > * { grid-column: 1; }
+  html.dt-web main.container:has(> .tbside) > .tbside {
+    grid-column: 2; grid-row: 1 / span 6;
+    position: static; overflow-y: auto; min-height: 0;
+  }
+  html.dt-web main.container:has(> .tbside) > #tb-view,
+  html.dt-web main.container:has(> .tbside) > #tb-editor {
+    overflow-y: auto; min-height: 0; margin: 0;
+  }
+}

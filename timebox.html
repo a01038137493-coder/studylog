@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=206" />
+  <link rel="stylesheet" href="/css/style.css?v=207" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">
@@ -166,14 +166,21 @@
         });
       }
 
+      const WEBD = () => document.documentElement.classList.contains("dt-web") &&
+        window.matchMedia("(min-width: 1100px)").matches;
+
       /* 일주일 뷰: 7컬럼 × 시간축 */
       function renderWeek() {
-        const PX = 30;
+        let PX = 30;
         const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
         let gs = 5 * 60, ge = 24 * 60;
         if (boxes.length) {
           gs = Math.min(gs, Math.floor(Math.min(...boxes.map((b) => toMin(b.start_time))) / 60) * 60);
           ge = Math.max(ge, Math.ceil(Math.max(...boxes.map((b) => toMin(b.end_time))) / 60) * 60);
+        }
+        if (WEBD()) {
+          const hours = (ge - gs) / 60;
+          PX = Math.max(30, Math.floor((viewEl.clientHeight - 90) / hours));
         }
         const y = (min) => ((min - gs) / 60) * PX;
         const H = ((ge - gs) / 60) * PX;
@@ -212,7 +219,15 @@
           `<button type="button" class="tbe__day${i === selDow ? " is-on" : ""}${i === todayDow ? " tbv__today" : ""}" data-dow="${i}">${d}</button>`).join("")}</div>`;
 
         const dayBoxes = boxes.filter((b) => daysOf(b).includes(selDow));
-        const PX = 58;
+        let PX = 58;
+        if (WEBD()) {
+          let _gs = 5 * 60, _ge = 24 * 60;
+          if (dayBoxes.length) {
+            _gs = Math.min(_gs, Math.floor(Math.min(...dayBoxes.map((b) => toMin(b.start_time))) / 60) * 60);
+            _ge = Math.max(_ge, Math.ceil(Math.max(...dayBoxes.map((b) => toMin(b.end_time))) / 60) * 60);
+          }
+          PX = Math.max(40, Math.floor((viewEl.clientHeight - 140) / ((_ge - _gs) / 60)));
+        }
         const isToday = selDow === todayDow;
         const now = new Date();
         const nowMin = now.getHours() * 60 + now.getMinutes();
