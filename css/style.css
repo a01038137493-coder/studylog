@@ -2740,3 +2740,36 @@ html { touch-action: manipulation; }
 @media (min-width: 1100px) {
   html.dt-web .gt-webacts button svg { width: 16px; height: 16px; }
 }
+
+/* 웹 캘린더: 좌측 달력 / 우측 선택 날짜 일정 패널 + 달 이동 버튼 */
+.fcal__nav { display: none; }
+@media (min-width: 1100px) {
+  html.dt-web body.fcal-page .fcal {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas: "head events" "dows events" "cal events";
+    column-gap: 26px;
+    max-width: 1160px; margin: 0 auto;
+    align-items: start;
+    padding-bottom: 40px;
+  }
+  html.dt-web body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
+  html.dt-web body.fcal-page .fcal__dows { grid-area: dows; }
+  html.dt-web body.fcal-page .fcal__carousel { grid-area: cal; }
+  html.dt-web body.fcal-page .fcal__events {
+    grid-area: events; position: sticky; top: 84px;
+    background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    padding: 18px 18px 22px; min-height: 440px; max-height: calc(100dvh - 110px); overflow-y: auto;
+  }
+  html.dt-web body.fcal-page .fcal__cell { min-height: 84px; }
+  html.dt-web .fcal__nav { display: flex; gap: 6px; }
+  html.dt-web .fcal__navbtn { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; }
+  html.dt-web .fcal__navbtn svg { width: 18px; height: 18px; }
+
+  /* 웹 메모 목록: 스와이프 잔상 제거 + 카드 폭 정렬 */
+  html.dt-web body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
+  html.dt-web body.memo-page #memo-list .memo-row { width: 100%; }
+  html.dt-web body.memo-page #memo-list .memo-row__actions { display: none; }
+}
