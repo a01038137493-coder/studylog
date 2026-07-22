@@ -26,7 +26,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        // 키보드(native resize)가 웹뷰를 밀어올릴 때 뒤로 비치는 배경을
+        // iOS 라이트 키보드 색과 맞춰 모서리 라운딩 틈의 색 차이를 없앤다.
+        let kbColor = UIColor(red: 0.82, green: 0.835, blue: 0.858, alpha: 1)
+        window?.backgroundColor = kbColor
+        if let root = window?.rootViewController {
+            root.view.backgroundColor = kbColor
+        }
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
