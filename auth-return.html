@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>앱으로 돌아가는 중 · 핀로그</title>
+  <style>
+    body { margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+    .box { text-align: center; padding: 40px 28px; }
+    .brand { font-size: 1.4rem; font-weight: 800; color: #111827; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .brand b { color: #f04438; }
+    p { color: #6b7280; font-size: 0.95rem; line-height: 1.6; margin: 0 0 26px; }
+    .btn { display: inline-block; padding: 15px 34px; border-radius: 14px; background: #f04438; color: #fff; font-weight: 700; font-size: 1rem; text-decoration: none; }
+    .btn:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand"><b>핀</b>로그</div>
+    <p id="msg">로그인 완료! 앱으로 돌아가는 중이에요...</p>
+    <a class="btn" id="back" href="dittonlog://auth-callback">핀로그 앱으로 돌아가기</a>
+  </div>
+  <script>
+    /* 소셜 로그인 복귀 경유지 — code 를 딥링크로 앱에 전달한다.
+       (카카오톡 앱 전환 시 인증이 기본 Safari 에서 끝나는 경우가 있어
+        커스텀 스킴 직행 대신 이 HTTPS 페이지를 redirect_to 로 사용) */
+    (function () {
+      const q = new URLSearchParams(location.search);
+      const code = q.get("code");
+      const err = q.get("error") || q.get("error_description") ||
+        new URLSearchParams(location.hash.replace(/^#/, "")).get("error_description");
+      const target = "dittonlog://auth-callback" + (code ? "?code=" + encodeURIComponent(code) : "");
+      document.getElementById("back").setAttribute("href", target);
+      if (err && !code) {
+        document.getElementById("msg").textContent = "로그인에 실패했어요. 앱으로 돌아가 다시 시도해주세요.";
+        return;
+      }
+      location.href = target;   // 자동 복귀 시도 — 막히면 위 버튼(사용자 탭)으로
+    })();
+  </script>
+</body>
+</html>

@@ -440,9 +440,11 @@ async function signInWithProvider(provider) {
     if (isNative) {
       // 앱: 임베디드 웹뷰 OAuth 는 구글이 차단 → 시스템 브라우저에서 진행 후
       //     dittonlog://auth-callback 딥링크로 복귀 (아래 appUrlOpen 리스너)
+      // 커스텀 스킴 직행은 카카오톡 앱 전환 시 다른 브라우저에서 끝나며 끊길 수 있어
+      // HTTPS 복귀 페이지(auth-return.html)를 경유해 딥링크로 앱에 code 를 전달한다.
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: "dittonlog://auth-callback", skipBrowserRedirect: true },
+        options: { redirectTo: "https://studylog-five.vercel.app/auth-return.html", skipBrowserRedirect: true },
       });
       if (error) throw error;
       await window.Capacitor.Plugins.Browser.open({ url: data.url });
