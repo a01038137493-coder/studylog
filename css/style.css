@@ -2594,3 +2594,15 @@ input[type="month"].field__input {
 .dt-kbmask { position: fixed; left: 0; right: 0; bottom: 0; height: var(--kb, 0px); background: #fff; z-index: 950; display: none; pointer-events: none; }
 body.kb-open .dt-kbmask { display: block; }
 .topbar__more[hidden] { display: none; }
+
+/* ---------------- 설정 프로필 링크 + 마이페이지 ---------------- */
+.settings-profile--link { flex-direction: row; align-items: center; gap: 14px; text-decoration: none; color: inherit; }
+.settings-profile--link .settings-profile__txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.settings-profile__avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; flex: none; }
+.mypage__head { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 30px 22px; }
+.mypage__avatar { width: 76px; height: 76px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; }
+.mypage__namewrap { display: flex; gap: 8px; width: 100%; max-width: 320px; }
+.mypage__namewrap .field__input { flex: 1; text-align: center; font-weight: 700; }
+.mypage__save { flex: none; padding: 0 18px; border-radius: 12px; }
+.mypage__save:disabled { opacity: 0.4; }
+.mypage__email { margin: 0; color: var(--muted); font-size: 0.9rem; }

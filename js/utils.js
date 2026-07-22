@@ -560,12 +560,16 @@ function dtSkeleton(el, rows) {
  * ============================================================ */
 (function () {
   try {
+    // 크로스 도큐먼트 뷰 트랜지션 지원(iOS 18.2+): 이전 화면 스냅샷이 새 화면으로
+    // 끊김 없이 크로스페이드되므로 JS 페이드(화면을 먼저 비워 깜빡임 유발)를 쓰지 않는다.
+    const vt = "startViewTransition" in document;
     const style = document.createElement("style");
     style.textContent =
-      "body { animation: dt-page-in 0.16s ease both; }" +
-      "@keyframes dt-page-in { from { opacity: 0; } }" +
-      "@keyframes dt-page-up { from { transform: translateY(10%); opacity: 0; } }" +
-      "body.dt-leaving { opacity: 0; transition: opacity 0.11s ease; animation: none; }";
+      (vt ? "" :
+        "body { animation: dt-page-in 0.16s ease both; }" +
+        "@keyframes dt-page-in { from { opacity: 0; } }" +
+        "body.dt-leaving { opacity: 0; transition: opacity 0.11s ease; animation: none; }") +
+      "@keyframes dt-page-up { from { transform: translateY(10%); opacity: 0; } }";
     document.head.appendChild(style);
 
     // 플로팅 + 버튼으로 진입한 화면은 아래에서 위로 열리는 전환
@@ -586,8 +590,9 @@ function dtSkeleton(el, rows) {
       if (!href || href.charAt(0) === "#" || href.indexOf("http") === 0 ||
           href.indexOf("javascript:") === 0 || a.target === "_blank") return;
       if (e.metaKey || e.ctrlKey || e.defaultPrevented) return;
-      e.preventDefault();
       if (a.classList.contains("fab") || a.classList.contains("fabmenu__item")) sessionStorage.setItem("dt_nav_up", "1");
+      if (vt) return;                       // 뷰 트랜지션이 전환을 맡음 — 기본 내비게이션 그대로
+      e.preventDefault();
       document.body.classList.add("dt-leaving");
       setTimeout(() => { window.location.href = href; }, 110);
     }, true);

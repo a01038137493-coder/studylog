@@ -26,6 +26,7 @@ const COPY = [
   "support.html",
   "settings.html",
   "notifications.html",
+  "mypage.html",
   "demo.html",
   "student.html",
   "student-m.html",
