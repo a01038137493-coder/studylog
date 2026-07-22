@@ -2779,3 +2779,9 @@ html { touch-action: manipulation; }
   html.dt-web body.memo-page #memo-list .memo-row { width: 100%; }
   html.dt-web body.memo-page #memo-list .memo-row__actions { display: none; }
 }
+
+/* 웹 데스크톱: 본문을 사이드바 기준 좌측 정렬 (가운데 뜨는 여백 제거) */
+@media (min-width: 900px) {
+  html.dt-web main.container { margin-left: 0; }
+  html.dt-web body.fcal-page .fcal { margin-left: 0; }
+}
