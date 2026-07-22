@@ -368,6 +368,7 @@
     function closeSheet() { sheet.hidden = true; sheetInput.blur(); }
 
     document.getElementById("g-add-row").addEventListener("click", openSheet);
+    if (new URLSearchParams(location.search).get("newtodo")) setTimeout(openSheet, 250);
     sheet.querySelectorAll("[data-gt-close]").forEach((el) =>
       el.addEventListener("click", closeSheet));
 
