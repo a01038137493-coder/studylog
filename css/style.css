@@ -2896,7 +2896,8 @@ body.home-edit .gtab-grid #gnote {
   html.dt-web .gtab-grid #g-carry,
   html.dt-web .gtab-grid #g-upcoming,
   html.dt-web .gtab-grid #g-events { grid-column: 1; }
-  html.dt-web .gtab-grid #gnote { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; }
+  html.dt-web .gtab-grid #gnote,
+  html.dt-web .gtab-grid #gevd { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; align-self: start; }
   html.dt-web .gtodo__row.is-note .gtodo__item { background: rgba(240, 68, 56, 0.06); border-radius: 10px; }
 }
 

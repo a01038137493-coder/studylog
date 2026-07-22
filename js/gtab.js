@@ -419,7 +419,7 @@
     let noteId = null;
     let noteTimer = null;
 
-    function openNote(t) {
+    function openNote(t, focus) {
       if (!t || !noteBox) return;
       if (homeCfg().hidden.note === true) return;
       noteId = t.id;
@@ -432,7 +432,7 @@
       if (evd) evd.hidden = true;
       document.querySelectorAll(".gtodo__row").forEach((r) =>
         r.classList.toggle("is-note", r.dataset.id === noteId));
-      noteBody.focus();
+      if (focus !== false) noteBody.focus();
     }
 
     async function saveNote() {
@@ -602,6 +602,21 @@
 
     await load();
     if (window.hideAppLoader) hideAppLoader();
+
+    /* 우측 스티키 패널 상시 표시 — 첫 할 일 메모(미완료 우선) 또는 빈 안내 */
+    if (document.documentElement.classList.contains("dt-web") &&
+        window.matchMedia("(min-width: 900px)").matches &&
+        homeCfg().hidden.note !== true) {
+      const firstTodo = [...todos].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1))[0];
+      if (firstTodo) {
+        openNote(firstTodo, false);
+      } else {
+        document.getElementById("gnote-title").textContent = "업무 메모";
+        noteBody.value = "";
+        noteBody.placeholder = "할 일을 클릭하면 해당 업무의 메모를 쓸 수 있어요";
+        noteBox.hidden = false;
+      }
+    }
 
     /* ---------- 일정 블록: 오늘 + 다가오는 7일 (없으면 안내 문구 유지) ---------- */
     const renderEvents = () => renderHomeSchedule(
