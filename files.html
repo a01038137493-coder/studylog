@@ -8,8 +8,8 @@
   <link rel="apple-touch-icon" href="/assets/logo.png" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
-  <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=224" />
+  <script>document.documentElement.classList.add(window.Capacitor ? "dt-app" : "dt-web");</script>
+  <link rel="stylesheet" href="/css/style.css?v=225" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <header class="topbar">

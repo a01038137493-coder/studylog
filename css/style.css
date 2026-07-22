@@ -2850,6 +2850,176 @@ body.home-edit .gtab-grid #gnote {
   html.dt-web .gt-editin { flex: 1; min-width: 0; font: inherit; font-weight: 600; color: var(--text); border: none; outline: none; background: none; border-bottom: 1.5px solid var(--primary); padding: 0 0 2px; }
 }
 
+/* 웹 캘린더: 좌측 달력 / 우측 선택 날짜 일정 패널 + 달 이동 버튼 */
+.fcal__nav { display: none; }
+@media (min-width: 1100px) {
+  html.dt-web body.fcal-page { padding-bottom: 0; }
+  html.dt-web body.fcal-page .fcal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "head ." "dows ." "cal events";
+    column-gap: 26px;
+    max-width: none; margin: 0 auto;
+    align-items: stretch;
+    height: calc(100dvh - 8px);
+    padding-bottom: 16px; box-sizing: border-box;
+  }
+  html.dt-web body.fcal-page .fcal__carousel { height: 100%; overflow: hidden; }
+  html.dt-web body.fcal-page .fcal__track { height: 100%; }
+  html.dt-web body.fcal-page .fcal__grid { height: 100%; grid-auto-rows: minmax(0, 1fr); }
+  html.dt-web body.fcal-page .fcal__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; }
+  html.dt-web body.fcal-page .fcal__dows { grid-area: dows; }
+  html.dt-web body.fcal-page .fcal__carousel { grid-area: cal; }
+  html.dt-web body.fcal-page .fcal__events {
+    grid-area: events;
+    background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    padding: 18px 18px 22px; min-height: 0; overflow-y: auto;
+    align-self: stretch;
+  }
+  html.dt-web body.fcal-page .fcal__cell { min-height: 0; }
+  html.dt-web .fcal__nav {
+    display: flex; align-items: stretch;
+    background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  html.dt-web .fcal__navbtn { width: 38px; height: 34px; border: none; background: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font: inherit; padding: 0; transition: background 0.12s ease, color 0.12s ease; }
+  html.dt-web .fcal__navbtn + .fcal__navbtn { border-left: 1px solid var(--line); }
+  html.dt-web .fcal__navbtn:hover { background: #f6f6f7; color: var(--navy); }
+  html.dt-web .fcal__navbtn svg { width: 16px; height: 16px; }
+  html.dt-web .fcal__navbtn--today { width: auto; padding: 0 14px; font-size: 0.85rem; font-weight: 700; color: var(--text); }
+
+  /* 웹 메모 목록: 스와이프 잔상 제거 + 카드 폭 정렬 */
+  html.dt-web body.memo-page #memo-list .memo-item { transform: none !important; width: 100%; box-sizing: border-box; }
+  html.dt-web body.memo-page #memo-list .memo-row { width: 100%; }
+  html.dt-web body.memo-page #memo-list .memo-row__actions { display: none; }
+}
+
+/* 웹 데스크톱: 본문을 사이드바 기준 좌측 정렬 (가운데 뜨는 여백 제거) */
+@media (min-width: 900px) {
+  html.dt-web main.container { margin-left: 0; }
+  html.dt-web main.container.home-wide { margin-left: auto; }   /* 수험생 홈 위젯 캔버스는 중앙 유지 */
+  html.dt-web body.fcal-page .fcal { margin-left: 0; }
+}
+
+/* 타임박스 블록: 클릭하면 수정 팝업 */
+.wk__blk, .tgd__block { cursor: pointer; }
+
+/* 웹 데스크톱: 모든 플로팅 버튼(FAB) 위치 통일 */
+@media (min-width: 900px) {
+  html.dt-web .fab {
+    right: 72px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+  }
+}
+
+/* 웹 캘린더: 전체 그리드 선 */
+@media (min-width: 1100px) {
+  html.dt-web body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  html.dt-web body.fcal-page .fcal__cell,
+  html.dt-web body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
+  html.dt-web body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
+  html.dt-web body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
+}
+
+/* 웹 데스크톱 타임박스: 좌측 풀스크린 시간표 + 우측 지금/주간 배분/블록 패널 */
+@media (min-width: 1100px) {
+  html.dt-web body:has(.tbside) { padding-bottom: 0; }
+  html.dt-web main.container:has(> .tbside) {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    max-width: none;
+    height: calc(100dvh - 62px);
+    align-items: stretch;
+    padding-bottom: 10px; box-sizing: border-box;
+  }
+  html.dt-web main.container:has(> .tbside) > * { grid-column: 1; }
+  html.dt-web main.container:has(> .tbside) > .tbside {
+    grid-column: 2; grid-row: 1 / span 6;
+    position: static; overflow-y: auto; min-height: 0;
+  }
+  html.dt-web main.container:has(> .tbside) > #tb-view,
+  html.dt-web main.container:has(> .tbside) > #tb-editor {
+    overflow-y: auto; min-height: 0; margin: 0;
+  }
+}
+
+/* 웹 사이드바 "새로 만들기" — 데스크톱에서만 표시 */
+.sb-new, .sb-newmenu { display: none; }
+@media (min-width: 900px) {
+  html.dt-web .sb-new {
+    display: block; margin: 16px 10px 0; padding: 12px 14px;
+    border: none; border-radius: 11px; background: var(--primary); color: #fff;
+    font: inherit; font-size: 0.93rem; font-weight: 800; text-align: center; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(240, 68, 56, 0.28);
+  }
+  html.dt-web .sb-new:hover { filter: brightness(1.05); }
+  html.dt-web .sb-newmenu {
+    display: block; position: fixed; left: 14px; z-index: 300;
+    width: 204px; background: #fff; border: 1px solid var(--line); border-radius: 13px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14); padding: 6px; box-sizing: border-box;
+  }
+  html.dt-web .sb-newmenu[hidden] { display: none; }
+  html.dt-web .sb-newmenu a {
+    display: block; padding: 10px 11px; border-radius: 8px;
+    font-size: 0.92rem; font-weight: 600; color: var(--text); text-decoration: none;
+  }
+  html.dt-web .sb-newmenu a:hover { background: rgba(15, 23, 42, 0.05); }
+}
+
+/* 웹 홈 커스터마이징 */
+.cfg-hidden { display: none !important; }
+.homecfg-btn { display: none; }
+@media (min-width: 900px) {
+  html.dt-web .homecfg-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-left: 14px; padding: 7px 13px;
+    border: 1px solid var(--line-strong); border-radius: 10px; background: #fff;
+    font: inherit; font-size: 0.82rem; font-weight: 700; color: var(--muted); cursor: pointer;
+  }
+  html.dt-web .homecfg-btn:hover { background: #f6f6f7; color: var(--text); }
+  html.dt-web .homecfg-btn.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+}
+
+/* 홈 편집 모드 — 수험생 홈식 흔들림·삭제·추가 타일 */
+@keyframes gw-wiggle {
+  0% { transform: rotate(-0.4deg); }
+  50% { transform: rotate(0.4deg); }
+  100% { transform: rotate(-0.4deg); }
+}
+body.home-edit .gtab-grid > .gtab-col > section,
+body.home-edit .gtab-grid #gnote {
+  animation: gw-wiggle 0.28s ease-in-out infinite;
+  position: relative;
+  user-select: none;
+}
+.gw-del {
+  position: absolute; top: -9px; left: -9px; z-index: 5;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: #3a3a3f; color: #fff;
+  font-size: 1.1rem; line-height: 1; cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  display: flex; align-items: center; justify-content: center;
+}
+.gw-addtile {
+  border: 1.5px dashed var(--line-strong); border-radius: 16px;
+  background: none; color: var(--muted-soft);
+  font: inherit; font-weight: 700; padding: 18px; cursor: pointer;
+  margin-top: 4px;
+}
+.gw-addtile:hover { color: var(--text); border-color: var(--muted-soft); }
+/* 웹 홈 할 일 호버 액션 (★ 중요 · ✎ 수정 · 🗑 삭제) — 스와이프 대체 (복구) */
+.gt-webacts { display: none; }
+@media (min-width: 1100px) {
+  html.dt-web .gt-webacts { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; background: #fff; padding-left: 10px; z-index: 2; }
+  html.dt-web .gtodo__row:hover .gt-webacts { opacity: 1; }
+  html.dt-web .gt-webacts button { border: none; background: none; cursor: pointer; width: 30px; height: 30px; border-radius: 8px; color: var(--muted-soft); display: flex; align-items: center; justify-content: center; padding: 0; }
+  html.dt-web .gt-webacts button:hover { background: rgba(15, 23, 42, 0.06); color: var(--text); }
+  html.dt-web .gt-webacts [data-wact="del"]:hover { color: #e5484d; }
+  html.dt-web .gt-webacts button svg { width: 16px; height: 16px; }
+  html.dt-web .gtodo__row .memo-row__actions { display: none; }
+  html.dt-web .gt-editin { flex: 1; min-width: 0; font: inherit; font-weight: 600; color: var(--text); border: none; outline: none; background: none; border-bottom: 1.5px solid var(--primary); padding: 0 0 2px; }
+}
+
 /* 웹 데스크톱 메모 워크스페이스 — 폴더(사이드바 옆) | 중앙 에디터 | 우측 검색+목록 */
 @media (min-width: 1100px) {
   html.dt-web body.memo-page { padding-bottom: 0; }
