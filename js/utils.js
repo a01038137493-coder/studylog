@@ -555,6 +555,14 @@ async function renderHomeSchedule(sectionEl, listEl) {
   } catch (e) {}
 })();
 
+/* 웹(브라우저) 구분 클래스 — 데스크톱 웹앱 레이아웃(좌측 사이드바)용 */
+(function () {
+  try {
+    const native = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    if (!native && document.body) document.body.classList.add("dt-web");
+  } catch (e) {}
+})();
+
 /* 아바타 표시 — 프로필 사진이 있으면 사진, 없으면 이름 첫 글자 */
 function dtPaintAvatar(el, profile) {
   if (!el) return;

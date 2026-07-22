@@ -2641,3 +2641,39 @@ body.kb-open .dt-kbmask { display: block; }
 
 /* 탭 반응 즉시화 — iOS 더블탭 줌 판정 대기(~300ms 클릭 지연) 제거 */
 html { touch-action: manipulation; }
+
+/* ============================================================
+   웹(브라우저) 데스크톱 레이아웃 — 좌측 사이드바 + 밝은 헤더
+   (body.dt-web 는 utils.js 가 비네이티브에서만 부여 — 앱은 영향 없음)
+   ============================================================ */
+@media (min-width: 900px) {
+  body.dt-web .tabbar {
+    top: 0; bottom: 0; right: auto; left: 0;
+    width: 232px; box-sizing: border-box;
+    flex-direction: column; justify-content: flex-start; gap: 2px;
+    padding: 22px 12px;
+    background: #f7f7f5;
+    border-top: none; border-right: 1px solid var(--line);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  body.dt-web .tabbar::before {
+    content: "핀로그";
+    display: block; padding: 4px 10px 18px;
+    font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; color: var(--navy);
+  }
+  body.dt-web .tabbar__item {
+    flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 11px;
+    padding: 10px; border-radius: 9px;
+    font-size: 0.93rem; font-weight: 600; color: var(--muted);
+  }
+  body.dt-web .tabbar__item svg { width: 20px; height: 20px; }
+  body.dt-web .tabbar__item:hover { background: rgba(15, 23, 42, 0.05); color: var(--text); }
+  body.dt-web .tabbar__item.is-active { background: rgba(15, 23, 42, 0.08); color: var(--navy); font-weight: 700; }
+  body.dt-web.has-tabbar { padding-left: 232px; padding-bottom: 24px; }
+  body.dt-web .evsheet, body.dt-web .catalog-modal { left: 232px; }
+
+  /* 상단바: 웹에선 밝은 콘텐츠 헤더 */
+  body.dt-web .topbar { background: rgba(255, 255, 255, 0.92); color: var(--navy); box-shadow: none; border-bottom: 1px solid var(--line); }
+  body.dt-web .topbar__back, body.dt-web .topbar__more { color: var(--navy); }
+  body.dt-web .memoedit__status { color: var(--muted); }
+}
