@@ -3189,3 +3189,17 @@ body.home-edit .gtab-grid #gnote {
   html.dt-app body:has(.pager) .footer-quote { margin: 26px 0 8px; }
   html.dt-app body:has(.pager) .pager-dots { padding: 4px 0 36px; }
 }
+
+/* 모바일 타임박스: 그리드 아래 주간 배분 카드 (태블릿에선 좌측 패널이 있으므로 숨김) */
+.tbweekm { margin-top: 12px; padding: 14px; }
+@media (min-width: 768px) and (min-height: 500px) {
+  .tbweekm { display: none !important; }
+}
+
+/* 모바일 주간 배분 카드 내부 행 스타일 (태블릿 패널용 스타일이 미디어쿼리 안이라 전역 복제) */
+.tbweekm .tbside__h { margin: 0 0 10px; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.02em; color: var(--muted-soft); }
+.tbweekm .tbside__row { display: flex; align-items: center; gap: 8px; padding: 6px 2px; font-size: 0.9rem; }
+.tbweekm .tbside__row i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.tbweekm .tbside__row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.tbweekm .tbside__row b { font-weight: 700; color: var(--navy); font-size: 0.86rem; }
+.tbweekm .tbside__sub { margin: 6px 0 0; font-size: 0.84rem; color: var(--muted); }
