@@ -2751,7 +2751,7 @@ html { touch-action: manipulation; }
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     grid-template-rows: auto auto minmax(0, 1fr);
-    grid-template-areas: "head search" "dows search" "cal events";
+    grid-template-areas: "head ." "dows ." "cal events";
     column-gap: 26px;
     max-width: none; margin: 0 auto;
     align-items: stretch;
@@ -2834,10 +2834,4 @@ html { touch-action: manipulation; }
   html.dt-web main.container:has(> .tbside) > #tb-editor {
     overflow-y: auto; min-height: 0; margin: 0;
   }
-}
-
-/* 웹 캘린더 일정 검색 바 */
-.fcal__search { display: none; }
-@media (min-width: 1100px) {
-  html.dt-web body.fcal-page .fcal__search { display: block; grid-area: search; align-self: end; width: auto; margin: 0 0 4px; box-sizing: border-box; }
 }
