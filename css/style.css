@@ -2751,7 +2751,7 @@ html { touch-action: manipulation; }
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
     grid-template-rows: auto auto minmax(0, 1fr);
-    grid-template-areas: "head events" "dows events" "cal events";
+    grid-template-areas: "head ." "dows ." "cal events";
     column-gap: 26px;
     max-width: none; margin: 0 auto;
     align-items: stretch;
