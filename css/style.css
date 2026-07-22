@@ -2593,3 +2593,4 @@ input[type="month"].field__input {
 /* 키보드 뒤 배경 마스크 — iOS 키보드 상단 라운딩 틈 색상 통일 */
 .dt-kbmask { position: fixed; left: 0; right: 0; bottom: 0; height: var(--kb, 0px); background: #dee0e5; z-index: 950; display: none; pointer-events: none; }
 body.kb-open .dt-kbmask { display: block; }
+.topbar__more[hidden] { display: none; }
