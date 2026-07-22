@@ -2793,6 +2793,6 @@ html { touch-action: manipulation; }
 @media (min-width: 900px) {
   html.dt-web #tb-mode.fab {
     right: 72px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
   }
 }
