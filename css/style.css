@@ -2840,9 +2840,11 @@ html { touch-action: manipulation; }
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas: "cats search editor" "cats list editor";
     column-gap: 0; row-gap: 0;
-    max-width: none; width: auto; margin: 0; padding: 0;
+    max-width: 1380px; width: auto; margin: 0 auto; padding: 0;
     height: calc(100dvh - 62px);
+    border-left: 1px solid var(--line); border-right: 1px solid var(--line);
   }
+  html.dt-web body.memo-page main.container { margin-left: auto; }
   html.dt-web body.memo-page .memo-search { grid-area: search; width: auto; margin: 14px 14px 10px; }
   html.dt-web body.memo-page main.container > .memo-cats,
   html.dt-web body.memo-page main.container:has(> .memo-cats) > .memo-cats {
