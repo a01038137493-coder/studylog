@@ -2800,14 +2800,14 @@ html { touch-action: manipulation; }
 .cfg-hidden { display: none !important; }
 .homecfg-btn { display: none; }
 @media (min-width: 900px) {
-  html.dt-web .homecfg-btn {
+  :is(html.dt-web, html.dt-app) .homecfg-btn {
     display: inline-flex; align-items: center; gap: 6px;
     margin-left: 14px; padding: 7px 13px;
     border: 1px solid var(--line-strong); border-radius: 10px; background: #fff;
     font: inherit; font-size: 0.82rem; font-weight: 700; color: var(--muted); cursor: pointer;
   }
-  html.dt-web .homecfg-btn:hover { background: #f6f6f7; color: var(--text); }
-  html.dt-web .homecfg-btn.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+  :is(html.dt-web, html.dt-app) .homecfg-btn:hover { background: #f6f6f7; color: var(--text); }
+  :is(html.dt-web, html.dt-app) .homecfg-btn.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
 }
 
 /* 홈 편집 모드 — 수험생 홈식 흔들림·삭제·추가 타일 */
@@ -2970,14 +2970,14 @@ body.home-edit .gtab-grid #gnote {
 .cfg-hidden { display: none !important; }
 .homecfg-btn { display: none; }
 @media (min-width: 900px) {
-  html.dt-web .homecfg-btn {
+  :is(html.dt-web, html.dt-app) .homecfg-btn {
     display: inline-flex; align-items: center; gap: 6px;
     margin-left: 14px; padding: 7px 13px;
     border: 1px solid var(--line-strong); border-radius: 10px; background: #fff;
     font: inherit; font-size: 0.82rem; font-weight: 700; color: var(--muted); cursor: pointer;
   }
-  html.dt-web .homecfg-btn:hover { background: #f6f6f7; color: var(--text); }
-  html.dt-web .homecfg-btn.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+  :is(html.dt-web, html.dt-app) .homecfg-btn:hover { background: #f6f6f7; color: var(--text); }
+  :is(html.dt-web, html.dt-app) .homecfg-btn.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
 }
 
 /* 홈 편집 모드 — 수험생 홈식 흔들림·삭제·추가 타일 */
@@ -3060,15 +3060,15 @@ body.home-edit .gtab-grid #gnote {
 /* 웹 데스크톱 홈 — 일정은 할 일 아래로, 오른쪽엔 업무 메모 패널 */
 .gnote__body { width: 100%; min-height: 340px; border: none; outline: none; resize: vertical; font: inherit; font-size: 0.95rem; line-height: 1.7; color: var(--text); background: none; box-sizing: border-box; }
 @media (min-width: 1100px) {
-  html.dt-web .gtab-grid { align-items: start; }
-  html.dt-web .gtab-grid > .gtab-col { display: contents; }
-  html.dt-web .gtab-grid .gtodo--tab,
-  html.dt-web .gtab-grid #g-carry,
-  html.dt-web .gtab-grid #g-upcoming,
-  html.dt-web .gtab-grid #g-events { grid-column: 1; }
-  html.dt-web .gtab-grid #gnote,
-  html.dt-web .gtab-grid #gevd { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; align-self: start; }
-  html.dt-web .gtodo__row.is-note .gtodo__item { background: rgba(240, 68, 56, 0.06); border-radius: 10px; }
+  :is(html.dt-web, html.dt-app) .gtab-grid { align-items: start; }
+  :is(html.dt-web, html.dt-app) .gtab-grid > .gtab-col { display: contents; }
+  :is(html.dt-web, html.dt-app) .gtab-grid .gtodo--tab,
+  :is(html.dt-web, html.dt-app) .gtab-grid #g-carry,
+  :is(html.dt-web, html.dt-app) .gtab-grid #g-upcoming,
+  :is(html.dt-web, html.dt-app) .gtab-grid #g-events { grid-column: 1; }
+  :is(html.dt-web, html.dt-app) .gtab-grid #gnote,
+  :is(html.dt-web, html.dt-app) .gtab-grid #gevd { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 84px; align-self: start; }
+  :is(html.dt-web, html.dt-app) .gtodo__row.is-note .gtodo__item { background: rgba(240, 68, 56, 0.06); border-radius: 10px; }
 }
 
 /* 웹 홈 할 일 호버 액션 (★ 중요 · ✎ 수정 · 🗑 삭제) — 스와이프 대체 */

@@ -411,7 +411,8 @@
     });
 
     /* ---------- 웹 데스크톱: 업무 메모 패널 ---------- */
-    const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
+    const WEB_DESK = () => (document.documentElement.classList.contains("dt-web") ||
+      document.documentElement.classList.contains("dt-app")) &&
       window.matchMedia("(min-width: 1100px)").matches;
     const noteBox = document.getElementById("gnote");
     const noteBody = document.getElementById("gnote-body");
@@ -604,7 +605,8 @@
     if (window.hideAppLoader) hideAppLoader();
 
     /* 우측 스티키 패널 상시 표시 — 첫 할 일 메모(미완료 우선) 또는 빈 안내 */
-    if (document.documentElement.classList.contains("dt-web") &&
+    if ((document.documentElement.classList.contains("dt-web") ||
+         document.documentElement.classList.contains("dt-app")) &&
         window.matchMedia("(min-width: 900px)").matches &&
         homeCfg().hidden.note !== true) {
       const firstTodo = [...todos].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1))[0];
