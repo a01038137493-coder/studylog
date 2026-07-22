@@ -2737,3 +2737,6 @@ html { touch-action: manipulation; }
   html.dt-web .gtodo__row .memo-row__actions { display: none; }   /* 웹은 스와이프 액션 패널 숨김 */
   html.dt-web .gt-editin { flex: 1; min-width: 0; font: inherit; font-weight: 600; color: var(--text); border: none; outline: none; background: none; border-bottom: 1.5px solid var(--primary); padding: 0 0 2px; }
 }
+@media (min-width: 1100px) {
+  html.dt-web .gt-webacts button svg { width: 16px; height: 16px; }
+}

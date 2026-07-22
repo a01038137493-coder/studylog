@@ -83,9 +83,9 @@
           ${tagHtml(t)}
         </button>
         <span class="gt-webacts">
-          <button type="button" data-wact="imp" title="중요">★</button>
-          <button type="button" data-wact="edit" title="이름 수정">✎</button>
-          <button type="button" data-wact="del" title="삭제">🗑</button>
+          <button type="button" data-wact="imp" title="중요"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2-5.6-3.2-5.6 3.2 1.3-6.2L3 9.5l6.3-.7z"/></svg></button>
+          <button type="button" data-wact="edit" title="이름 수정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+          <button type="button" data-wact="del" title="삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></button>
         </span>
       </div>`;
 
