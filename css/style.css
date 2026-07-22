@@ -2840,14 +2840,14 @@ html { touch-action: manipulation; }
 .sb-new, .sb-newmenu { display: none; }
 @media (min-width: 900px) {
   html.dt-web .sb-new {
-    display: block; margin: 0 10px 14px; padding: 12px 14px;
+    display: block; margin: 16px 10px 0; padding: 12px 14px;
     border: none; border-radius: 11px; background: var(--primary); color: #fff;
     font: inherit; font-size: 0.93rem; font-weight: 800; text-align: center; cursor: pointer;
     box-shadow: 0 6px 16px rgba(240, 68, 56, 0.28);
   }
   html.dt-web .sb-new:hover { filter: brightness(1.05); }
   html.dt-web .sb-newmenu {
-    display: block; position: fixed; left: 14px; top: 118px; z-index: 300;
+    display: block; position: fixed; left: 14px; z-index: 300;
     width: 204px; background: #fff; border: 1px solid var(--line); border-radius: 13px;
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14); padding: 6px; box-sizing: border-box;
   }

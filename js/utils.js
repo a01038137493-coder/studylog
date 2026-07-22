@@ -683,10 +683,12 @@ function dtSkeleton(el, rows) {
       '<a href="/memo-edit.html">✏️ 새 메모</a>',
       '<a href="/files.html?upload=1">📁 파일 업로드</a>',
     ].join("");
-    bar.prepend(menu);
-    bar.prepend(btn);
+    bar.appendChild(btn);      // 설정(마지막 메뉴) 아래
+    bar.appendChild(menu);
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      const r = btn.getBoundingClientRect();
+      menu.style.top = (r.bottom + 8) + "px";
       menu.hidden = !menu.hidden;
     });
     document.addEventListener("click", () => { menu.hidden = true; });
