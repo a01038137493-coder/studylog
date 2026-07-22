@@ -2782,5 +2782,9 @@ html { touch-action: manipulation; }
 /* 웹 데스크톱: 본문을 사이드바 기준 좌측 정렬 (가운데 뜨는 여백 제거) */
 @media (min-width: 900px) {
   html.dt-web main.container { margin-left: 0; }
+  html.dt-web main.container.home-wide { margin-left: auto; }   /* 수험생 홈 위젯 캔버스는 중앙 유지 */
   html.dt-web body.fcal-page .fcal { margin-left: 0; }
 }
+
+/* 타임박스 블록: 클릭하면 수정 팝업 */
+.wk__blk, .tgd__block { cursor: pointer; }
