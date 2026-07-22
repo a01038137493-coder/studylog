@@ -26,12 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // 키보드(native resize)가 웹뷰를 밀어올릴 때 뒤로 비치는 배경을
-        // iOS 라이트 키보드 색과 맞춰 모서리 라운딩 틈의 색 차이를 없앤다.
-        let kbColor = UIColor(red: 0.82, green: 0.835, blue: 0.858, alpha: 1)
-        window?.backgroundColor = kbColor
+        // 키보드(native resize)가 웹뷰를 밀어올릴 때 뒤로 비치는 배경(기본 검정)을
+        // 흰색으로 — 키보드 라운딩 모서리 틈이 밝게 이어져 보이도록.
+        window?.backgroundColor = .white
         if let root = window?.rootViewController {
-            root.view.backgroundColor = kbColor
+            root.view.backgroundColor = .white
         }
     }
 
