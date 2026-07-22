@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=210" />
+  <link rel="stylesheet" href="/css/style.css?v=211" />
 </head>
 <body class="app-bg has-tabbar fcal-page" data-kbresize="none">
   <main class="fcal">
@@ -36,6 +36,9 @@
         <div class="fcal__grid fcal__grid--side" id="fcal-next"></div>
       </div>
     </div>
+
+    <!-- 일정 검색 (웹) -->
+    <input type="search" id="ev-search" class="field__input memo-search fcal__search" placeholder="일정 검색" autocomplete="off" />
 
     <!-- 선택한 날 일정 -->
     <div class="fcal__events" id="fcal-events"></div>
@@ -396,6 +399,46 @@
       // 웹(마우스)용 달 이동 버튼 — 모바일은 스와이프
       document.getElementById("fcal-prev-btn").addEventListener("click", () => gotoMonth(-1));
       document.getElementById("fcal-next-btn").addEventListener("click", () => gotoMonth(1));
+      /* 일정 검색 (웹) — 결과 클릭 시 해당 날짜로 이동 */
+      async function searchEvents(q) {
+        const { data } = await supabaseClient.from("events").select("*")
+          .eq("user_id", profile.id).ilike("title", "%" + q + "%")
+          .order("start_at", { ascending: false }).limit(30);
+        const box = document.getElementById("fcal-events");
+        const rows = data || [];
+        let html = `<p class="fcal__events-title">"${esc(q)}" 검색 결과 ${rows.length}건</p>`;
+        if (!rows.length) html += `<p class="fcal__events-empty">일치하는 일정이 없어요</p>`;
+        html += rows.map((ev) => {
+          const d = new Date(ev.start_at);
+          const time = ev.all_day ? "종일" : fmtTime12(d);
+          return `<button type="button" class="fcal-ev fcal-ev--tap" data-go="${ev.start_at}">
+            <span class="fcal-ev__time">${d.getMonth() + 1}/${d.getDate()}</span>
+            <span class="fcal-ev__title">${esc(ev.title)}<span class="fcal-ev__sub"> · ${time}</span></span>
+            <span class="fcal-ev__chevron" aria-hidden="true">›</span>
+          </button>`;
+        }).join("");
+        box.innerHTML = html;
+        box.querySelectorAll("[data-go]").forEach((b) =>
+          b.addEventListener("click", async () => {
+            const d = new Date(b.dataset.go);
+            viewY = d.getFullYear();
+            viewM = d.getMonth();
+            selected = dstr(viewY, viewM, d.getDate());
+            document.getElementById("ev-search").value = "";
+            renderGrid();
+            await loadMonth();
+            renderGrid();
+            renderEvents();
+          }));
+      }
+      const evSearchEl = document.getElementById("ev-search");
+      let evSearchT = null;
+      evSearchEl.addEventListener("input", () => {
+        clearTimeout(evSearchT);
+        const q = evSearchEl.value.trim();
+        evSearchT = setTimeout(() => { if (q) searchEvents(q); else renderEvents(); }, 250);
+      });
+
       document.getElementById("fcal-today-btn").addEventListener("click", async () => {
         if (monthBusy) return;
         monthBusy = true;
