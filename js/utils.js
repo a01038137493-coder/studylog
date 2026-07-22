@@ -463,6 +463,7 @@ async function renderHomeSchedule(sectionEl, listEl) {
     }
     events.sort((a, b) => a.startDate - b.startDate);
     if (!events.length) return;
+    window.__dtHomeEvents = events;   // 홈 일정 상세 패널용
 
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -484,13 +485,13 @@ async function renderHomeSchedule(sectionEl, listEl) {
     if (todays.length) {
       html += `<p class="msection-title">오늘 일정</p>`;
       html += todays.slice(0, 4).map((ev) =>
-        `<div class="fcal-ev"><span class="fcal-ev__time">${timeText(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`
+        `<div class="fcal-ev" data-hev="${events.indexOf(ev)}"><span class="fcal-ev__time">${timeText(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}</span></div>`
       ).join("");
     }
     if (upcoming.length) {
       html += `<p class="msection-title">다가오는 일정</p>`;
       html += upcoming.map((ev) =>
-        `<div class="fcal-ev"><span class="fcal-ev__time">${dateLabel(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}<span class="fcal-ev__sub"> · ${timeText(ev)}</span></span></div>`
+        `<div class="fcal-ev" data-hev="${events.indexOf(ev)}"><span class="fcal-ev__time">${dateLabel(ev)}</span><span class="fcal-ev__title">${esc(ev.title || "(제목 없음)")}<span class="fcal-ev__sub"> · ${timeText(ev)}</span></span></div>`
       ).join("");
     }
     html += `<a href="/calendar.html" class="mtoday__more">캘린더에서 전체 보기</a>`;

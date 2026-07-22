@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=222" />
+  <link rel="stylesheet" href="/css/style.css?v=223" />
 </head>
 <body class="app-bg has-tabbar fcal-page" data-kbresize="none">
   <main class="fcal">
@@ -127,7 +127,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=41"></script>
+  <script src="/js/utils.js?v=42"></script>
   <script src="/js/notify.js?v=5"></script>
   <script src="/js/scheduleParse.js?v=4"></script>
   <script>
@@ -149,6 +149,11 @@
       let viewY = now.getFullYear();
       let viewM = now.getMonth();                 // 0-based
       let selected = dstr(viewY, viewM, now.getDate());
+      const qDate = new URLSearchParams(location.search).get("date");
+      if (qDate && /^\d{4}-\d{2}-\d{2}$/.test(qDate)) {
+        const [qy, qm] = qDate.split("-").map(Number);
+        viewY = qy; viewM = qm - 1; selected = qDate;
+      }
 
       const recorded = new Set();                  // 체크아웃한 날
       const events = new Map();                    // 날짜 → 일정 배열 (핀로그 DB + Apple 캘린더 병합)

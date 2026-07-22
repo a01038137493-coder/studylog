@@ -376,6 +376,40 @@
       applyHomeCfg();
     })();
 
+    /* ---------- 일정 상세 패널 (오른쪽 스티키) ---------- */
+    function showEventDetail(ev) {
+      const box = document.getElementById("gevd");
+      if (!box || !ev) return;
+      const s = new Date(ev.startDate);
+      const e2 = new Date(ev.endDate || ev.startDate);
+      const dows = ["일", "월", "화", "수", "목", "금", "토"];
+      document.getElementById("gevd-date").textContent =
+        `${s.getMonth() + 1}월 ${s.getDate()}일 (${dows[s.getDay()]})`;
+      const time = ev.isAllDay ? "하루 종일" : `${fmtTime12(s)} – ${fmtTime12(e2)}`;
+      const REP = { daily: "매일", weekly: "매주", monthly: "매월", yearly: "매년" };
+      const alertTxt = ev.alertMin == null ? null
+        : ev.alertMin === 0 ? "일정 시작 시간"
+        : `${Math.abs(ev.alertMin) >= 1440 ? Math.abs(ev.alertMin) / 1440 + "일"
+          : Math.abs(ev.alertMin) >= 60 ? Math.abs(ev.alertMin) / 60 + "시간"
+          : Math.abs(ev.alertMin) + "분"} 전`;
+      let html = `<p class="gevd__title">${esc(ev.title || "(제목 없음)")}</p>
+        <div class="gevd__row"><span>시간</span><b>${time}</b></div>`;
+      if (ev.repeat) html += `<div class="gevd__row"><span>반복</span><b>${REP[ev.repeat] || ev.repeat}</b></div>`;
+      if (alertTxt) html += `<div class="gevd__row"><span>알림</span><b>${alertTxt}</b></div>`;
+      const pad2 = (n) => String(n).padStart(2, "0");
+      html += `<a class="mtoday__more" href="/calendar.html?date=${s.getFullYear()}-${pad2(s.getMonth() + 1)}-${pad2(s.getDate())}">캘린더에서 열기</a>`;
+      document.getElementById("gevd-body").innerHTML = html;
+      box.hidden = false;
+      const nb = document.getElementById("gnote");
+      if (nb) nb.hidden = true;
+    }
+    document.getElementById("g-events-list").addEventListener("click", (e) => {
+      const row = e.target.closest ? e.target.closest("[data-hev]") : null;
+      if (!row) return;
+      const ev = (window.__dtHomeEvents || [])[Number(row.dataset.hev)];
+      if (ev) showEventDetail(ev);
+    });
+
     /* ---------- 웹 데스크톱: 업무 메모 패널 ---------- */
     const WEB_DESK = () => document.documentElement.classList.contains("dt-web") &&
       window.matchMedia("(min-width: 1100px)").matches;
@@ -394,6 +428,8 @@
       noteStatus.textContent = "";
       noteStatus.hidden = true;
       noteBox.hidden = false;
+      const evd = document.getElementById("gevd");
+      if (evd) evd.hidden = true;
       document.querySelectorAll(".gtodo__row").forEach((r) =>
         r.classList.toggle("is-note", r.dataset.id === noteId));
       noteBody.focus();

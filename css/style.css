@@ -2914,3 +2914,12 @@ body.home-edit .gtab-grid #gnote {
 @media (min-width: 1100px) {
   html.dt-web .gt-webacts button svg { width: 16px; height: 16px; }
 }
+
+/* 홈 일정 상세 패널 */
+#g-events-list [data-hev] { cursor: pointer; }
+#g-events-list [data-hev]:hover { background: #f0f0f2; }
+.gevd__title { margin: 2px 0 12px; font-size: 1.15rem; font-weight: 800; color: var(--navy); }
+.gevd__row { display: flex; justify-content: space-between; padding: 9px 2px; font-size: 0.9rem; border-top: 1px solid var(--line); }
+.gevd__row span { color: var(--muted); font-weight: 600; }
+.gevd__row b { font-weight: 700; }
+#gevd .mtoday__more { display: block; margin: 14px 0 2px; text-align: center; }
