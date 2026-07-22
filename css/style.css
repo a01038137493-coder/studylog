@@ -2729,7 +2729,7 @@ html { touch-action: manipulation; }
 /* 웹 홈 할 일 호버 액션 (★ 중요 · ✎ 수정 · 🗑 삭제) — 스와이프 대체 */
 .gt-webacts { display: none; }
 @media (min-width: 1100px) {
-  html.dt-web .gt-webacts { display: flex; gap: 2px; margin-left: auto; opacity: 0; transition: opacity 0.12s ease; }
+  html.dt-web .gt-webacts { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; background: #fff; padding-left: 10px; z-index: 2; }
   html.dt-web .gtodo__row:hover .gt-webacts { opacity: 1; }
   html.dt-web .gt-webacts button { border: none; background: none; cursor: pointer; width: 30px; height: 30px; border-radius: 8px; color: var(--muted-soft); font-size: 0.92rem; display: flex; align-items: center; justify-content: center; padding: 0; }
   html.dt-web .gt-webacts button:hover { background: rgba(15, 23, 42, 0.06); color: var(--text); }

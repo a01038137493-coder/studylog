@@ -81,12 +81,12 @@
           ${t.important ? `<span class="gtodo__star">★</span>` : ""}
           <span class="gtodo__text">${esc(t.content)}</span>
           ${tagHtml(t)}
-          <span class="gt-webacts">
-            <button type="button" data-wact="imp" title="중요">★</button>
-            <button type="button" data-wact="edit" title="이름 수정">✎</button>
-            <button type="button" data-wact="del" title="삭제">🗑</button>
-          </span>
         </button>
+        <span class="gt-webacts">
+          <button type="button" data-wact="imp" title="중요">★</button>
+          <button type="button" data-wact="edit" title="이름 수정">✎</button>
+          <button type="button" data-wact="del" title="삭제">🗑</button>
+        </span>
       </div>`;
 
     function render() {
