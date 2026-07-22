@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>오늘 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=182" />
+  <link rel="stylesheet" href="/css/style.css?v=183" />
 </head>
 <body class="app-bg has-tabbar" data-kbresize="none">
   <!-- 일반 사용자 전용 모바일 홈 (수험생은 student-m.html) -->
@@ -68,6 +68,11 @@
       </div>
       <input type="date" id="gt-date" class="field__input" hidden />
       <button type="button" class="gt-imp" id="gt-imp"><span class="gt-imp__star">★</span> 중요한 할 일</button>
+      <div class="gt-tags" id="gt-tags"></div>
+      <div class="catmgr__addrow" id="gt-tagadd" hidden>
+        <input type="text" id="gt-tag-input" class="field__input" placeholder="새 태그 이름" maxlength="12" autocomplete="off" />
+        <button type="button" class="catmgr__addbtn" id="gt-tag-btn">추가</button>
+      </div>
     </div>
   </div>
 
@@ -129,6 +134,6 @@
   <script src="/js/supabaseClient.js?v=mock13"></script>
   <script src="/js/utils.js?v=36"></script>
   <script src="/js/notify.js?v=4"></script>
-  <script src="/js/ghome.js?v=7"></script>
+  <script src="/js/ghome.js?v=8"></script>
 </body>
 </html>

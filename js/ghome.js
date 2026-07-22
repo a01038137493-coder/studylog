@@ -73,6 +73,7 @@
           ${dateLbl ? `<span class="gup-date">${dateLbl}</span>` : ""}
           ${t.important ? `<span class="gtodo__star">★</span>` : ""}
           <span class="gtodo__text">${esc(t.content)}</span>
+          ${tagHtml(t)}
         </button>
       </div>`;
 
@@ -188,6 +189,50 @@
       });
     }
 
+
+    /* ---------- 태그 ---------- */
+    let tags = [];
+    let sheetTag = null;
+    const tagHtml = (t) => {
+      const tg = t.tag_id && tags.find((x) => x.id === t.tag_id);
+      return tg ? `<span class="gtodo__tag" style="--tagc:${tg.color || "#8e8e93"}">${esc(tg.name)}</span>` : "";
+    };
+    function renderSheetTags() {
+      const box = document.getElementById("gt-tags");
+      if (!box) return;
+      box.innerHTML = tags.map((tg) =>
+        `<button type="button" class="gt-tag${sheetTag === tg.id ? " is-on" : ""}" data-tag="${tg.id}" style="--tagc:${tg.color || "#8e8e93"}"><i></i>${esc(tg.name)}</button>`
+      ).join("") + `<button type="button" class="gt-tag gt-tag--add" data-tag-add>＋ 태그</button>`;
+      box.querySelectorAll("[data-tag]").forEach((b) =>
+        b.addEventListener("click", () => {
+          sheetTag = sheetTag === b.dataset.tag ? null : b.dataset.tag;
+          renderSheetTags();
+        }));
+      box.querySelector("[data-tag-add]").addEventListener("click", () => {
+        document.getElementById("gt-tagadd").hidden = false;
+        document.getElementById("gt-tag-input").focus();
+      });
+    }
+    async function createTag() {
+      const input = document.getElementById("gt-tag-input");
+      const name = input.value.trim();
+      if (!name) return;
+      const { data, error } = await supabaseClient.from("todo_tags")
+        .insert({ student_id: profile.id, name, color: CAT_COLORS[(tags.length + 1) % CAT_COLORS.length], sort: tags.length })
+        .select().single();
+      if (!error && data) {
+        tags.push(data);
+        input.value = "";
+        document.getElementById("gt-tagadd").hidden = true;
+        sheetTag = data.id;
+        renderSheetTags();
+      }
+    }
+    document.getElementById("gt-tag-btn").addEventListener("click", createTag);
+    document.getElementById("gt-tag-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); createTag(); }
+    });
+
     /* ---------- 작성 시트 ---------- */
     const sheet = document.getElementById("gt-sheet");
     const sheetInput = document.getElementById("gt-input");
@@ -201,6 +246,9 @@
       sheetWhen = "today";
       sheetImp = false;
       impBtn.classList.remove("is-on");
+      sheetTag = null;
+      document.getElementById("gt-tagadd").hidden = true;
+      renderSheetTags();
       sheetDate.hidden = true;
       sheetDate.value = tomorrow;
       sheetDate.min = today;
@@ -236,7 +284,7 @@
       if (sheetWhen === "pick") date = sheetDate.value || today;
       if (date < today) date = today;
       const { error } = await supabaseClient.from("todos")
-        .insert({ student_id: profile.id, content: text, date, sort: todos.length, important: sheetImp });
+        .insert({ student_id: profile.id, content: text, date, sort: todos.length, important: sheetImp, tag_id: sheetTag });
       if (!error) { closeSheet(); await load(); }
     }
     document.getElementById("gt-save").addEventListener("click", saveSheet);
@@ -249,7 +297,7 @@
     /* ---------- 로드 + 어제 이월 ---------- */
     async function load() {
       const stopSkel = dtSkeleton(listEl, 2);
-      const [{ data: cur }, { data: up }, { data: prev }] = await Promise.all([
+      const [{ data: cur }, { data: up }, { data: prev }, { data: tgs }] = await Promise.all([
         supabaseClient.from("todos")
           .select("*").eq("student_id", profile.id).eq("date", today)
           .order("sort").order("created_at"),
@@ -258,8 +306,11 @@
           .order("date").order("created_at").limit(30),
         supabaseClient.from("todos")
           .select("*").eq("student_id", profile.id).eq("date", yesterday).eq("done", false),
+        supabaseClient.from("todo_tags")
+          .select("*").eq("student_id", profile.id).order("sort").order("created_at"),
       ]);
       stopSkel();
+      tags = tgs || [];
       todos = cur || [];
       upcoming = up || [];
       renderAll();
