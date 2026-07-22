@@ -14,7 +14,13 @@
   const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
   const LN = isNative && window.Capacitor.Plugins ? window.Capacitor.Plugins.LocalNotifications : null;
 
-  const DEF = { morning: false, morningTime: "08:00", evening: false, eveningTime: "22:00", timebox: false };
+  const DEF = {
+    morning: false, morningTime: "08:00",
+    evening: false, eveningTime: "22:00",
+    wake: false, wakeTime: "07:30",
+    sleep: false, sleepTime: "23:30",
+    timebox: false,
+  };
 
   function getSettings() {
     try { return { ...DEF, ...(JSON.parse(localStorage.getItem(KEY)) || {}) }; }
@@ -76,6 +82,19 @@
       title: "오늘 하루 기록할 시간이에요",
       body: isExam ? "오늘의 성과를 기록하고 마무리해보세요." : "오늘 하루를 정리하고 마무리해보세요.",
       schedule: { on: hm(s.eveningTime), allowWhileIdle: true },
+    });
+
+    if (s.wake) list.push({
+      id: 1003, badge: 1,
+      title: "좋은 아침이에요 ☀️",
+      body: "오늘 일정을 확인하고 하루를 시작해보세요.",
+      schedule: { on: hm(s.wakeTime), allowWhileIdle: true },
+    });
+    if (s.sleep) list.push({
+      id: 1004, badge: 1,
+      title: "이제 잘 시간이에요 🌙",
+      body: "자기 전에 내일 일정을 확인해보세요.",
+      schedule: { on: hm(s.sleepTime), allowWhileIdle: true },
     });
 
     if (s.timebox && isExam && p && p.id && window.supabaseClient) {
@@ -149,7 +168,7 @@
   if (LN) {
     LN.addListener("localNotificationActionPerformed", (a) => {
       const id = a && a.notification && a.notification.id;
-      if (id >= 3000) window.location.href = "/calendar.html";
+      if (id >= 3000 || id === 1003 || id === 1004) window.location.href = "/calendar.html";
       else if (id >= 2000) window.location.href = "/timebox.html";
       else window.location.href = "/index.html";
     });

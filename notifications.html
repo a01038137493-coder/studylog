@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=204" />
+  <link rel="stylesheet" href="/css/style.css?v=205" />
 </head>
 <body class="app-bg">
   <header class="topbar">
@@ -39,6 +39,20 @@
           <label class="dtswitch"><input type="checkbox" id="ntf-evening" /><i></i></label>
         </span>
       </div>
+      <div class="settings-row settings-row--static">
+        <span>기상 알림</span>
+        <span class="ntf-right">
+          <input type="time" id="ntf-wake-time" class="ntf-time" value="07:30" />
+          <label class="dtswitch"><input type="checkbox" id="ntf-wake" /><i></i></label>
+        </span>
+      </div>
+      <div class="settings-row settings-row--static">
+        <span>취침 알림</span>
+        <span class="ntf-right">
+          <input type="time" id="ntf-sleep-time" class="ntf-time" value="23:30" />
+          <label class="dtswitch"><input type="checkbox" id="ntf-sleep" /><i></i></label>
+        </span>
+      </div>
       <div class="settings-row settings-row--static" id="ntf-tb-row" hidden>
         <span>타임박스 시작 알림</span>
         <span class="ntf-right">
@@ -60,7 +74,7 @@
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
   <script src="/js/utils.js?v=39"></script>
-  <script src="/js/notify.js?v=4"></script>
+  <script src="/js/notify.js?v=5"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const profile = await getCurrentProfile();
@@ -79,6 +93,10 @@
         morningTime: document.getElementById("ntf-morning-time"),
         evening: document.getElementById("ntf-evening"),
         eveningTime: document.getElementById("ntf-evening-time"),
+        wake: document.getElementById("ntf-wake"),
+        wakeTime: document.getElementById("ntf-wake-time"),
+        sleep: document.getElementById("ntf-sleep"),
+        sleepTime: document.getElementById("ntf-sleep-time"),
         timebox: document.getElementById("ntf-timebox"),
         hint: document.getElementById("ntf-hint"),
         pending: document.getElementById("ntf-pending"),
@@ -86,6 +104,8 @@
       const s = dtNotify.getSettings();
       el.morning.checked = s.morning; el.morningTime.value = s.morningTime;
       el.evening.checked = s.evening; el.eveningTime.value = s.eveningTime;
+      el.wake.checked = s.wake; el.wakeTime.value = s.wakeTime;
+      el.sleep.checked = s.sleep; el.sleepTime.value = s.sleepTime;
       el.timebox.checked = s.timebox;
 
       const paintPending = async () => {
@@ -101,6 +121,8 @@
         dtNotify.saveSettings({
           morning: el.morning.checked, morningTime: el.morningTime.value || "08:00",
           evening: el.evening.checked, eveningTime: el.eveningTime.value || "22:00",
+          wake: el.wake.checked, wakeTime: el.wakeTime.value || "07:30",
+          sleep: el.sleep.checked, sleepTime: el.sleepTime.value || "23:30",
           timebox: el.timebox.checked,
         });
         clearTimeout(applyTimer);
@@ -112,8 +134,8 @@
           paintPending();
         }, 250);
       };
-      [el.morning, el.evening, el.timebox].forEach((c) => c.addEventListener("change", apply));
-      [el.morningTime, el.eveningTime].forEach((t) => t.addEventListener("change", apply));
+      [el.morning, el.evening, el.wake, el.sleep, el.timebox].forEach((c) => c.addEventListener("change", apply));
+      [el.morningTime, el.eveningTime, el.wakeTime, el.sleepTime].forEach((t) => t.addEventListener("change", apply));
 
       document.getElementById("ntf-test").addEventListener("click", async () => {
         const ok = await dtNotify.test();

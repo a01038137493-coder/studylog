@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f04438" />
   <script>if (!window.Capacitor) document.documentElement.classList.add("dt-web");</script>
-  <link rel="stylesheet" href="/css/style.css?v=204" />
+  <link rel="stylesheet" href="/css/style.css?v=205" />
 </head>
 <body class="app-bg has-tabbar fcal-page" data-kbresize="none">
   <main class="fcal">
@@ -128,7 +128,7 @@
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
   <script src="/js/utils.js?v=39"></script>
-  <script src="/js/notify.js?v=4"></script>
+  <script src="/js/notify.js?v=5"></script>
   <script src="/js/scheduleParse.js?v=4"></script>
   <script>
     /* 풀스크린 월간 캘린더 (월요일 시작)
@@ -277,6 +277,8 @@
             <span class="fcal__dots">${dots}</span>
           </button>`;
         }
+        const trail = (7 - ((firstDow + daysInMonth) % 7)) % 7;
+        for (let i = 0; i < trail; i++) html += `<div class="fcal__cell fcal__cell--empty"></div>`;
         return html;
       }
 

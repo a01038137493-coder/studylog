@@ -2804,3 +2804,12 @@ html { touch-action: manipulation; }
     bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
   }
 }
+
+/* 웹 캘린더: 전체 그리드 선 */
+@media (min-width: 1100px) {
+  html.dt-web body.fcal-page .fcal__grid { background: #fff; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  html.dt-web body.fcal-page .fcal__cell,
+  html.dt-web body.fcal-page .fcal__cell--empty { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; }
+  html.dt-web body.fcal-page .fcal__cell { align-items: flex-start; padding: 8px 0 0 8px; }
+  html.dt-web body.fcal-page .fcal__cell.is-selected { background: #f2f2f4; }
+}
