@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>설정 · 핀로그</title>
-  <link rel="stylesheet" href="/css/style.css?v=179" />
+  <link rel="stylesheet" href="/css/style.css?v=180" />
 </head>
 <body class="app-bg has-tabbar">
   <header class="topbar">
@@ -122,7 +122,7 @@
 
   <script src="/js/vendor/supabase.js"></script>
   <script src="/js/supabaseClient.js?v=mock13"></script>
-  <script src="/js/utils.js?v=35"></script>
+  <script src="/js/utils.js?v=36"></script>
   <script src="/js/notify.js?v=4"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -132,7 +132,7 @@
       const profile = await getCurrentProfile();
       const pname = (profile && profile.name) || "사용자";
       document.getElementById("profile-name").textContent = pname;
-      document.getElementById("profile-avatar").textContent = pname.trim().charAt(0) || "?";
+      dtPaintAvatar(document.getElementById("profile-avatar"), profile);
 
       /* 사용 유형 */
       const sheet = document.getElementById("utype-sheet");

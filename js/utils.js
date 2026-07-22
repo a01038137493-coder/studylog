@@ -537,6 +537,20 @@ async function renderHomeSchedule(sectionEl, listEl) {
   } catch (e) {}
 })();
 
+/* 아바타 표시 — 프로필 사진이 있으면 사진, 없으면 이름 첫 글자 */
+function dtPaintAvatar(el, profile) {
+  if (!el) return;
+  if (profile && profile.avatar_url) {
+    el.textContent = "";
+    el.classList.add("has-img");
+    el.style.backgroundImage = "url('" + profile.avatar_url + "')";
+  } else {
+    el.classList.remove("has-img");
+    el.style.backgroundImage = "";
+    el.textContent = (((profile && profile.name) || "?").trim().charAt(0)) || "?";
+  }
+}
+
 /* 폴더(카테고리) 색상 팔레트 — 탭할 때마다 순환 */
 const CAT_COLORS = ["#8e8e93", "#f04438", "#ff9f0a", "#f5c518", "#12b76a", "#2e90fa", "#7a5af8", "#ee46bc"];
 

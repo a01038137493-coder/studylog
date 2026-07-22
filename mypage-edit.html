@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>프로필 수정 · 핀로그</title>
+  <link rel="stylesheet" href="/css/style.css?v=180" />
+</head>
+<body class="app-bg">
+  <header class="topbar">
+    <a href="/mypage.html" class="topbar__back" aria-label="뒤로 가기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="topbar__brand">프로필 수정</div>
+    <div class="topbar__right">
+      <button type="button" class="topbar__more" id="mpe-save" aria-label="저장"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 아바타 + 카메라 뱃지 (탭하면 사진 선택) -->
+    <div class="mpe-avatarwrap">
+      <label class="mp-avatar mp-avatar--lg" id="mpe-avatar" for="mpe-file">?</label>
+      <label class="mpe-cam" for="mpe-file" aria-label="사진 변경">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      </label>
+      <input type="file" id="mpe-file" accept="image/*" hidden />
+    </div>
+
+    <section class="card mpe-form">
+      <h2 class="card__title">내 정보</h2>
+      <label class="field">
+        <span class="field__label">이름</span>
+        <input type="text" id="mpe-name" class="field__input" maxlength="20" placeholder="이름" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span class="field__label">이메일</span>
+        <input type="text" id="mpe-email" class="field__input" disabled />
+      </label>
+      <p class="form__error" id="mpe-error" role="alert"></p>
+    </section>
+  </main>
+
+  <script src="/js/vendor/supabase.js"></script>
+  <script src="/js/supabaseClient.js?v=mock13"></script>
+  <script src="/js/utils.js?v=36"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = await requireAuth();
+      if (!user) return;
+      const profile = await getCurrentProfile();
+      if (!profile) { window.location.href = "/welcome.html"; return; }
+
+      const avatarEl = document.getElementById("mpe-avatar");
+      const nameInput = document.getElementById("mpe-name");
+      const errEl = document.getElementById("mpe-error");
+      let newBlob = null;   // 새로 고른 사진 (canvas 리사이즈 결과)
+
+      dtPaintAvatar(avatarEl, profile);
+      nameInput.value = profile.name || "";
+      document.getElementById("mpe-email").value = user.email || "";
+
+      /* 사진 선택 → 512px 정사각 리사이즈 → 미리보기 */
+      document.getElementById("mpe-file").addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const img = new Image();
+        img.onload = () => {
+          const S = 512;
+          const c = document.createElement("canvas");
+          c.width = S; c.height = S;
+          const side = Math.min(img.width, img.height);
+          c.getContext("2d").drawImage(img,
+            (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, S, S);
+          c.toBlob((b) => {
+            newBlob = b;
+            avatarEl.textContent = "";
+            avatarEl.classList.add("has-img");
+            avatarEl.style.backgroundImage = `url('${c.toDataURL("image/jpeg", 0.8)}')`;
+          }, "image/jpeg", 0.85);
+          URL.revokeObjectURL(img.src);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+
+      /* ✓ 저장 */
+      document.getElementById("mpe-save").addEventListener("click", async () => {
+        errEl.textContent = "";
+        const name = nameInput.value.trim();
+        if (!name) { errEl.textContent = "이름을 입력해주세요."; return; }
+
+        const patch = { name };
+        try {
+          if (newBlob) {
+            const path = `${user.id}.jpg`;
+            const { error: upErr } = await supabaseClient.storage.from("avatars")
+              .upload(path, newBlob, { upsert: true, contentType: "image/jpeg" });
+            if (upErr) throw upErr;
+            const { data: pub } = supabaseClient.storage.from("avatars").getPublicUrl(path);
+            patch.avatar_url = `${pub.publicUrl}?t=${Date.now()}`;   // 캐시 무효화
+          }
+          const { error } = await supabaseClient.from("profiles").update(patch).eq("id", user.id);
+          if (error) throw error;
+          localStorage.removeItem("dt_profile_cache");   // 다음 로드에서 새로 캐시
+          showToast("프로필을 저장했어요");
+          setTimeout(() => { window.location.href = "/mypage.html"; }, 350);
+        } catch (e) {
+          errEl.textContent = "저장하지 못했습니다. 잠시 후 다시 시도해주세요.";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

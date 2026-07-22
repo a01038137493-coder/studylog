@@ -2606,3 +2606,21 @@ body.kb-open .dt-kbmask { display: block; }
 .mypage__save { flex: none; padding: 0 18px; border-radius: 12px; }
 .mypage__save:disabled { opacity: 0.4; }
 .mypage__email { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+/* ---------------- 마이페이지 리뉴얼 ---------------- */
+.mp-head { display: flex; align-items: center; gap: 18px; padding: 24px 20px; }
+.mp-avatar { width: 84px; height: 84px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; flex: none; background-size: cover; background-position: center; }
+.mp-avatar.has-img, .settings-profile__avatar.has-img { background-size: cover; background-position: center; }
+.mp-head__info { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+.mp-head__name { font-size: 1.22rem; font-weight: 800; }
+.mp-head__email { color: var(--muted); font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.mp-head__edit { margin-top: 9px; padding: 8px 16px; font-size: 0.88rem; border-radius: 10px; }
+.mp-row__label { display: flex; align-items: center; gap: 12px; }
+.mp-row__label svg { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.mp-row--danger { color: #e5484d; }
+.mp-row--danger .mp-row__label svg { color: #e5484d; }
+.mpe-avatarwrap { position: relative; width: 108px; margin: 22px auto 20px; }
+.mp-avatar--lg { width: 108px; height: 108px; font-size: 2.4rem; cursor: pointer; }
+.mpe-cam { position: absolute; right: -2px; bottom: 0; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--text); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); cursor: pointer; }
+.mpe-cam svg { width: 18px; height: 18px; }
+.mpe-form .field + .field { margin-top: 12px; }
