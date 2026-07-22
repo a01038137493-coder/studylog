@@ -3119,3 +3119,25 @@ body.home-edit .gtab-grid #gnote {
   }
   html.dt-app body.fcal-page .fcal__events { height: 100%; min-height: 0; box-sizing: border-box; align-self: stretch; }
 }
+
+/* 태블릿 최종: 캘린더·메모를 화면에 고정 배치로 정확히 맞춤 (수동 높이 계산 제거) */
+@media (min-width: 1100px) {
+  html.dt-app body.fcal-page .fcal {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px;
+    height: auto; max-width: none; margin: 0; padding-bottom: 0;
+  }
+  html.dt-app body.fcal-page .fcal__events { height: auto; align-self: stretch; min-height: 0; }
+
+  html.dt-app body.memo-page main.container,
+  html.dt-app body.memo-page main.container:has(> .memo-cats) {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 58px);
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    left: 0; right: 0;
+    height: auto; max-width: none; margin: 0;
+    border-left: none; border-right: none;
+  }
+}
