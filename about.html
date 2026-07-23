@@ -290,5 +290,21 @@
       <span class="foot__copy">© 2026 pinlog</span>
     </div>
   </footer>
+
+  <script src="/js/vendor/supabase.js"></script>
+  <script src="/js/supabaseClient.js?v=mock15"></script>
+  <script>
+    // 로그인 상태면 CTA를 "내 핀로그 열기"로 (루트가 항상 랜딩이 되면서 앱 진입 동선 제공)
+    (async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) return;
+        document.querySelectorAll(".nav__cta, .btn-primary").forEach((a) => {
+          a.textContent = "내 핀로그 열기";
+          a.setAttribute("href", "/?app=1");
+        });
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>
