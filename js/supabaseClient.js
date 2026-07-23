@@ -468,7 +468,7 @@ async function signInWithProvider(provider) {
     } else {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + "/index.html" },
+        options: { redirectTo: window.location.origin + "/index.html?app=1" },
       });
       if (error) throw error;
     }
