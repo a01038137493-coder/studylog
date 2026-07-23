@@ -173,7 +173,7 @@
   <!-- 히어로 -->
   <div class="wrap hero">
     <div>
-      <span class="hero__badge">📌 App Store 출시 준비 중</span>
+      <span class="hero__badge">📌 App Store 심사 진행 중 — 곧 출시</span>
       <h1>계획으로 방향성을 잡고,<br /><em>오늘의 로그</em>를 남기세요</h1>
       <p>할 일·일정·메모·파일을 한곳에. 핀로그는 몇 초 만에 계획하고 기록하는 가장 빠른 방법입니다.</p>
       <div class="hero__btns">
@@ -218,6 +218,27 @@
       </div>
     </div>
   </section>
+
+  <!-- 실제 화면 -->
+  <section class="shots-sec">
+    <div class="wrap">
+      <span class="sec-label">SCREENSHOTS</span>
+      <h2>실제 화면 그대로</h2>
+      <div class="shots">
+        <figure><img src="/assets/landing/shot-01.png" alt="홈 — 오늘 할 일과 일정" loading="lazy" /><figcaption>홈</figcaption></figure>
+        <figure><img src="/assets/landing/shot-02.png" alt="캘린더" loading="lazy" /><figcaption>캘린더</figcaption></figure>
+        <figure><img src="/assets/landing/shot-05.png" alt="수험생 홈 — D-Day와 오늘 플랜" loading="lazy" /><figcaption>수험생 홈</figcaption></figure>
+        <figure><img src="/assets/landing/shot-06.png" alt="타임박스 시간표" loading="lazy" /><figcaption>타임박스</figcaption></figure>
+      </div>
+    </div>
+  </section>
+  <style>
+    .shots { display: flex; gap: 18px; margin-top: 36px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .shots::-webkit-scrollbar { display: none; }
+    .shots figure { flex: none; width: 218px; }
+    .shots img { width: 100%; border-radius: 26px; border: 6px solid #111; background: #111; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16); }
+    .shots figcaption { text-align: center; margin-top: 10px; font-size: 0.84rem; font-weight: 700; color: var(--muted); }
+  </style>
 
   <!-- 모드 -->
   <section>
