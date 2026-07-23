@@ -82,6 +82,8 @@
       background: #111; padding: 12px;
       box-shadow: 0 30px 70px rgba(0, 0, 0, 0.22);
     }
+    .phone--img { padding: 9px; }
+    .phone--img img { display: block; width: 100%; border-radius: 35px; }
     .phone__screen { border-radius: 34px; background: var(--bg); overflow: hidden; padding: 20px 14px 16px; }
     .ph-date { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin: 2px 4px 10px; }
     .ph-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 13px 14px; margin-bottom: 10px; }
@@ -183,23 +185,9 @@
       <p class="hero__note">iPhone·iPad 앱과 웹에서 같은 계정으로 동기화됩니다</p>
     </div>
 
-    <!-- 폰 목업 (CSS) -->
-    <div class="phone" aria-hidden="true">
-      <div class="phone__screen">
-        <p class="ph-date">7월 22일 수요일</p>
-        <div class="ph-card">
-          <div class="ph-card__head"><span>오늘 할 일</span><i>2/3 완료</i></div>
-          <div class="ph-todo done"><i>✓</i><span>아침 운동</span></div>
-          <div class="ph-todo done"><i>✓</i><span>보고서 정리</span><b>★</b></div>
-          <div class="ph-todo"><i>✓</i><span>회의 준비</span><span class="ph-tag">업무</span></div>
-        </div>
-        <div class="ph-card">
-          <div class="ph-card__head"><span>오늘 일정</span></div>
-          <div class="ph-ev"><i>오후 2:00</i><span>팀 미팅</span></div>
-          <div class="ph-ev"><i>오후 8:00</i><span>대구 동구 약속</span></div>
-        </div>
-        <div class="ph-fab">＋</div>
-      </div>
+    <!-- 폰 목업 (실제 스크린샷) -->
+    <div class="phone phone--img" aria-hidden="true">
+      <img src="/assets/landing/shot-01.png" alt="핀로그 홈 화면" />
     </div>
   </div>
 
